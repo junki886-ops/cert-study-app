@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>오답노트</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #fafafa; }
+    .card { max-width: 600px; margin: 20px auto; background: white; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); padding: 20px; }
+    .question { font-size: 1.1em; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center">내 오답노트</h2>
+  <div id="notes"></div>
+
+<script>
+async function loadNotes(){
+  let notes = JSON.parse(localStorage.getItem("notes") || "[]");
+  const container = document.getElementById("notes");
+  container.innerHTML = '';
+
+  for(const id of notes){
+    const q = await fetch(`/question/${id}`).then(r=>r.json());
+    if(!q.error){
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<div class="question">[${q.id}] ${q.question}</div>`;
+      container.appendChild(card);
+    }
+  }
+}
+window.onload = loadNotes;
+</script>
+</body>
+</html>

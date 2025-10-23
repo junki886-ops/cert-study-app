@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>PDF 업로드</title>
+</head>
+<body>
+  <h2>PDF 업로드</h2>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="file" accept="application/pdf" required>
+    <button type="submit">업로드</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+  document.getElementById("uploadForm").onsubmit = async (e) => {
+    e.preventDefault(); // 폼 기본 동작 막기
+    const formData = new FormData(e.target);
+    const res = await fetch("/admin/upload", { method:"POST", body: formData });
+    const data = await res.json();
+    document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+  };
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>문제 {{ qid }}</h2>
+  <pre class="question">{{ question }}</pre>
+
+  <form method="POST" class="answer-form">
+    <input type="text" name="answer" placeholder="정답 입력" autocomplete="off" required>
+    <button type="submit">제출</button>
+  </form>
+{% endblock %}

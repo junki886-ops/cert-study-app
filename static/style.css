@@ -1,0 +1,8 @@
+body { font-family: system-ui, Arial, sans-serif; margin: 24px; line-height: 1.5; }
+header h1 { margin: 0 0 8px; }
+nav a { text-decoration: none; margin-right: 8px; }
+.btn, button { padding: 8px 14px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; }
+.answer-form input { padding: 8px; width: 260px; margin-right: 8px; }
+.question { background: #f7f7f7; padding: 12px; white-space: pre-wrap; border-radius: 8px; }
+.wrongs { list-style: none; padding: 0; }
+.wrongs li { border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
