@@ -1,34 +1,41 @@
-import os
+import os, json
 from flask import Flask, request, jsonify, render_template
 from dotenv import load_dotenv
-from db import init_db, SessionLocal, Question, Attempt
-from ocr_parse import parse_pdf
+
+# 내부 모듈
+from db import init_db, SessionLocal
+from models import Question, Attempt
+from pdf_parser import parse_pdf
 from ingest import ingest_questions
 from similarity import similar_questions
 
+# 환경 변수 로드
 load_dotenv()
+
 app = Flask(__name__)
 init_db()
 
 UPLOAD_DIR = "./data/uploads"
-IMAGE_DIR = "./data/images"
+DATA_DIR = "./data"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-os.makedirs(IMAGE_DIR, exist_ok=True)
+os.makedirs(DATA_DIR, exist_ok=True)
 
+# -----------------------
+# 홈
+# -----------------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# --- 관리자: PDF 업로드 (GET: 업로드 페이지, POST: 업로드 처리) ---
-@app.route("/admin/upload", methods=["GET","POST"])
-def upload_pdf():
-    print(">>> 요청 방식:", request.method)  # 디버깅용 출력
 
+# -----------------------
+# 관리자: PDF 업로드
+# -----------------------
+@app.route("/admin/upload", methods=["GET", "POST"])
+def upload_pdf():
     if request.method == "GET":
-        # 업로드 페이지 렌더링
         return render_template("upload.html")
 
-    # POST 처리 (파일 업로드)
     if "file" not in request.files:
         return jsonify({"error": "file form-data 누락"}), 400
 
@@ -36,17 +43,43 @@ def upload_pdf():
     if not f.filename.lower().endswith(".pdf"):
         return jsonify({"error": "PDF만 허용"}), 400
 
+
+
     save_path = os.path.join(UPLOAD_DIR, f.filename)
     f.save(save_path)
 
-    items = parse_pdf(save_path, IMAGE_DIR)
+    # 파싱 실행
+    output_json = os.path.join(DATA_DIR, "questions.json")
+    items = parse_pdf(save_path, output_json)
+
     if not items:
         return jsonify({"message": "파싱된 문항 0건"}), 200
 
+    # DB 적재
     ingest_questions(items, source_name=f.filename)
-    return jsonify({"message": "업로드/파싱/적재 완료", "count": len(items)})
 
-# --- 조건부 문항 조회 ---
+    return jsonify({"message": "업로드/파싱/DB 저장 완료", "count": len(items)})
+
+
+# -----------------------
+# 문제풀이 UI
+# -----------------------
+@app.route("/quiz")
+def quiz():
+    return render_template("quiz.html")
+
+
+# -----------------------
+# 오답노트 UI
+# -----------------------
+@app.route("/wrong")
+def wrong_page():
+    return render_template("wrong.html")
+
+
+# -----------------------
+# 문제 조회 API
+# -----------------------
 @app.route("/api/question", methods=["GET"])
 def get_question():
     qid = request.args.get("id", type=int)
@@ -65,16 +98,25 @@ def get_question():
             if subcategory:
                 query = query.filter(Question.subcategory == subcategory)
             q = query.order_by(Question.id.asc()).first()
+
         if not q:
             return jsonify({"error": "문항 없음"}), 404
+
         return jsonify({
-            "id": q.id, "qno": q.qno, "stem": q.stem, "options": q.options,
-            "category": q.category, "subcategory": q.subcategory
+            "id": q.id,
+            "question": q.stem,
+            "options": json.loads(q.options or "[]"),
+            "category": q.category,
+            "subcategory": q.subcategory,
+            "total": db.query(Question).count()
         })
     finally:
         db.close()
 
-# --- 다음 문제 ---
+
+# -----------------------
+# 다음 문제 API
+# -----------------------
 @app.route("/api/next", methods=["GET"])
 def next_question():
     current_id = request.args.get("current_id", default=0, type=int)
@@ -89,21 +131,108 @@ def next_question():
         if subcategory:
             query = query.filter(Question.subcategory == subcategory)
         q = query.order_by(Question.id.asc()).first()
+
         if not q:
             return jsonify({"end": True, "message": "마지막 문제"}), 200
+
         return jsonify({
-            "id": q.id, "qno": q.qno, "stem": q.stem, "options": q.options,
-            "category": q.category, "subcategory": q.subcategory
+            "id": q.id,
+            "question": q.stem,
+            "options": json.loads(q.options or "[]"),
+            "category": q.category,
+            "subcategory": q.subcategory
         })
     finally:
         db.close()
 
-# --- 채점 ---
+
+# -----------------------
+# 채점 API
+# -----------------------
 @app.route("/api/answer", methods=["POST"])
 def answer():
     data = request.get_json(force=True)
     qid = int(data["question_id"])
     chosen = str(data["chosen"]).strip()
+    user_id = data.get("user_id", "default")
+    note_type = data.get("note_type", "wrong")  # wrong / review
+
+    db = SessionLocal()
+    try:
+        q = db.get(Question, qid)
+        if not q:
+            return jsonify({"error": "문항 없음"}), 404
+
+        correct = (chosen == (q.answer or ""))
+
+        # 시도 기록 저장
+        attempt = Attempt(
+            user_id=user_id,
+            question_id=q.id,
+            chosen=chosen,
+            correct=correct,
+            note_type=note_type
+        )
+        db.add(attempt)
+        db.commit()
+
+        # 유사 문제 추천
+        base_text = (q.stem or "") + "\n" + (" ".join(json.loads(q.options or "[]")))
+        sims = similar_questions(
+            base_text, k=3, exclude_db_id=q.id,
+            category=q.category, subcategory=q.subcategory
+        )
+
+        return jsonify({
+            "correct": correct,
+            "answer": q.answer,
+            "explanation": q.explanation,
+            "category": q.category,
+            "subcategory": q.subcategory,
+            "note_type": note_type,
+            "similar": sims
+        })
+    finally:
+        db.close()
+
+
+# -----------------------
+# 오답노트 API
+# -----------------------
+@app.route("/api/wrong_only", methods=["GET"])
+def wrong_only():
+    """내 오답노트 가져오기"""
+    user_id = request.args.get("user_id", "default")
+
+    db = SessionLocal()
+    try:
+        attempts = db.query(Attempt).filter(Attempt.user_id == user_id).all()
+        result = []
+        for a in attempts:
+            q = db.get(Question, a.question_id)
+            if not q: 
+                continue
+            result.append({
+                "question_id": q.id,
+                "stem": q.stem,
+                "options": json.loads(q.options or "[]"),
+                "chosen": a.chosen,
+                "answer": q.answer,
+                "explanation": q.explanation,
+                "note_type": a.note_type  # wrong / review 구분
+            })
+        return jsonify(result)
+    finally:
+        db.close()
+
+
+# -----------------------
+# 복습노트에 수동 추가 API
+# -----------------------
+@app.route("/api/review_add", methods=["POST"])
+def review_add():
+    data = request.get_json(force=True)
+    qid = int(data["question_id"])
     user_id = data.get("user_id", "default")
 
     db = SessionLocal()
@@ -111,66 +240,23 @@ def answer():
         q = db.get(Question, qid)
         if not q:
             return jsonify({"error": "문항 없음"}), 404
-        correct = (chosen == (q.answer or ""))
 
-        db.add(Attempt(user_id=user_id, question_id=q.id, chosen=chosen, correct=correct))
-        db.commit()
-
-        base_text = (q.stem or "") + "\n" + (" ".join(q.options) if q.options else "")
-        sims = similar_questions(
-            base_text, k=3, exclude_db_id=q.id,
-            category=q.category, subcategory=q.subcategory
+        attempt = Attempt(
+            user_id=user_id,
+            question_id=q.id,
+            chosen="(복습 추가)",
+            correct=True,
+            note_type="review"
         )
-        return jsonify({
-            "correct": correct,
-            "answer": q.answer,
-            "category": q.category,
-            "subcategory": q.subcategory,
-            "similar": sims
-        })
-    finally:
-        db.close()
-
-# --- 오답노트 ---
-@app.route("/api/wrong_only", methods=["GET"])
-def wrong_only():
-    user_id = request.args.get("user_id", "default")
-    category = request.args.get("category")
-    subcategory = request.args.get("subcategory")
-
-    db = SessionLocal()
-    try:
-        subq = """
-            SELECT a1.question_id, a1.correct
-            FROM attempts a1
-            JOIN (
-                SELECT question_id, MAX(created_at) AS max_time
-                FROM attempts
-                WHERE user_id = :uid
-                GROUP BY question_id
-            ) latest
-              ON a1.question_id = latest.question_id AND a1.created_at = latest.max_time
-            WHERE a1.user_id = :uid AND a1.correct = 0
-        """
-        ids = [row[0] for row in db.execute(subq, {"uid": user_id}).fetchall()]
-        if not ids:
-            return jsonify({"count": 0, "items": []})
-
-        q = db.query(Question).filter(Question.id.in_(ids))
-        if category:
-            q = q.filter(Question.category == category)
-        if subcategory:
-            q = q.filter(Question.subcategory == subcategory)
-        rows = q.order_by(Question.id.asc()).all()
-
-        items = [{
-            "id": r.id, "qno": r.qno, "stem": r.stem, "options": r.options,
-            "category": r.category, "subcategory": r.subcategory
-        } for r in rows]
-        return jsonify({"count": len(items), "items": items})
+        db.add(attempt)
+        db.commit()
+        return jsonify({"message": "복습노트에 추가 완료"})
     finally:
         db.close()
 
 
+# -----------------------
+# 실행
+# -----------------------
 if __name__ == "__main__":
     app.run(debug=True)

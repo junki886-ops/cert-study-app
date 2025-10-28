@@ -1,33 +1,51 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, create_engine, func, ForeignKey
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
 
+# -----------------------
+# DB 설정
+# -----------------------
+# data/questions.db 파일을 SQLite 데이터베이스로 사용
+DATABASE_URL = "sqlite:///./data/questions.db"
+
+# SQLite 전용 옵션 (스레드 충돌 방지)
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    echo=False  # True로 하면 SQL 실행 로그가 콘솔에 출력됨
+)
+
+# 세션팩토리
+SessionLocal = sessionmaker(
+    bind=engine,
+    autocommit=False,
+    autoflush=False
+)
+
+# Base 선언 (모든 모델의 부모 클래스)
 Base = declarative_base()
 
-class Question(Base):
-    __tablename__ = "questions"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    qno = Column(String(50))              # 문제 번호
-    stem = Column(Text, nullable=False)   # 문제 본문
-    options = Column(Text)                # 보기 (JSON string)
-    answer = Column(String(50))           # 정답
-    explanation = Column(Text)            # 해설
-    category = Column(String(50))         # 카테고리
-    subcategory = Column(String(50))      # 서브카테고리
-    source_name = Column(String(200))     # 업로드 파일명
-
-class Attempt(Base):
-    __tablename__ = "attempts"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(String(50))
-    question_id = Column(Integer, ForeignKey("questions.id"))
-    chosen = Column(String(50))
-    correct = Column(Boolean)
-    created_at = Column(DateTime, server_default=func.now())
-
-    question = relationship("Question")
-
-engine = create_engine("sqlite:///data/questions.db", echo=False, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(bind=engine)
-
+# -----------------------
+# DB 초기화 함수
+# -----------------------
 def init_db():
-    Base.metadata.create_all(engine)
+    """
+    모델에서 정의한 테이블을 실제 DB에 생성합니다.
+    (이미 존재하는 테이블은 무시됨)
+    """
+    from models import Question, Attempt  # 순환 참조 방지용 import
+    Base.metadata.create_all(bind=engine)
+
+
+# -----------------------
+# DB 세션 의존성 함수 (예: FastAPI/Flask에서 활용)
+# -----------------------
+def get_db():
+    """
+    요청 단위 세션을 생성/종료하는 generator.
+    Flask/FastAPI 라우트에서 `db = next(get_db())` 식으로 사용 가능.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

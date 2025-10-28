@@ -1,26 +1,75 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <title>PDF 업로드</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>문제 업로드</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h2>PDF 업로드</h2>
-  <form id="uploadForm" enctype="multipart/form-data">
-    <input type="file" name="file" accept="application/pdf" required>
-    <button type="submit">업로드</button>
-  </form>
+<body class="min-h-screen bg-gradient-to-b from-emerald-50 to-slate-100">
+  <!-- 헤더 -->
+  <header class="bg-white shadow sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center">
+      <h1 class="text-lg font-semibold">문제 업로드</h1>
+      <nav class="ml-auto flex gap-3 text-sm">
+        <a href="/" class="px-3 py-1.5 rounded-lg border">홈</a>
+        <a href="/quiz" class="px-3 py-1.5 rounded-lg border">문제 풀이</a>
+        <a href="/wrong" class="px-3 py-1.5 rounded-lg border">오답 노트</a>
+      </nav>
+    </div>
+  </header>
 
-  <div id="result"></div>
+  <!-- 메인 -->
+  <main class="max-w-xl mx-auto px-4 py-10">
+    <div class="bg-white rounded-2xl shadow p-6">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">PDF 업로드</h2>
+      <p class="text-sm text-slate-600 mb-6">시험 덤프 PDF를 업로드하면 자동으로 파싱 후 DB에 저장됩니다.</p>
+
+      <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
+        <input type="file" name="file" accept=".pdf"
+               class="w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-4 
+                      file:rounded-lg file:border-0 file:text-sm 
+                      file:font-semibold file:bg-emerald-50 file:text-emerald-700 
+                      hover:file:bg-emerald-100" required>
+        <button type="submit"
+                class="w-full py-2 px-4 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition">
+          업로드
+        </button>
+      </form>
+
+      <!-- 결과 메시지 -->
+      <div id="message" class="mt-6 text-sm"></div>
+    </div>
+  </main>
 
   <script>
-  document.getElementById("uploadForm").onsubmit = async (e) => {
-    e.preventDefault(); // 폼 기본 동작 막기
-    const formData = new FormData(e.target);
-    const res = await fetch("/admin/upload", { method:"POST", body: formData });
-    const data = await res.json();
-    document.getElementById("result").innerText = JSON.stringify(data, null, 2);
-  };
+    const form = document.getElementById("uploadForm");
+    const msgBox = document.getElementById("message");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msgBox.textContent = "⏳ 업로드 중...";
+      msgBox.className = "mt-6 text-sm text-slate-600";
+
+      const formData = new FormData(form);
+      try {
+        const res = await fetch("/admin/upload", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          msgBox.textContent = `✅ ${data.message} (총 ${data.count} 문항)`;
+          msgBox.className = "mt-6 text-sm text-emerald-700 font-medium";
+        } else {
+          msgBox.textContent = `❌ 오류: ${data.error || "업로드 실패"}`;
+          msgBox.className = "mt-6 text-sm text-rose-600 font-medium";
+        }
+      } catch (err) {
+        msgBox.textContent = "⚠️ 서버 오류로 업로드 실패";
+        msgBox.className = "mt-6 text-sm text-rose-600 font-medium";
+      }
+    });
   </script>
 </body>
 </html>
