@@ -29,7 +29,7 @@ def home():
 
 
 # -----------------------
-# 관리자: PDF 업로드
+# 관리자: PDF 업로드 → OCR+LLM 파싱 → JSON 저장 → DB 적재
 # -----------------------
 @app.route("/admin/upload", methods=["GET", "POST"])
 def upload_pdf():
@@ -43,22 +43,24 @@ def upload_pdf():
     if not f.filename.lower().endswith(".pdf"):
         return jsonify({"error": "PDF만 허용"}), 400
 
-
-
     save_path = os.path.join(UPLOAD_DIR, f.filename)
     f.save(save_path)
 
-    # 파싱 실행
+    # (1) OCR+LLM 파싱 → JSON 생성
     output_json = os.path.join(DATA_DIR, "questions.json")
     items = parse_pdf(save_path, output_json)
 
     if not items:
         return jsonify({"message": "파싱된 문항 0건"}), 200
 
-    # DB 적재
-    ingest_questions(items, source_name=f.filename)
+    # (2) JSON → DB 적재
+    count = ingest_questions(output_json, source_name=f.filename)
 
-    return jsonify({"message": "업로드/파싱/DB 저장 완료", "count": len(items)})
+    return jsonify({
+        "message": "업로드/파싱/DB 저장 완료",
+        "count": count,
+        "filename": f.filename
+    })
 
 
 # -----------------------
@@ -105,7 +107,7 @@ def get_question():
         return jsonify({
             "id": q.id,
             "question": q.stem,
-            "options": json.loads(q.options or "[]"),
+            "options": q.get_options(),   # ✅ 보완
             "category": q.category,
             "subcategory": q.subcategory,
             "total": db.query(Question).count()
@@ -138,7 +140,7 @@ def next_question():
         return jsonify({
             "id": q.id,
             "question": q.stem,
-            "options": json.loads(q.options or "[]"),
+            "options": q.get_options(),   # ✅ 보완
             "category": q.category,
             "subcategory": q.subcategory
         })
@@ -177,7 +179,7 @@ def answer():
         db.commit()
 
         # 유사 문제 추천
-        base_text = (q.stem or "") + "\n" + (" ".join(json.loads(q.options or "[]")))
+        base_text = (q.stem or "") + "\n" + (" ".join(q.get_options().values()))
         sims = similar_questions(
             base_text, k=3, exclude_db_id=q.id,
             category=q.category, subcategory=q.subcategory
@@ -215,11 +217,11 @@ def wrong_only():
             result.append({
                 "question_id": q.id,
                 "stem": q.stem,
-                "options": json.loads(q.options or "[]"),
+                "options": q.get_options(),   # ✅ 보완
                 "chosen": a.chosen,
                 "answer": q.answer,
                 "explanation": q.explanation,
-                "note_type": a.note_type  # wrong / review 구분
+                "note_type": a.note_type
             })
         return jsonify(result)
     finally:

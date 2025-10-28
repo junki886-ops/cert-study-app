@@ -1,23 +1,10 @@
-from pdf_pipeline import extract_page_text_with_fallback
-from llm_extract import chain
-
-def parse_pdf(pdf_path: str):
-    pages = extract_page_text_with_fallback(pdf_path)
-
-    results = []
-    for idx, src, text in pages:
-        if not text.strip():
-            continue
-        try:
-            parsed = chain.invoke({"page_text": text})
-            results.extend(parsed.items)
-        except Exception as e:
-            print(f"Page {idx+1} LLM 실패: {e}")
-    return results
+from pdf_parser import parse_pdf
 
 if __name__ == "__main__":
-    pdf_path = "data/sample.pdf"
-    items = parse_pdf(pdf_path)
+    pdf_path = "data/uploads/sample.pdf"   # 테스트할 PDF 경로
+    output_json = "data/questions.json"
+
+    items = parse_pdf(pdf_path, output_json)
 
     for q in items:
         print("="*40)

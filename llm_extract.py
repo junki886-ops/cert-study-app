@@ -5,14 +5,14 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from schemas import PageExtraction
 
 # -------------------------
-# 모델 로드 (경량 모델: Qwen2.5-1.8B)
+# 모델 로드 (Phi-3-mini)
 # -------------------------
-MODEL_ID = "Qwen/Qwen2.5-1.8B-Instruct"
+MODEL_ID = "microsoft/Phi-3-mini-4k-instruct"
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_ID,
-    device_map="auto",   # GPU 있으면 "auto", CPU만 있으면 "cpu"
+    device_map="auto",   # Colab GPU면 GPU, VS Code CPU면 CPU
     torch_dtype="auto"
 )
 
@@ -20,7 +20,7 @@ pipe = pipeline(
     "text-generation",
     model=model,
     tokenizer=tokenizer,
-    max_new_tokens=512,
+    max_new_tokens=1024,
     temperature=0.0
 )
 
@@ -39,6 +39,7 @@ SYSTEM = """당신은 시험 문제를 JSON으로 추출하는 도우미입니�
 """
 
 HUMAN = """페이지 원문:
+{ocr_text}
 
 요구사항:
 - 문제 단위로 분리하여 items 배열에 담아주세요.
@@ -52,5 +53,7 @@ prompt = ChatPromptTemplate.from_messages([
     ("human", HUMAN),
 ]).partial(format_instructions=parser.get_format_instructions())
 
+# -------------------------
 # 최종 체인 (입력 → LLM → JSON 파싱)
+# -------------------------
 chain = prompt | llm | parser
