@@ -1,152 +1,91 @@
-import pdfplumber, re, json
 from pathlib import Path
 from pdf2image import convert_from_path
-import pytesseract, cv2, numpy as np
+import pytesseract, json
 
-def clean_text(line: str) -> str:
-    """광고/불필요 텍스트 제거"""
-    junk = ["The safer , easier way", "https://www.siheom.kr", "Exam :", "Version :", 
-            "Siheom", "좋은 품질", "당신은 가질 가치가 있다", "덤프", "고객에게"]
-    for j in junk:
-        if j in line:
-            return ""
-    return line
+# LangChain + HuggingFace
+from langchain.prompts import ChatPromptTemplate
+from langchain.output_parsers import PydanticOutputParser
+from langchain_huggingface import HuggingFacePipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from pydantic import BaseModel, Field
+from typing import List
 
-def parse_pdf(pdf_path, output_json, poppler_path=None, lang="kor+eng"):
-    text = ""
+# -------------------------
+# 1. 문제 JSON 스키마
+# -------------------------
+class Question(BaseModel):
+    stem: str = Field(..., description="문제 본문")
+    options: List[str] = Field(..., description="선택지 목록 (예: ['A. ...', 'B. ...'])")
+    answer: str = Field(..., description="정답 (예: A, B, 1, ② 등)")
+    explanation: str = Field(..., description="해설")
 
-    # 1) pdfplumber (텍스트 PDF)
-    try:
-        with pdfplumber.open(pdf_path) as pdf:
-            for page in pdf.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text += page_text + "\n"
-    except Exception as e:
-        print("[WARN] pdfplumber 실패:", e)
+# -------------------------
+# 2. Phi-3-mini LLM 로드 (CPU)
+# -------------------------
+def load_llm(model_name="microsoft/Phi-3-mini-4k-instruct", device=-1):
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    hf_pipeline = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        device=device,        # -1이면 CPU
+        max_new_tokens=1024,
+        temperature=0
+    )
+    return HuggingFacePipeline(pipeline=hf_pipeline)
 
-    # 2) OCR fallback
-    if len(text.strip()) < 50:
-        print("[INFO] 텍스트 부족 → OCR 전환")
-        pages = convert_from_path(pdf_path, dpi=300, poppler_path=poppler_path)
-        for i, pil in enumerate(pages, start=1):
-            cv = cv2.cvtColor(np.array(pil), cv2.COLOR_BGR2GRAY)
-            cv = cv2.adaptiveThreshold(cv, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                       cv2.THRESH_BINARY, 31, 9)
-            txt = pytesseract.image_to_string(cv, lang=lang, config="--psm 6")
-            text += txt + "\n"
-            Path("data/debug").mkdir(parents=True, exist_ok=True)
-            (Path("data/debug")/f"page_{i:03d}.txt").write_text(txt, encoding="utf-8")
+# -------------------------
+# 3. OCR + 문자 기준 청킹 + LLM 구조화
+# -------------------------
+def chunk_text(text: str, max_chars: int = 2000):
+    """문자 기준으로 텍스트 청킹"""
+    return [text[i:i+max_chars] for i in range(0, len(text), max_chars)]
 
-    # 3) 전처리 - 줄별로 정리
-    lines = []
-    for raw in text.splitlines():
-        line = clean_text(raw.strip())
-        if line:
-            lines.append(line)
+def parse_pdf(pdf_path, output_json, max_chars=2000, model_name="microsoft/Phi-3-mini-4k-instruct", lang="kor+eng", poppler_path=None):
+    # (1) PDF → 이미지 → OCR
+    pages = convert_from_path(pdf_path, dpi=200, poppler_path=poppler_path)
+    ocr_text = ""
+    for idx, page in enumerate(pages, start=1):
+        txt = pytesseract.image_to_string(page, lang=lang)
+        ocr_text += f"\n\n--- page {idx} ---\n{txt}"
 
-    # 4) 문제 파싱
-    items = []
-    current = None
-    in_explanation = False
-    
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        
-        # 새로운 문제 번호 감지 (더 엄격하게)
-        # "1.", "2.", ... 형태이면서 다음 줄이 보기가 아닐 때
-        question_match = re.match(r'^(\d+)\.\s*(.+)', line)
-        if question_match:
-            # 이전 문제 저장
-            if current and current["stem"]:
-                if not current["answer"]:
-                    current["answer"] = "N/A"
-                items.append(current)
-            
-            # 새 문제 시작
-            qnum = question_match.group(1)
-            qtext = question_match.group(2)
-            current = {
-                "stem": f"{qnum}. {qtext}",
-                "options": [],
-                "answer": None,
-                "explanation": ""
-            }
-            in_explanation = False
-            i += 1
-            continue
-        
-        if not current:
-            i += 1
-            continue
-        
-        # 정답 파싱
-        if re.match(r'^(정답|Answer)\s*[:：]?\s*', line, re.IGNORECASE):
-            answer_text = re.sub(r'^(정답|Answer)\s*[:：]?\s*', '', line, flags=re.IGNORECASE).strip()
-            # A, B, C, D, ①-⑤, 1-5 등 추출
-            match = re.search(r'[A-E①-⑤1-5]', answer_text)
-            if match:
-                current["answer"] = match.group(0)
-            in_explanation = False
-            i += 1
-            continue
-        
-        # 해설 시작
-        if re.match(r'^(해설|Explanation)\s*[:：]?', line, re.IGNORECASE):
-            in_explanation = True
-            expl_text = re.sub(r'^(해설|Explanation)\s*[:：]?', '', line, flags=re.IGNORECASE).strip()
-            if expl_text:
-                current["explanation"] += expl_text + " "
-            i += 1
-            continue
-        
-        # 해설 내용
-        if in_explanation:
-            # 다음 문제나 보기가 나오면 해설 종료
-            if re.match(r'^\d+\.', line) or re.match(r'^[A-E①-⑤]\s*[.):]', line):
-                in_explanation = False
-            else:
-                current["explanation"] += line + " "
-                i += 1
-                continue
-        
-        # 보기 파싱 (A., B., ①, ② 등)
-        option_match = re.match(r'^([A-E①-⑤])\s*[.):]\s*(.+)', line)
-        if option_match:
-            opt_label = option_match.group(1)
-            opt_text = option_match.group(2)
-            current["options"].append(f"{opt_label}. {opt_text}")
-            i += 1
-            continue
-        
-        # 문제 본문에 추가
-        if not in_explanation and not re.match(r'^\d+\.', line):
-            current["stem"] += " " + line
-        
-        i += 1
+    # (2) 문자 기준 청킹
+    text_chunks = chunk_text(ocr_text, max_chars=max_chars)
 
-    # 마지막 문제 저장
-    if current and current["stem"]:
-        if not current["answer"]:
-            current["answer"] = "N/A"
-        items.append(current)
+    # (3) LangChain 파이프라인
+    parser = PydanticOutputParser(pydantic_object=List[Question])
+    format_instructions = parser.get_format_instructions()
 
-    # 5) 후처리 - 너무 짧은 문제나 보기 없는 문제 제거
-    valid_items = []
-    for item in items:
-        if len(item["stem"]) > 10 and len(item["options"]) >= 2:
-            valid_items.append(item)
-        else:
-            print(f"[WARN] 제외된 문제: {item['stem'][:50]}")
+    prompt = ChatPromptTemplate.from_template("""
+    아래는 OCR로 추출한 시험 문제 텍스트 일부입니다.
+    문제/보기/정답/해설을 JSON 형식으로 변환하세요.
 
-    # 6) 저장
+    {format_instructions}
+
+    OCR 텍스트:
+    {ocr_text}
+    """)
+
+    llm = load_llm(model_name=model_name)
+    chain = prompt | llm | parser
+
+    # (4) 청킹 단위로 실행
+    all_results = []
+    for i, chunk in enumerate(text_chunks, start=1):
+        print(f"[INFO] LLM 파싱 중... (청크 {i}/{len(text_chunks)})")
+        result = chain.invoke({
+            "ocr_text": chunk,
+            "format_instructions": format_instructions
+        })
+        all_results.extend(result)
+
+    # (5) 저장
     Path(output_json).parent.mkdir(parents=True, exist_ok=True)
-    Path(output_json).write_text(json.dumps(valid_items, ensure_ascii=False, indent=2), encoding="utf-8")
+    Path(output_json).write_text(
+        json.dumps([q.dict() for q in all_results], ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
 
-    print(f"[INFO] 파싱된 문항 수: {len(valid_items)}")
-    no_answer = sum(1 for item in valid_items if item["answer"] == "N/A")
-    if no_answer > 0:
-        print(f"[WARN] 정답 없는 문항: {no_answer}개")
-    
-    return valid_items
+    print(f"[INFO] 전체 파싱된 문항 수: {len(all_results)}")
+    return all_results
