@@ -23,6 +23,8 @@ Pillow==10.4.0
 opencv-python==4.10.0.84
 numpy==2.1.1
 regex==2024.7.24
+paddleocr==2.9.1
+paddlepaddle==2.6.1
 
 # --- 기타 ---
 requests>=2.31.0
