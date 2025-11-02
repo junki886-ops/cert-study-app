@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 # 내부 모듈
 from db import init_db, SessionLocal
 from models import Question, Attempt
-from pdf_parser import parse_pdf
+from pdf_parser import parse_pdf  # ✅ 최신 버전 호환 (LangChain + PaddleOCR)
 from ingest import ingest_questions
 from similarity import similar_questions
 
@@ -13,12 +13,15 @@ from similarity import similar_questions
 load_dotenv()
 
 app = Flask(__name__)
-init_db()
 
+# 초기 디렉터리 설정
 UPLOAD_DIR = "./data/uploads"
 DATA_DIR = "./data"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
+
+# DB 초기화
+init_db()
 
 # -----------------------
 # 홈
@@ -46,9 +49,20 @@ def upload_pdf():
     save_path = os.path.join(UPLOAD_DIR, f.filename)
     f.save(save_path)
 
-    # (1) OCR+LLM 파싱 → JSON 생성
+    # (1) OCR + LLM 파싱 → JSON 생성
     output_json = os.path.join(DATA_DIR, "questions.json")
-    items = parse_pdf(save_path, output_json)
+
+    try:
+        # ✅ 최신 pdf_parser.py는 CPU/GPU 자동감지 + LangChain 내부 로직 포함
+        items = parse_pdf(
+            pdf_path=save_path,
+            output_json=output_json,
+            use_llm=True,       # OCR + LLM 파싱
+            lang="korean"       # 한국어 OCR
+        )
+    except Exception as e:
+        print(f"[ERROR] 파싱 중 오류: {e}")
+        return jsonify({"error": f"파싱 실패: {str(e)}"}), 500
 
     if not items:
         return jsonify({"message": "파싱된 문항 0건"}), 200
@@ -212,7 +226,7 @@ def wrong_only():
         result = []
         for a in attempts:
             q = db.get(Question, a.question_id)
-            if not q: 
+            if not q:
                 continue
             result.append({
                 "question_id": q.id,
