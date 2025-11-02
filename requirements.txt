@@ -11,9 +11,11 @@ langchain==0.2.16
 langchain-community==0.2.12
 chromadb==0.5.5
 sentence-transformers==3.0.1
-transformers==4.44.0
+transformers==4.43.3
 accelerate==0.34.0
-langchain-huggingface==0.0.4
+# langchain-huggingface 제거 (불필요)
+torch==2.2.2
+scikit-learn==1.5.2   # sentence-transformers 의존성
 
 # --- PDF & OCR ---
 pdfplumber==0.11.0
@@ -21,10 +23,10 @@ pdf2image==1.17.0
 pytesseract==0.3.13
 Pillow==10.4.0
 opencv-python==4.10.0.84
-numpy==2.1.1
+numpy==1.26.4          # ✅ NumPy 다운그레이드
 regex==2024.7.24
-paddleocr==2.9.1
-paddlepaddle==2.6.1
+paddleocr==2.7.3
+paddlepaddle==2.5.2    # CPU 버전 (GPU 쓰면 cu121 설치 필요)
 
 # --- 기타 ---
 requests>=2.31.0
