@@ -8,7 +8,7 @@ Pillow==10.4.0
 pytesseract==0.3.13
 langchain==0.2.16
 langchain-community==0.2.12
-langchain-huggingface==0.0.4
+langchain-huggingface==0.1.0
 chromadb==0.5.5
 sentence-transformers==3.0.1
 transformers==4.44.3
@@ -16,4 +16,4 @@ accelerate==0.34.0
 huggingface-hub==0.24.6
 tqdm==4.66.4
 paddleocr==2.9.1
-paddlepaddle-gpu
+paddlepaddle

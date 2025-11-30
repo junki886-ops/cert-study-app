@@ -76,7 +76,7 @@ Pillow==10.4.0
 pytesseract==0.3.13
 langchain==0.2.16
 langchain-community==0.2.12
-langchain-huggingface==0.0.4
+langchain-huggingface==0.1.0
 chromadb==0.5.5
 sentence-transformers==3.0.1
 transformers==4.44.3
@@ -84,7 +84,7 @@ accelerate==0.34.0
 huggingface-hub==0.24.6
 tqdm==4.66.4
 paddleocr==2.9.1
-paddlepaddle-gpu
+paddlepaddle
 """
 
 runtime = "python-3.10\n"
@@ -94,9 +94,7 @@ title: Cert Study App
 emoji: 📚
 colorFrom: blue
 colorTo: green
-sdk: gradio
-sdk_version: "4.0.0"
-app_file: app.py
+sdk: docker
 pinned: false
 license: apache-2.0
 ---
@@ -126,6 +124,38 @@ Upload your study materials and start practicing with AI-generated questions tai
 - Hugging Face Transformers
 """
 
+dockerfile = """FROM python:3.10-slim
+
+WORKDIR /app
+
+# 시스템 의존성 설치
+RUN apt-get update && apt-get install -y \\
+    git \\
+    tesseract-ocr \\
+    poppler-utils \\
+    libgl1-mesa-glx \\
+    libglib2.0-0 \\
+    && rm -rf /var/lib/apt/lists/*
+
+# Python 패키지 설치
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 앱 파일 복사
+COPY . .
+
+# 환경변수 설정
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=production
+ENV PORT=7860
+
+# 포트 노출
+EXPOSE 7860
+
+# Flask 실행
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=7860"]
+"""
+
 env_template = """# 로컬 실행용 환경 변수
 # ⚠️ 이 파일은 절대 Git에 올리지 마세요!
 
@@ -141,6 +171,11 @@ print("✅ requirements.txt 생성 완료")
 # runtime.txt 생성
 Path("runtime.txt").write_text(runtime, encoding="utf-8")
 print("✅ runtime.txt 생성 완료")
+
+# Dockerfile 생성
+dockerfile_path = Path("Dockerfile")
+dockerfile_path.write_text(dockerfile, encoding="utf-8")
+print("✅ Dockerfile 생성 완료")
 
 # README.md 생성
 readme_path = Path("README.md")
