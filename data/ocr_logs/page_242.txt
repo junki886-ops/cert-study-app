@@ -1,0 +1,227 @@
+The
+ safer
+easier
+Way
+to
+help
+you
+pass
+any
+|T
+exams
+Storage
+Blob
+lo la
+기여자
+&?
+은차장
+저장소
+Blob
+Alo l
+D
+기여자
+E
+스토리지
+계정
+기여자
+Answer:
+A B
+Explanation:
+Group1
+구성원이
+Portal을
+사용하여
+파일을
+Azure
+?
+있도록
+하려면
+스토리지
+계정에
+-
+-
+크[o I
+액세스
+관리
+액세스
+권한이
+모두
+있어야
+데이터
+액세스는
+스토리지
+및
+계정에서
+Blob
+데이터를
+읽고
+쓰고
+삭제하는
+기능을
+의미합니다
+관리
+액세스는
+Azure
+Portal
+Y Io
+-
+스토리지계정리소스를볼수있지만
+수정할수는
+없는기능을
+nzV `h탕I l6
+RBACAZure
+역할기반
+액세스'제어시스템은
+데이터
+액세스
+및
+액세스에
+집합을포함하는
+-
+-
+기본'제공역할을'제공합니다Storage
+lo
+기여자
+스토리지계정의
+Blob
+역할은
+Blob
+Io a lo la
+-
+읽기'쓰기및삭제
+'액세스'
+부여합니다
+독자
+역할은
+Azure Portal 의
+스토리지
+계정
+리소스에
+대한'보기액세스'권한을'부여합니다
+따라서
+Group1에두역할을모두할당하면
+그룹
+-
+-
+Azure Portal 을사용하여
+파일을
+'수'
+있습니다
+이
+솔루션은
+그룹
+-
+구성원에게
+최소
+부여하므로
+최소
+따릅니다
+-
+Reference:
+Blob
+Io la lo la
+액세스하기
+Azure
+역할
+Y Ilo
+크[o I
+액세스
+Azure
+Portal
+254
+핫스잣
+다음
+표에
+표시된
+융운
+부하
+분산
+장치가
+포함된
+Azure
+구독이
+있습니다
+Name
+SKD
+LB1
+Basic
+232
+Standard
+6개의
+머신을
+생성하고
+가상
+머신에
+요청의
+부하를
+가상
+분산할
+계획입니다
+각
+분산
+장치는
+세4개의
+가상
+머신의
+부하를
+분산합니다
+계획된
+솔루션을
+머신을
+o H온 Y&
+-
+가상머신을
+어떻게
+ㄷo H온 y &
+답변하려면
+[Y Ilo 6%
+적절한
+옵션을
+합니까?
+참고:
+-
+올바른
+선택은
+각각1점의가치가
+있습니다
+The virtual
+I machines that will be load balanced
+by using LB1 must:
+be connected to the
+Same
+Virtua!
+network
+be created
+in the same
+Resource
+dnoi8
+be created in the same
+availability set or Virtual
+machine
+Scale set
+run the same
+Operating system
+The virtual
+machines that will
+be
+Ioad balanced
+by using LB2 must:
+be connected to the
+Same
+Virtual
+net work
+be created
+in the
+resource
+Same
+group
+be created
+Iin the same
+availability
+Set or virtua!
+machine
+Scale set
+run the same
+Operating system
+Answer:
+2411310

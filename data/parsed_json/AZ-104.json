@@ -1,0 +1,150 @@
+[
+  {
+    "question_id": 1,
+    "stem": "VM3가 TCP 포트 8080을 통해 몬트리올 사무실의 애플리케이션 서버에 아웃바운드 연결을 설정할 수 있는지 확인해야 합니다. 무엇을 사용해야 합니까?",
+    "options": {
+      "A": "VNet1의 다이어그램",
+      "B": "Azure Advisor의 보안 권장 사항",
+      "C": "Azure Monitor의 진단 설정",
+      "D": "Traffic Manager 프로필의 문제 진단 및 해결",
+      "E": "Azure Network Watcher에서 IP 흐름 확인"
+    },
+    "answer": "E",
+    "explanation": "IP 흐름 확인은 VM에서 특정 포트로 허용/거부 여부를 빠르게 파악할 수 있으며, 보안 규칙에 의해 차단된 경우 해당 규칙을 알려줍니다.",
+    "category": "Case Study 1 - Litware",
+    "subcategory": "Networking",
+    "images": []
+  },
+  {
+    "question_id": 2,
+    "stem": "VM4의 설정이 수정되면 이메일 메시지를 보내는 워크플로를 구성해야 합니다. 무엇을 만들고 구성해야 합니까?",
+    "options": {
+      "A": "Azure 알림 허브",
+      "B": "Azure 이벤트 허브",
+      "C": "Azure 논리 앱",
+      "D": "Azure 서비스 버스"
+    },
+    "answer": "B",
+    "explanation": "VM 변경 이벤트는 Event Grid로 전달되며, Event Grid는 Logic App 등으로 이벤트를 푸시합니다. 이벤트 허브를 엔드포인트로 구성할 수 있습니다.",
+    "category": "Case Study 1 - Litware",
+    "subcategory": "Monitoring",
+    "images": []
+  },
+  {
+    "question_id": 3,
+    "stem": "재무 부서 사용자를 위한 MFA 구성을 자동화해야 합니다. 어떤 솔루션을 추천해야 합니까?",
+    "options": {
+      "A": "Azure AD B2C",
+      "B": "Azure AD ID 보호",
+      "C": "Azure 논리 앱 및 MIM 클라이언트",
+      "D": "동적 그룹 및 조건부 액세스 정책"
+    },
+    "answer": "D",
+    "explanation": "부서별 OU 속성 기반 동적 그룹 생성 → 조건부 액세스로 MFA 적용하는 방식이 가장 자동화되고 정확합니다.",
+    "category": "Case Study 1 - Litware",
+    "subcategory": "Identity",
+    "images": []
+  },
+  {
+    "question_id": 4,
+    "stem": "Server2를 Azure로 마이그레이션하기 위한 적절한 크기를 지정해야 합니다. 어떤 단계 순서가 맞습니까?",
+    "options": {
+      "Box1": "Recovery Services 자격 증명 모음 만들기",
+      "Box2": "Azure Site Recovery 공급자 설치"
+    },
+    "answer": "Box1 → Box2",
+    "explanation": "온프레미스 → Azure 마이그레이션은 RS Vault 생성 후 Site Recovery Provider 설치가 기본 순서입니다.",
+    "category": "Case Study 1 - Litware",
+    "subcategory": "Migration",
+    "images": []
+  },
+  {
+    "question_id": 5,
+    "stem": "Role1(Reader 기반 사용자 지정 Azure 역할)을 만들기 전에 어떤 명령을 실행해야 합니까?",
+    "options": {
+      "A": "Get-AzADDirectoryRole",
+      "B": "Get-AzRoleDefinition -Name \"Reader\" | ConvertTo-Json",
+      "C": "ConvertFrom-Json",
+      "D": "Get-AzureADDirectoryRole"
+    },
+    "answer": "B",
+    "explanation": "사용자 지정 역할 생성 시, 기존 Reader Role Definition을 JSON으로 변환하여 기반으로 사용합니다.",
+    "category": "Case Study 1 - Litware",
+    "subcategory": "RBAC",
+    "images": []
+  },
+  {
+    "question_id": 6,
+    "stem": "뉴욕 사무실을 암호화된 연결을 사용해 VNet1에 연결해야 합니다. 어떤 구성이 필요합니까?",
+    "options": {
+      "A": "ExpressRoute 구성",
+      "B": "S2S VPN을 위한 가상 네트워크 게이트웨이 및 로컬 네트워크 게이트웨이 생성",
+      "C": "VNet 간 피어링",
+      "D": "Point-to-Site VPN 구성"
+    },
+    "answer": "B",
+    "explanation": "New York ↔ Azure 간 암호화된 인터넷 연결 → S2S VPN 구성(게이트웨이 + 로컬 게이트웨이 + IPSec 키).",
+    "category": "Case Study 1 - Litware",
+    "subcategory": "Networking",
+    "images": []
+  },
+  {
+    "question_id": 7,
+    "stem": "VM1이 VM4와 통신할 수 있게 해야 합니다. 관리 노력을 최소화하는 방법은 무엇입니까?",
+    "options": {
+      "A": "VNet1에서 VNet3로 UDR 생성",
+      "B": "VM4에 IP 주소 10.0.1.5/24 할당",
+      "C": "VNet1과 VNet3 간 피어링 구성",
+      "D": "두 VM에 NSG 생성 및 연결"
+    },
+    "answer": "B",
+    "explanation": "두 VM이 동일 서브넷 IP 규칙을 만족하도록 올바른 IP 할당만 해도 통신이 가능하며 관리 부담이 최소입니다.",
+    "category": "Case Study 1 - Litware",
+    "subcategory": "Networking",
+    "images": []
+  },
+  {
+    "question_id": 8,
+    "stem": "NSG1 및 NSG2에 대한 계획된 변경을 검토하고 진위 여부를 판단해야 합니다.",
+    "options": {
+      "Statement1": "예",
+      "Statement2": "예",
+      "Statement3": "아니요"
+    },
+    "answer": "Statement1=Yes, Statement2=Yes, Statement3=No",
+    "explanation": "기술 요구사항에 따라 NSG 규칙 구성은 일부는 필요하나, 일부 규칙은 적용되지 않습니다.",
+    "category": "Case Study 1 - Litware",
+    "subcategory": "NSG",
+    "images": []
+  },
+  {
+    "question_id": 9,
+    "stem": "재무 부서 감사자가 지난 주의 모든 Azure 비용을 검토할 수 있어야 합니다. 어떤 블레이드를 사용해야 합니까?",
+    "options": {
+      "A": "제휴사 정보",
+      "B": "개요",
+      "C": "결제방법",
+      "D": "청구서"
+    },
+    "answer": "D",
+    "explanation": "지난 주 비용 확인은 Billing → Invoice에서 조회 가능합니다.",
+    "category": "Case Study 2 - Humongous Insurance",
+    "subcategory": "Cost Management",
+    "images": []
+  },
+  {
+    "question_id": 10,
+    "stem": "웹 관리자가 가능한 한 빨리 여러 WebApp을 배포할 수 있도록 환경을 구성해야 합니다. 어떤 작업 순서가 맞습니까?",
+    "options": {
+      "Step1": "리소스 그룹 생성 후 WebApp 배포",
+      "Step2": "템플릿을 템플릿 라이브러리에 저장",
+      "Step3": "템플릿을 웹 관리자와 공유"
+    },
+    "answer": "1 → 2 → 3",
+    "explanation": "동일 구성을 반복 배포하기 위해 ARM 템플릿 저장 → 공유 흐름이 가장 빠른 방식.",
+    "category": "Case Study 2 - Humongous Insurance",
+    "subcategory": "Web Apps",
+    "images": []
+  }
+
+]

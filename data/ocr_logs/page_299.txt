@@ -1,0 +1,104 @@
+The
+ safer
+easier
+Way
+to help
+you
+pass
+any
+1T
+exams
+properties":
+3
+'rolellame":
+"rolel"
+Gescription*:
+'Loletype":
+"Crue"
+"assignableScopes':
+/Subscriptions]
+34620905C714
+4a60
+3956
+00342086c207!
+:
+permissions*:
+[
+'actions*:
+[
+"Ticroso"'
+Authorization!
+*/read"
+"Hicrosof?
+Compute/availab!!itysets/"
+"Ficroso!t
+Compute
+Tocations!
+[+
+"TMicrosoft
+Conpute/virtualmachines!
+"Piicroso!'
+Compute/virtualmachinesca!eSets!-
+"Ficrosoft
+Compute/
+I disks/write"
+"Fiicrosof?
+Compute!
+'disks/read"
+"Microsoft
+Combute!
+'disks/delete"
+"Piicrosoft
+Het work/lotations/
+/에
+"licrosoft
+Hetwork/netwiorkInterf oces/--
+"licrosoft HetworkI net worlSecurityGroups!
+join/action"
+"Filcrosoft
+Hetwork/nelviorksecuri sygroups/read"
+"licrosoft
+Hetwork/ publicIpaddresses!
+join/action"
+"Ficrosoft
+Hetwork/ publicipaddresses/read"
+"licrosoft
+Hetwork/virtuainethorks/read"
+"picrosoft
+Hetwork!virtualNetworitsisubnets/ join/action"
+"Pilcrosoft
+Resources
+/Geploynents/"
+"Mlicrosoft
+Resources
+ISubscriotions/resourceGroups/read"
+"Ticrosoft
+Support!
+]
+"notactions":
+"Dataaclons":
+[!]
+"Notbataactions":
+[]
+드롭다운
+메뉴를
+사용하여
+그래퍽에
+표시된
+정보를
+기반으로
+각
+문항을
+완성하는
+답변
+선택을
+선택하세요
+참고
+각
+올바른
+선택은
+점의
+1
+가치가
+있습니다
+298 7310

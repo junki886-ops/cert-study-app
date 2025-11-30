@@ -1,0 +1,87 @@
+[
+  {
+    "id": 70,
+    "question": "ASP1의 CPU 사용량은 다음 그림에 나와 있습니다. 평균 CPU 비율은 하루에 몇 번 계산됩니까?",
+    "options": ["한 번", "12번", "24번", "매 5분마다"],
+    "answer": "24번",
+    "explanation": "Azure 모니터링은 기본적으로 시간 단위로 데이터를 수집합니다. 따라서 하루 동안 24개의 데이터 포인트가 생성됩니다. 이렇게 수집된 데이터는 평균 CPU 사용률을 계산하는 데 사용됩니다. 평균값은 추세를 확인하고 성능 병목을 감지하는 데 중요합니다. 이 값을 통해 적절한 확장 여부를 판단할 수 있습니다."
+  },
+  {
+    "id": 71,
+    "question": "ASP1의 CPU 사용량이 지속적으로 80%를 초과할 경우 어떤 조치를 취해야 합니까?",
+    "options": ["가격 책정 계층 업그레이드", "수평 확장(Scale-out)", "수직 확장(Scale-up)", "사용자 수 제한"],
+    "answer": "수평 확장(Scale-out)",
+    "explanation": "CPU 사용량이 80% 이상이면 인스턴스 추가가 필요합니다. 수평 확장은 여러 인스턴스로 부하를 분산해 성능을 개선합니다. 수직 확장은 인스턴스 자체의 성능을 올리지만 중단이 필요할 수 있습니다. Scale-out은 서비스 중단 없이 처리량을 늘릴 수 있는 장점이 있습니다. 따라서 안정적 운영을 위해 적합한 방법입니다."
+  },
+  {
+    "id": 72,
+    "question": "RG1이라는 리소스 그룹의 모든 기존 리소스를 제거한 뒤 template1 ARM 템플릿으로 새 리소스를 배포하려 합니다. 어떤 명령을 사용해야 합니까?",
+    "options": [
+      "az deployment group create --mode Incremental",
+      "az deployment group create --mode Complete",
+      "az group create --force",
+      "az deployment sub create --template template1.json"
+    ],
+    "answer": "az deployment group create --mode Complete",
+    "explanation": "Incremental 모드는 기존 리소스를 유지한 채 새 리소스만 추가합니다. Complete 모드는 기존 리소스를 삭제 후 새로 배포합니다. 문제에서 기존 리소스를 모두 제거해야 한다고 조건이 있습니다. 따라서 Complete 모드가 정확한 선택입니다. 이 모드 사용 시 주의해야 하는 점은 의도치 않게 삭제될 수 있다는 점입니다."
+  },
+  {
+    "id": 73,
+    "question": "VM1에서 VM2까지의 평균 RTT(왕복 시간)를 정기적으로 확인하려면 어떤 Azure Network Watcher 기능을 사용해야 합니까?",
+    "options": ["NSG 흐름 로그", "연결 문제 해결", "IP 흐름 확인", "연결 모니터"],
+    "answer": "연결 모니터",
+    "explanation": "연결 모니터(Connection Monitor)는 VM 간 연결을 지속적으로 추적합니다. 단순 테스트가 아니라 장기적인 평균, 최소, 최대 RTT 값을 제공합니다. 네트워크 병목 지점을 찾는 데 적합합니다. 다른 옵션인 IP 흐름 확인은 단일 시점 테스트에 불과합니다. 따라서 지속적 성능 확인에는 연결 모니터가 최적입니다."
+  },
+  {
+    "id": 74,
+    "question": "공용 Azure 표준 Load Balancer를 만들려 합니다. 어떤 공용 IP 주소를 사용할 수 있습니까?",
+    "options": ["IP1과 IP3", "IP1, IP2, IP3", "IP2 전용", "IP3 전용"],
+    "answer": "IP3 전용",
+    "explanation": "Azure Load Balancer는 두 가지 SKU가 있습니다: Basic과 Standard. Standard Load Balancer를 쓰려면 반드시 Standard SKU IP 주소를 사용해야 합니다. 문제에서 Standard Load Balancer를 만들라고 했으므로 IP3만 유효합니다. Basic IP는 이 경우 호환되지 않습니다. 따라서 정답은 IP3 전용입니다."
+  },
+  {
+    "id": 75,
+    "question": "AKS 클러스터에서 컨테이너와 서비스는 각각 어떤 CIDR 범위에서 IP 주소를 가져옵니까?",
+    "options": [
+      "컨테이너: 10.244.0.0/16, 서비스: 10.0.0.0/16",
+      "컨테이너: 10.0.0.0/16, 서비스: 10.244.0.0/16",
+      "컨테이너: 172.16.0.0/16, 서비스: 10.0.0.0/16",
+      "컨테이너와 서비스 모두 10.0.0.0/16"
+    ],
+    "answer": "컨테이너: 10.244.0.0/16, 서비스: 10.0.0.0/16",
+    "explanation": "AKS는 기본적으로 Pod 네트워크와 서비스 네트워크를 분리해 관리합니다. Pod는 10.244.0.0/16 범위를 사용하고, 서비스는 10.0.0.0/16 범위를 사용합니다. 이렇게 해야 충돌을 방지하고 트래픽 라우팅을 단순화합니다. Pod와 서비스가 같은 네트워크를 쓰면 충돌 위험이 있습니다. 분리 덕분에 운영 안정성이 높아집니다."
+  },
+  {
+    "id": 76,
+    "question": "VM1을 Azure Backup으로 Backup1 백업 후 변경 사항(크기 변경, 파일 복사, 암호 변경, 데이터 디스크 추가)을 적용했습니다. Backup1으로 복원 시 어떤 변경 사항을 다시 수행해야 합니까?",
+    "options": ["VM 크기 변경", "데이터 디스크 추가", "관리자 비밀번호 재설정", "Budget.xls 파일 복사"],
+    "answer": "Budget.xls 파일 복사",
+    "explanation": "Azure Backup의 Replace 옵션은 백업 당시 상태로 VM을 되돌립니다. 따라서 백업 이후 추가된 데이터는 복구되지 않습니다. VM 크기 변경, 디스크 추가, 암호 변경은 다시 적용됩니다. 하지만 복사된 파일은 사용자 데이터라서 복원 후 사라집니다. 따라서 해당 파일은 수동으로 다시 복사해야 합니다."
+  },
+  {
+    "id": 77,
+    "question": "온프레미스 Server1(Windows Server 2016, 2TB 데이터)을 Azure Blob Storage로 마이그레이션하려 합니다. 어떤 도구를 사용해야 합니까?",
+    "options": ["AzCopy", "Azure Storage Explorer", "Azure Import/Export 서비스", "Azure Data Box"],
+    "answer": "Azure Storage Explorer",
+    "explanation": "Storage Explorer는 GUI 기반으로 Blob Storage에 데이터를 업로드할 수 있습니다. 대용량 파일도 직관적으로 옮길 수 있어 관리자가 쓰기 편합니다. AzCopy는 CLI 기반으로 빠르지만 사용이 복잡합니다. Import/Export와 Data Box는 오프라인 대량 이송용입니다. 따라서 온라인 이관에는 Storage Explorer가 적합합니다."
+  },
+  {
+    "id": 78,
+    "question": "VM1 백업을 Azure Backup으로 수행했습니다. Recovery Services 자격 증명 모음을 생성해야 하는 최소 개수는 몇 개입니까?",
+    "options": ["0개", "1개", "2개", "VM마다 1개씩"],
+    "answer": "1개",
+    "explanation": "Recovery Services 자격 증명 모음은 여러 VM과 워크로드를 함께 관리할 수 있습니다. 따라서 최소 1개만 있으면 백업 구성이 가능합니다. VM마다 따로 만들 필요는 없습니다. 하나의 모음 안에서 정책을 나눠 관리할 수 있습니다. 이 방식이 비용과 관리 측면에서 효율적입니다."
+  },
+  {
+    "id": 79,
+    "question": "VM1과 VM2에 대해 디스크 여유 공간이 20GB 미만일 경우 경고를 발생시키려 합니다. 어떤 순서로 작업을 구성해야 합니까?",
+    "options": [
+      "1) 경고 규칙 생성 → 2) Log Analytics Agent 설치 → 3) 데이터 수집 규칙 생성",
+      "1) Log Analytics Agent 설치 → 2) 데이터 수집 규칙 생성 → 3) 경고 규칙 생성",
+      "1) 데이터 수집 규칙 생성 → 2) 경고 규칙 생성 → 3) 에이전트 설치",
+      "1) 경고 규칙 생성 → 2) 데이터 수집 규칙 생성"
+    ],
+    "answer": "1) Log Analytics Agent 설치 → 2) 데이터 수집 규칙 생성 → 3) 경고 규칙 생성",
+    "explanation": "먼저 VM의 성능 데이터를 수집하려면 Log Analytics Agent가 필요합니다. 그 다음 Data Collection Rule(DCR)에서 어떤 데이터를 모을지 정의합니다. 마지막으로 경고 규칙을 만들어 조건에 맞을 때 알림이 발생하도록 합니다. 이 순서를 거쳐야 데이터 흐름이 완전하게 연결됩니다. 순서가 바뀌면 경고가 작동하지 않습니다."
+  }
+]

@@ -1,0 +1,183 @@
+The
+ safer
+easier
+Way
+to help
+you
+pass
+any
+1T
+exams
+Answer
+Area
+User1
+can
+[answer
+choice] LB1
+delete
+create
+a
+NAT
+rule for
+assign
+access
+0
+Other
+users for
+User1
+can
+[answer
+choice]
+the
+resource
+group
+delete
+a virtua!
+machine
+from
+modify
+the load
+balancing
+rules in
+deploy
+Azure
+Kubernetes
+an
+Service
+AKS
+Cluster to
+Explanation:
+사용자
+액세스
+관리자는
+다른
+사용자에게만
+Y lly lo
+릉으는
+수
+있습니다
+https:Ildocs
+microsoftcom/en-uslazurelrole-based-access-control/rbac-and-directory-admin-roles
+Virtual
+Machine
+Contributor 는
+VM
+삭제도
+포함하여
+VM을
+관리할'수'
+있습니다
+https:ldocsmicrosoftcom/en-us/azurelrole-based-access-control/built-in-rolesttvirtual-machine
+Contributo
+https:ldocsmicrosoft
+Comlen
+-us/answers/questions/350635/can-
+virtual-
+-machine
+contributor-
+-Create-
+Vmhtml
+211드래그
+드롭
+User1
+및
+User2
+라는
+두
+명의
+사용자가
+포함된
+Sub1
+이라는
+Azure
+구독이
+있습니다
+[R Io
+역할
+기반
+액세스
+제어RBAC
+User1
+User2
+역할을
+o오음혼
+사용자는
+Sub1
+Y I1o
+작업을
+수행할
+1o lo8
+합니다
+수
+User1
+은
+모든
+스토리지
+계정의
+데이터를
+o오 6호
+[ hi오
+사용자에게
+스토리지
+계정에
+기여자
+역할을
+oH온음혼
+User2
+솔루션은
+[는'
+최소
+권한의
+원칙을
+o Ho-융Y
+합니다
+각
+사용자에게
+어떤
+RBAC
+역할을
+o 온음호
+합니까?
+답변하려면
+적절한
+역할을
+올바른
+사용자에게
+-
+장Ity 오ㄴIe그
+각
+역할은
+한
+번
+두
+번
+이상
+사용되거나
+전혀
+사용되지
+릉콩
+수
+있습니다
+2BAC
+roies
+Answer
+Area
+Ooro
+Access
+Owner
+P
+User1:
+1>po2
+Contributo
+User2:
+MC
+A34
+Reader
+and
+Data
+Access
+Storage
+Account
+Contributor
+Answer:
+205 7 310

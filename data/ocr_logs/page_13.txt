@@ -1,0 +1,244 @@
+The
+Safer
+help
+easier
+Way
+to
+you
+pass
+any
+|T
+exams
+Actions
+Answer
+Area
+From the
+Automation
+script
+blade of
+the
+esource
+group
+Click
+Deploy
+M
+From the
+Templates
+service
+Select
+the
+template
+and then
+share the
+template
+to the web
+administrators
+From the Automation
+schp!
+ blade of
+Ithe
+Tesource
+group
+2
+Click
+Pp
+to
+library
+From the
+Automation
+Accounts
+semice
+add
+an
+automatior
+account
+Creale
+TESOUrce
+group
+2nd
+men
+deploy
+2
+2
+Weo
+dd?
+[0
+the
+resource
+dno ib
+From the
+Automation
+script
+blade
+of the
+resource
+group
+Click the
+Parameters
+tab
+Answer:
+Actions
+Answer
+Area
+From the
+Automation
+t blade of the
+script
+group
+Create
+esource
+group
+and
+I then
+Geploy
+-
+Weo
+dde
+0
+esource
+Click
+Deploy
+the
+resource group
+From the
+From tne
+Automation
+Scnipt blade
+이
+ the
+Templates
+select
+template
+and then
+resource
+the
+group
+sevice
+share the
+Click
+Add
+to
+library
+temolate
+to the
+Web
+administrators
+From the
+Automation
+scnipt
+blade
+이
+the
+esource
+group
+From the
+Templates
+service
+Select
+the
+template
+and then
+Click
+Add
+to
+library
+share
+the template to
+the
+Web
+administrators
+From the
+Automation
+Accounts
+service
+add
+an
+automatio
+account
+Creale
+TESOUr ce
+group
+me
+Geploy
+:
+2
+Web
+dde
+이
+the
+resource
+group
+From the
+Automation
+script
+blade
+of the
+resource
+group
+Click the
+Parameters
+tab
+Explanation:
+대본:
+1
+웹
+관리자는
+마케팅
+부서를
+위해
+Azure
+웹앱을
+배포합니다
+2
+각
+웹앱은
+별도의
+리소스
+그룹에
+추가됩니다
+3
+웹앱의
+초기
+구성은
+동일합니다
+4
+관리자에게는
+리소스
+그룹에
+웹앱을
+배포할
+수
+있는
+웹
+권한이
+있습니다
+단계:
+1-->
+리소스
+그룹을
+만든
+뭉그
+리소스
+그룹에
+웰앱을
+배포합니다
+2-->
+리소스
+그룹의
+자동화
+스크립트
+EY Io a lo le름
+라이브러리에
+추가를
+3 -->
+템플릿
+서비스에서
+템플릿을
+선택한'후'웹
+관리자에게
+템플릿을
+공유합니다
+Reference:
+https:lldocsmicrosoftcom/en-us/azurelazure-resource-manager/templates/quickstart-
+Create-templates-use-the-portal
+127310

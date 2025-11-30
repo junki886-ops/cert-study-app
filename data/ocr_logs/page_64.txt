@@ -1,0 +1,150 @@
+The
+safer
+easier
+Way
+to
+help
+you
+pass
+any
+|T
+exams
+도메인
+이름
+등록
+기관에서
+도메인
+이름에
+오{
+DNS
+항목을
+추가하세요
+Azure
+Y IIo
+사용자
+지정
+이름
+확인
+AD
+Reference:
+https:Ildocsmicrosoft
+comlen-
+-us/azureldns/dns-
+web-
+sites
+Custom-
+-domain
+핫스핏
+6
+그림에는
+App
+Service
+계획이
+나와
+있습니다
+Default
+Aulo
+condition
+created
+scale
+Delete
+0
+The very
+Jast o?
+Gelaul!
+Lecurrence
+Tule cannot be
+Geleted
+Instead
+waming
+you can disable
+auloscale
+to turn ofl autoscale
+Scale mode
+O Scale based on a metnc O
+Scale to a specific
+Instance
+coun!
+Scale
+Out
+When
+homepage
+Maximum
+CpuPercentage
+85
+Increase
+count by
+Rules
+Scale in
+When
+homepage
+Average
+CpuPercentage
+<30
+Decrease count by 1
++ Add
+a rule
+Minimum
+6
+Maximum
+Delaul
+Instance limits
+5
+Schedule
+This
+Scale
+condition is
+xecuted
+when
+3uou
+Of the
+other
+Scale
+conditions
+match
+계획의
+축소
+설정은
+다음
+App
+그림과
+같이
+Service
+구성됩니다
+Operator
+Metric
+threshold
+o
+trigger
+Scale
+리ction
+Less
+than
+30
+Ouration
+minutes
+0
+n
+5
+Time
+mins
+0
+Time
+9rain
+grain
+Statistic
+0
+Average
+Action
+Operation
+1
+Oecrease
+Coun!
+6y
+Instance
+Count
+Coo!
+down
+minutes
+0
+637310

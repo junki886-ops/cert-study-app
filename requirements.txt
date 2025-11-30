@@ -1,0 +1,63 @@
+# ==============================================
+# cert_study_app - v6.2 Full (CPU Stable + Flask + LLM)
+# ==============================================
+# 완전 통합 버전: OCR + LLM + DB + Flask + LangChain
+# Tested on: Python 3.10 / Windows 10 / CPU 16GB
+# ==============================================
+
+# --- Core / Runtime ---
+numpy==1.26.4
+tqdm==4.67.1
+Pillow==10.4.0
+requests==2.32.3
+python-dateutil==2.9.0.post0
+pytz==2025.2
+fire==0.7.1
+typing_extensions==4.12.2
+
+# --- PaddleOCR (CPU 버전, No OpenCV) ---
+paddlepaddle==2.6.1
+paddleocr==2.7.3
+lmdb==1.7.5
+
+# --- PDF / Image Handling ---
+pdf2image==1.17.0
+PyMuPDF==1.20.2
+
+# --- Flask & Web Server ---
+Flask==3.0.3
+python-dotenv==1.0.1
+Werkzeug==3.0.3
+Jinja2==3.1.4
+itsdangerous==2.2.0
+
+# --- Database / ORM ---
+SQLAlchemy==2.0.36
+alembic==1.13.2
+
+# --- Deep Learning (PyTorch CPU 전용) ---
+torch==2.2.2
+torchvision==0.17.2
+torchaudio==2.2.2
+# install tip:
+# pip install -r requirements_v6.2_full.txt --extra-index-url https://download.pytorch.org/whl/torch_stable.html
+
+# --- Transformers / LangChain / HuggingFace ---
+transformers==4.45.1
+accelerate==0.27.2
+huggingface_hub==0.36.0
+tokenizers==0.20.3
+langchain==0.2.16
+langchain-community==0.2.12
+langchain-huggingface==0.1.0
+chromadb==0.5.5
+sentence-transformers==3.0.1
+
+# --- Fast JSON / I/O (성능 향상) ---
+orjson==3.10.7
+ujson==5.10.0
+
+# --- Optional: Advanced Utilities ---
+psutil==6.1.0         # CPU 메모리 사용량 모니터링
+rich==13.9.2          # 컬러 로그 출력 (선택)
+colorama==0.4.6       # Windows ANSI 색상 지원

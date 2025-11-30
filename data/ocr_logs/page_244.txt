@@ -1,0 +1,136 @@
+The
+safer
+easier
+Way
+to
+help
+you
+pass
+any
+1T
+exams
+Create
+storage
+?
+account
+Basics
+Advancec
+Networking
+protection
+Encryption
+Date
+Basics
+Subsaiption
+Azurt
+subscripton 1
+Resource
+Group
+RG!
+Location
+Eastus
+Storage
+account
+Aame
+Sdatum22
+Deployment mode!
+Resourc?
+manager
+Performancs
+Premium
+Prem ium
+Sccount type
+File shares
+Replication
+Zone-redundant
+Storage
+ZRS
+Advanced
+Secure transte!
+Enabled
+Allow
+Storage
+account
+key
+Sccess
+Enabled
+Allow
+Cross-tenant ieplicauo?
+Disabled
+Default to Azure
+Active
+Directory
+Oisabled
+Buthorzation in the Azure porta!
+Blob
+public
+553335
+Enabled
+Minim um
+YS
+VerSON
+Version
+12
+Permitted
+Scope lor cop
+Operatons
+From
+arly
+Slorage
+3ccount
+Coreview
+Enable hierarchical
+Hamespsce
+Disabled
+Enable network file system v3
+Disabled
+Enable SFi!
+Disabled
+Large fle shares
+Disabled
+Networking
+Netwvork
+Connectivity
+Public endpoint Call
+Hetworks
+Default routing te?
+Microsot network
+Fouting
+Endpoint type
+Standard
+Data
+protection
+Poinl-in-time restore
+Disabled
+Blob
+Soft delete
+Dissbled
+Contsiner
+Soit delele
+Dissbled
+File share soft delete
+Enabled
+File share
+Fetainment period in days
+Versioning
+Disabled
+Blob
+Change feed
+Disabled
+Version-level immutability support
+Disabled
+Encryption
+Encryption type
+Microsoft
+-managed
+keys MMK
+Enable
+Support lo?
+Customer -managed
+Blobs
+and files only
+keys
+Enable
+infrastructure
+Encryption
+Disabled
+243 I310

@@ -1,0 +1,198 @@
+The
+safer
+easier
+Way
+to
+help
+you
+pass
+any
+/7
+exams
+Name
+Type
+RG!
+Resource
+group
+netvorknterface1
+Virtual
+Heork
+Interiace
+NSG!
+Network secunty
+dnoib
+NsG
+NSG1
+은
+networkinterface1
+연
+결됩니다
+User1
+에는
+뭉[그
+[6표
+표시된
+대로
+NSG1
+16
+할당이
+있습니다
+Role
+Scope
+Contributo
+This
+Tesource
+Reader
+Subscription
+Anherited
+368jos
+Accoun?
+Resouree
+dno6
+Mnnerited
+Contributo
+다음각진술에
+진술이
+참이면
+예를
+선택하십시오
+대해
+해당
+그렇지
+않으면
+아니오를
+선택하십시오
+참고
+각
+올바른
+선택은
+1
+점의
+가치가
+있습니다
+Answcr
+Area
+Statcmcnts
+No
+User!
+Can
+Creale
+Slorage
+account in
+RG!
+User!
+Can modify
+The
+SNO
+3ettings
+0
+He workinteriace1
+User!
+Can
+Create
+5n
+Inbound
+Security
+Hie
+[0
+fil te!
+inbound
+Traffi<
+{0
+Ne tworkinterface i
+Answer:
+<O{U CU-EC
+Answcr
+Arca
+Statcments
+-
+No
+User!
+Can
+Creale
+I slorage
+account in
+RG!
+User!
+Can modify
+the
+DNS
+Se ttings
+이
+Heworknterface1
+User!
+Can
+inbound
+ue to
+filter
+Create
+Security
+inbound
+Traffi<
+to ne tworkinterface!
+310
+핫스핏
+다음
+표에
+표시된
+릉을으호
+포함하는
+Subscriptioni
+이라는
+Azure
+구독이
+있습니다
+Quota
+Region
+Current
+name
+Usags
+Standard
+8s
+Family VCPUs
+West Us
+0of 20
+Standard
+0
+Family VCPUs
+West us
+0of 20
+Tota!
+Regional
+VCPUS
+West US
+0o 20
+뭉[그
+표에
+표시된
+대로
+가상
+머신을
+Subscription1
+[6
+Name
+Size
+Vcpus
+Region
+Status
+WM!
+Standard
+B2ms
+2
+West Us
+Runnino
+WM2
+Standard_8 16ms
+16
+Wes? US
+Stopped
+Deallocated
+다음
+표에
+표시된
+가상
+머신을
+배포할
+계획입니다
+296/
+310

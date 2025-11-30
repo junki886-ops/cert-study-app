@@ -1,0 +1,282 @@
+The
+safer
+easier
+Way
+to help
+you
+pass
+any
+1T
+exams
+다음각진술에
+대해
+음온
+진술이
+참이면
+예를
+'YI오 a
+그렇지
+않으면
+아니요를
+선택합니다
+Answe Are
+Statement
+You can deploy
+Virtun! macinine to RG!
+R&
+You can deploy
+I mathine to RS2
+You can manually
+'Greate
+IIcsouic?
+Grob
+Daned RG3
+Answer:
+Answe!
+Area
+Statement
+%
+You can deploy
+Virtun! maciine to RG!
+You cao
+deploy
+144
+ImadhIns to RG?
+You can manually
+Create
+I iesouice
+Goup named RG3
+0
+Explanation:
+Deployjson
+이라는
+파일과
+실행한
+cmdlet 을
+기반으로
+한
+설명에
+대한
+답변은
+같습니다
+RGI에
+가상
+머신을
+배포할
+수
+있습니다
+=
+아니오
+RG2에가상
+머신을
+배포할수있습니다-아니오
+RG3
+이라는
+리소스
+그룹을
+수동으로
+만들
+수
+있습니다=
+예
+이유를
+설명하겠습니다
+Deployjson
+파일은
+Azure
+Y Ito
+리소스
+그룹
+및
+가상
+머신을
+만들기
+템플릿을
+정의합니다
+템플릿에는"두개의매개변수resourceGroupName
+및
+VmName가
+있습니다
+또한"
+템플릿에는
+'두
+개의
+리소스가
+있습니다
+하나는
+리소스
+그룹용이고
+다른
+Production
+가상
+머신용입니다
+리소스
+그룹
+리소스에는
+이라는
+속성이
+있으며
+이속성은
+ResourceGroupName
+매개
+변수의
+name
+값으로
+설정됩니다
+가상
+머신
+리소스에는
+배포
+cmdlet 의
+위치
+매개
+변수
+값으로
+설정되는
+위치라는
+속성이
+있습니다
+Cmdlet
+은
+위치를
+westus
+지정하고
+템플릿
+파일을
+Deployjson
+으로
+지정합니다
+그러나
+매개변수에
+지정하지
+않습니다
+따라서
+resourcesGroupName
+및
+mName
+값은
+webapp1-prod
+긍
+배포를
+만들기
+전에
+을은
+값을
+대화형으로
+입력하라는
+메시지를
+표시합니다
+resourcesGroupName
+매개변수의
+값으로
+RGI를
+입력하고
+변수를
+사용하면
+VM1
+이라는
+mName
+매개
+Cmdlet 은
+westus
+위치에
+RGI
+라는
+리소스
+그룹과
+가상
+머신을
+만듭니다
+[Y -m
+RGI
+]에
+가상
+머신을
+배포할'수'있습니다
+webapp1-test
+ResourceGroupName
+매개
+webapp1-prod
+값으로
+RG2를
+입력하면
+Cmdlet 이
+오류와
+함께
+실패합니다
+이는
+RG2가
+구독에
+이미
+존재하고
+기존
+리소스
+그룹과
+동일한
+이름으로
+리소스
+-
+그룹을'만들수없기때문입니다
+따라서
+이
+템플릿과
+cmdlet 을
+Fo온-융Y
+가상
+머신을
+RG2에
+배포할수없습니다
+New-AzResourceGroup
+webapp1-test
+다른
+cmdlet 을
+사용하여
+RG3이라는
+리소스
+그룹을
+수동으로
+만들
+수
+있습니다
+이
+Cmdlet 은
+이름과
+위치라는두가지
+1매개
+https:Ildocs
+사용합니다
+예를
+들어
+다음
+Cmdlet 을
+실행하여
+westus 에
+RG3
+이라는
+리소스
+그룹을만들수있습니다
+New-AzResourceGroup -
+이름
+RG3 -
+위치
+서쪽
+95
+webapp1
+이라는
+Azure
+[Y Io명붕
+실행되는
+App1
+이라는
+앱이
+있습니다
+회사의
+개발자는
+App1
+업데이트를
+GUi
+라는
+Git
+저장소에
+업로드합니다
+897310
