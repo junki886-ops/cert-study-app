@@ -118,7 +118,6 @@ Upload your study materials and start practicing with AI-generated questions tai
 - Flask
 - LangChain
 - ChromaDB
-- PaddleOCR
 - Hugging Face Transformers
 """
 
