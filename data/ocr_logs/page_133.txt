@@ -1,0 +1,190 @@
+The
+ safer
+easier
+Way
+to help
+you
+pass
+any
+1T
+exams
+I 롱t즈
+어떤
+'사용자'속성을
+합니까?
+A각사용자의
+'사용자'주체명'및'사용
+위치만
+3각사용자의
+사용자계정
+이름만
+C각사용자의
+'표시'이름만
+D
+각사용자의
+표시'이름'및'사용
+위치
+-
+E
+'각'사용자의
+표시
+이름
+및'사용자
+계정
+이름만
+-
+Answer:
+B
+Explanation
+Directory
+Y Io
+사용자를
+삭제하려면
+삭제할
+사용자
+목록이
+포함된
+CSV
+파일을
+Azure
+Active
+간들고
+업로드해야
+합니다
+파일에는
+각'사용자의
+UPN사용자"계정
+이름만
+o o [5受丘
+'[ I오
+-
+따라서답은B입니다각사용자의사용자계정이름만해당됩니다Azure
+Active
+Directory
+관리
+센터에서'대량'삭제'기능을'사용하는'경우'삭제하려는'각'사용자에
+대해
+UPN을지정해야
+UPN은'
+AzureAD의'각사용자에
+대한'고유'식별자이며
+AzureAD가사용자계정을식별하고
+관리하는기본
+Y용y'긍Nd이:h방붐은
+'계정의'유일한
+필수'속성이므로
+-
+국It xIzIy올H
+표시이름이나사용위치와같은
+추가
+棟속성을
+홍몰丘
+필요가
+없습니다
+그러나각사용자
+계정과
+굽고고
+메타데이터를
+추적하려는
+경우
+CSV
+I6o 弓丘
+추가
+속성을
+수
+있습니다
+136다음
+[6표
+표시된
+스토리지
+계정이
+포함된
+Azure
+구독이
+있습니다
+Name
+Kind
+Performance
+Replication
+Access tier
+Stor age1
+Storage
+Igenera!
+Premium
+Geo-redundant
+SUON
+purpose 1
+storage
+GRS
+Storage2
+Storagev2
+Igenera!
+Standar d
+Locally-redundant
+Coo!
+purpose v2
+Storage LRS
+Storage3
+Storagev2
+Igeneral
+Prem ium
+Read-access
+geo
+1에
+Purpose v2
+redundant
+storage
+RA-GRS
+Stor age4
+BlobStorage
+Standard
+Locally-redundant
+Hot
+storage
+[RS
+Azure
+Y Io 롱 lZ
+실시간
+릉 lo Iz드lo
+요청하여
+2RS영역
+눕을
+저장소
+복제로
+호호
+수
+있는
+저장소
+계정을
+식별해야
+무엇을
+식별해야
+더{h호
+A
+보관1
+-
+보관2
+보관3
+D
+보관4
+Answer:I
+B
+Explanation:
+https:/learnmicrosoftcom/en-us/azurelstoragelcommon/redundancy-migration?tabs=portal
+137Azure
+구독이
+있습니다
+구독에는
+[6표
+표시된
+수명
+주기
+관리
+규칙이
+있는
+Storage1
+이라는
+스토리지
+계정이
+있습니다
+1327310

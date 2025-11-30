@@ -1,0 +1,200 @@
+The
+ safer
+easier
+Way
+to help
+you
+pass
+any
+1T
+exams
+VMSS1
+근접
+배치
+그룹을'구성해야
+-
+어떤'근접
+배치
+그룹을
+o H온-융Y
+합니까?
+A
+Proximity2
+'에만
+해당
+B근접성1근접성2
+[및'근접성3
+C'근접1'및근접3에만
+해당
+D
+근접성1만해당
+Answer: A
+Explanation
+배치그룹은
+향상된
+애플리케이션
+성능을
+위해
+Azure
+IaaSUnfrastructure
+as a
+Service
+리소스를
+공동
+-
+배치하고
+리소스
+간
+네트워크
+대기
+시간을
+낮추는
+기능입니다
+Azure
+근접
+배치'그룹은
+Azure
+Virtual
+Machines
+대한'새로운
+논리적]
+그룹화기능을
+나타내며
+-
+이는'가상'머신을'배치할
+위치를
+선택할
+Im
+배포
+제약
+조건으로
+사용됩니다
+실제로
+가상'머신을
+근접배치그룹에할당하면
+가상
+머신이
+홍령을
+데이터
+센터에
+배치되므로
+애플리케이션의지연
+시간이"더
+짧고결정적입니다
+VMSS는동일한
+지역을'공유해야
+하며
+근접
+그룹이
+동일한
+aloIa
+센터에
+위치하므로
+동일한
+Eo o lo 6 %
+합니다
+따라서
+근접성
+2만
+1o 108
+'{그h오
+-
+Reference:
+https:lazuremicrosoftcom/en-us/blog/introducing-
+I-proximity
+-placement-
+-groups
+145
+핫스핏
+Folder1
+및
+Folder2
+라는"두2개의
+폴더가
+포함된
+WebApp1
+이라는
+Azure
+Service
+앱이
+App
+있습니다
+-
+WebApp1
+의
+일일
+백업을
+구성해야
+합니다
+솔루션은
+Folder2
+2가
+FY I1o 6
+제외되도록
+해야
+합니다
+Fokier2를
+제외하려면
+'무엇을"먼저
+생성해야
+하며
+무엇을
+사용해야
+합니까?
+답변하려면
+답변
+FY Io ; g
+'중IyI온 a
+참고:
+올바른
+선택은
+각각
+적절한읍션을
+점의
+가치가
+있습니다
+Answer Arca
+First deate
+An
+Azure
+Siorage
+Sccoun?
+A
+Backup
+Vault
+Recovery
+Services vault
+A resource
+dnob
+To exclude
+Folder2
+Use
+backup flte?
+backup policy
+A lock
+A webJob
+Answer:
+Answer Arca
+First deate
+An
+Azure
+Storage
+ACCOUN!
+Backup
+A
+Vaul:
+A
+Recovery
+Services vault
+A
+IESOUrCe
+group
+Io exclude
+Folder2
+Use
+backup flter e
+backup policy
+4
+A lock
+A weblob
+1411310

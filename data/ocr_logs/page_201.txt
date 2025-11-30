@@ -1,0 +1,254 @@
+The
+Safer
+to
+help
+any
+|T
+easier
+Way
+you
+pass
+exams
+Statements
+Yes
+No
+RG1
+has
+the
+Tag2: IT
+tag
+assigned
+only
+Storage1
+has
+the
+Tagl:
+subscription
+Tag2 IT
+Tag3:valuel
+and
+Tag4:value4
+tags
+assigned
+VNET1
+the
+and
+Tag3:
+value2
+tags
+has
+Tag2 IT
+assigned
+only
+Explanation:
+Tag2: IT
+에는
+태그만
+[0空음론
+있습니다
+아니요
+이는
+RG1
+정확하지
+않습니다
+표에
+따르면
+에는
+丹
+RG1
+Tag2: IT
+Tag3: value2
+라는
+두
+개의
+태그가
+[0늬으론
+있습니다Azure
+정책은
+정책
+Y Io6룹
+제외되므로
+RG1에
+릉옷을
+주지
+않습니다
+따라서
+RG1에는정책에의해추가된
+Tag4:
+-
+value4
+태그가
+없습니다
+Storage1
+에는
+Tag1:
+구독
+Tag2: IT
+Tag3:
+value1
+및
+Tag4: value4
+태그가
+있습니다예맞습니다
+표에
+따르면
+Storage1
+에는
+Tag1: 구독 Tag2: IT Tag3:
+value1
+이라는
+[<
+가지
+태그가
+있습니다
+Azure
+정책은
+정책
+범위
+[6 {
+있고
+제외되지
+않으므로
+Storage1
+[6
+릉으을
+줍니다
+따라서
+Storage1
+에는
+정책에
+온 6
+추가된
+Tag4:
+value4
+태그가
+있습니다
+에는
+11
+Tag2:
+및
+Tag3:
+value2
+태그만
+있습니다
+예
+맞습니다
+표에
+따르면
+VNET1
+에는
+IT
+Tag3:
+라는
+두
+개의
+태그가
+있습니다
+Azure
+정책은
+정책
+VNET1
+Tag2:
+및
+value2
+Y [06료
+제외되므로
+VNET1 에
+릉으을
+주지
+않습니다
+따라서
+VNET1
+에는
+정책에
+온
+추가된
+Tag4:
+value4
+태그가
+없습니다
+207
+핫스핏
+Subscription1
+이라는
+Azure
+구독을
+구매합니다
+구독1에
+VM1
+이라는
+가상
+머신을
+만듭니다
+VM1
+은
+Azure
+Backup
+으로
+보호되지
+않습니다
+을
+보호해야
+합니다
+Backup
+사용하여
+VM1
+백업은
+오전
+1시에
+Io o Ey요
+버온
+30일
+Azure
+'을
+공욱
+저장되어야
+-
+당신은
+무엇을
+합니까?
+답변하려면
+[Y Io 6
+적절한
+옵션을
+선택하세요
+참고:
+올바른
+-
+선택은
+각각1점의
+가치가
+있습니다
+Answer
+Area
+which
+the
+backups:
+Location
+t0
+store
+A blob
+Container
+A file
+Share
+A Recovery
+Services
+Vault
+<
+Storage
+accournt
+Object to use
+Configure
+the
+for
+시M1:
+to
+protection
+A backup
+policy
+A batch
+job
+A batch
+schedule
+Trecovery plan
+200 I 310

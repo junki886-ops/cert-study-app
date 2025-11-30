@@ -1,0 +1,129 @@
+[
+  {
+    "type": "multiple_choice",
+    "topic": "Networking",
+    "subtopic": "NSG / IP Flow Verify",
+    "question": "VM에 대한 특정 포트 접근이 실패하는 원인을 신속하게 확인해야 합니다. 어떤 도구를 사용해야 합니까?",
+    "options": {
+      "A": "Connection Monitor",
+      "B": "IP Flow Verify",
+      "C": "Traffic Analytics",
+      "D": "Network Watcher Topology",
+      "E": "Route Table Effective Routes"
+    },
+    "answer": "B",
+    "explanation": "IP Flow Verify는 특정 소스와 대상, 포트, 프로토콜에 대해 NSG 규칙 및 경로 규칙이 허용 또는 차단되는지를 직접 확인할 수 있습니다."
+  },
+
+  {
+    "type": "multiple_choice",
+    "topic": "Networking",
+    "subtopic": "NSG 우선순위",
+    "question": "NSG 규칙은 어떤 기준으로 적용 순서가 결정됩니까?",
+    "options": {
+      "A": "이름 순서",
+      "B": "생성 순서",
+      "C": "우선순위 값 (숫자 낮을수록 먼저 적용)",
+      "D": "출발지 IP 크기",
+      "E": "대상 포트 번호 크기"
+    },
+    "answer": "C",
+    "explanation": "NSG 규칙은 숫자가 낮은 Priority가 먼저 적용됩니다. 가장 먼저 매칭된 규칙이 즉시 적용되며, 이후 규칙은 평가되지 않습니다."
+  },
+
+  {
+    "type": "multiple_choice",
+    "topic": "Networking",
+    "subtopic": "Load Balancer vs Application Gateway",
+    "question": "L4 트래픽 분산만 필요하고 세션 기반 라우팅 또는 HTTP 검사 등의 기능은 필요하지 않습니다. 어떤 서비스를 선택해야 합니까?",
+    "options": {
+      "A": "Application Gateway",
+      "B": "Azure Load Balancer",
+      "C": "Traffic Manager",
+      "D": "Front Door",
+      "E": "WAF Gateway"
+    },
+    "answer": "B",
+    "explanation": "Load Balancer는 L4 수준의 패킷 기반 분산을 제공합니다. Application Gateway는 L7 HTTP 기반 라우팅 및 WAF 기능 제공이 목적입니다."
+  },
+
+  {
+    "type": "multiple_choice",
+    "topic": "Networking",
+    "subtopic": "Site-to-Site VPN",
+    "question": "온프레미스 데이터센터와 Azure 가상 네트워크 간에 지속적인 사설 네트워크 연결이 필요합니다. 어떤 구성을 사용해야 합니까?",
+    "options": {
+      "A": "Point-to-Site VPN",
+      "B": "VNet Peering",
+      "C": "Site-to-Site VPN",
+      "D": "ExpressRoute Direct",
+      "E": "Private Endpoint"
+    },
+    "answer": "C",
+    "explanation": "Site-to-Site VPN은 온프레미스 게이트웨이 장비와 Azure VPN Gateway 간에 IPsec 터널을 구성하여 상시 연결을 제공합니다."
+  },
+
+  {
+    "type": "multiple_choice",
+    "topic": "Networking",
+    "subtopic": "DNS / Private Zone",
+    "question": "App1은 VM 내부 전용 서비스이며 온프레미스와 Azure VNet에서 동일한 이름으로 접근 가능해야 합니다. 가장 적절한 구성은?",
+    "options": {
+      "A": "Hosts 파일 배포",
+      "B": "Public DNS Zone",
+      "C": "Private DNS Zone + VNet 링크",
+      "D": "Azure AD DS DNS 자동 동기화",
+      "E": "조건부 포워딩만 구성"
+    },
+    "answer": "C",
+    "explanation": "Private DNS Zone은 내부 사설 네임 리졸루션을 제공하며, VNet에 링크하면 Azure 및 온프레미스에서 동일하게 사용할 수 있습니다."
+  },
+
+  {
+    "type": "multiple_choice",
+    "topic": "Networking",
+    "subtopic": "VNet Peering",
+    "question": "VNet 간 트래픽이 정상적으로 통신하지 않습니다. 가장 먼저 확인해야 할 항목은 무엇입니까?",
+    "options": {
+      "A": "VNet 주소 공간 겹침 여부",
+      "B": "리소스 그룹 이름",
+      "C": "VNet 이름",
+      "D": "Azure Firewall SKU",
+      "E": "서브넷 이름"
+    },
+    "answer": "A",
+    "explanation": "VNet Peering은 주소 공간이 겹치면 라우팅이 불가능합니다. CIDR이 서로 다르게 설정되어야 합니다."
+  },
+
+  {
+    "type": "multiple_choice",
+    "topic": "Networking",
+    "subtopic": "Private Endpoint",
+    "question": "Blob Storage 접근 시 인터넷 경로를 완전히 차단하려면?",
+    "options": {
+      "A": "Service Endpoint 활성화",
+      "B": "Private Endpoint 구성 + 스토리지 방화벽에서 Selected Network 허용",
+      "C": "스토리지 Public Access Level 변경",
+      "D": "Application Gateway 경유",
+      "E": "NSG ANY ANY ALLOW"
+    },
+    "answer": "B",
+    "explanation": "Private Endpoint는 Storage 계정에 사설 IP를 할당하여 트래픽이 인터넷을 통하지 않고 이동하도록 합니다."
+  },
+
+  {
+    "type": "multiple_choice",
+    "topic": "Networking",
+    "subtopic": "UDR / Azure Firewall",
+    "question": "모든 서브넷 트래픽이 Azure Firewall을 통해 검사되도록 해야 합니다. 무엇을 구성해야 합니까?",
+    "options": {
+      "A": "NSG 규칙",
+      "B": "UDP 포트 열기",
+      "C": "UDR에서 다음 홉을 Azure Firewall로 지정",
+      "D": "BGP 비활성화",
+      "E": "Private DNS Resolver"
+    },
+    "answer": "C",
+    "explanation": "트래픽 경로 강제는 UDR 기반으로 수행합니다. NSG는 접근 제어 목적입니다."
+  }
+]

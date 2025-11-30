@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>문제 업로드</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-gradient-to-b from-emerald-50 to-slate-100">
+  <!-- 헤더 -->
+  <header class="bg-white shadow sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center">
+      <h1 class="text-lg font-semibold">문제 업로드</h1>
+      <nav class="ml-auto flex gap-3 text-sm">
+        <a href="/" class="px-3 py-1.5 rounded-lg border">홈</a>
+        <a href="/quiz" class="px-3 py-1.5 rounded-lg border">문제 풀이</a>
+        <a href="/wrong" class="px-3 py-1.5 rounded-lg border">오답 노트</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 메인 -->
+  <main class="max-w-xl mx-auto px-4 py-10">
+    <div class="bg-white rounded-2xl shadow p-6">
+      <h2 class="text-xl font-bold text-slate-900 mb-4">PDF 업로드</h2>
+      <p class="text-sm text-slate-600 mb-6">
+        시험 덤프 PDF를 업로드하면 자동으로 <span class="text-emerald-600 font-semibold">Adaptive 파서</span>가
+        문제 유형별로 분석하고 DB에 저장합니다.
+      </p>
+
+      <form id="uploadForm" enctype="multipart/form-data" class="space-y-4">
+        <input type="file" name="file" accept=".pdf"
+               class="w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-4 
+                      file:rounded-lg file:border-0 file:text-sm 
+                      file:font-semibold file:bg-emerald-50 file:text-emerald-700 
+                      hover:file:bg-emerald-100" required>
+        <button type="submit"
+                class="w-full py-2 px-4 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition">
+          업로드 및 파싱 시작
+        </button>
+      </form>
+
+      <!-- 진행 상태 -->
+      <div id="statusBox" class="mt-6 hidden">
+        <div class="text-sm text-slate-600 mb-2 font-medium">진행 상황</div>
+        <div class="w-full bg-slate-200 rounded-full h-2.5">
+          <div id="progressBar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500 ease-in-out" style="width: 0%"></div>
+        </div>
+        <div id="statusText" class="mt-2 text-sm text-slate-600"></div>
+      </div>
+
+      <!-- 결과 메시지 -->
+      <div id="message" class="mt-6 text-sm"></div>
+
+      <!-- 유형별 통계 -->
+      <div id="summary" class="mt-4 hidden bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-sm text-emerald-800">
+        <p class="font-semibold mb-2">📊 유형별 파싱 결과</p>
+        <ul id="summaryList" class="space-y-1 text-sm"></ul>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const msgBox = document.getElementById("message");
+    const statusBox = document.getElementById("statusBox");
+    const progressBar = document.getElementById("progressBar");
+    const statusText = document.getElementById("statusText");
+    const summaryBox = document.getElementById("summary");
+    const summaryList = document.getElementById("summaryList");
+
+    function updateProgress(percent, text) {
+      progressBar.style.width = percent + "%";
+      statusText.textContent = text;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msgBox.textContent = "";
+      statusBox.classList.remove("hidden");
+      summaryBox.classList.add("hidden");
+      updateProgress(10, "📡 파일 업로드 중...");
+
+      const formData = new FormData(form);
+      try {
+        const res = await fetch("/admin/upload", { method: "POST", body: formData });
+        updateProgress(50, "🧠 Adaptive 파서로 문제 분석 중...");
+        const data = await res.json();
+
+        if (res.ok) {
+          updateProgress(100, "✅ DB 저장 완료!");
+          msgBox.textContent = `✅ ${data.message}`;
+          msgBox.className = "mt-6 text-sm text-emerald-700 font-medium";
+
+          // 유형별 통계 표시 (Adaptive 파서가 각 문항에 question_type 포함)
+          if (data.details && data.details.by_type) {
+            summaryBox.classList.remove("hidden");
+            summaryList.innerHTML = "";
+            for (const [type, count] of Object.entries(data.details.by_type)) {
+              summaryList.innerHTML += `<li>• ${type}: ${count}문항</li>`;
+            }
+          } else {
+            summaryBox.classList.remove("hidden");
+            summaryList.innerHTML = `<li>총 ${data.count}문항 저장 완료</li>`;
+          }
+
+        } else {
+          msgBox.textContent = `❌ 오류: ${data.error || "업로드 실패"}`;
+          msgBox.className = "mt-6 text-sm text-rose-600 font-medium";
+          updateProgress(0, "❌ 실패");
+        }
+      } catch (err) {
+        msgBox.textContent = "⚠️ 서버 오류로 업로드 실패";
+        msgBox.className = "mt-6 text-sm text-rose-600 font-medium";
+        updateProgress(0, "⚠️ 오류 발생");
+      }
+    });
+  </script>
+</body>
+</html>

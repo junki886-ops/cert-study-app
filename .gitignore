@@ -1,0 +1,50 @@
+# 가상환경
+venv/
+.venv/
+env/
+
+# Python 캐시
+__pycache__/
+*.pyc
+
+# VSCode 설정
+.vscode/
+
+# 데이터 업로드
+data/uploads/
+data/images/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.py[cod]
+*$py.class
+*.so
+.Python
+ENV/
+# Secrets
+*.token
+*_token.txt
+secrets/
+# IDE
+.idea/
+*.swp
+*.swo
+# Database
+*.db
+*.sqlite
+*.sqlite3
+# Uploads
+temp/
+
+# Large files (Hugging Face limit: 10MB)
+*.pdf
+dump.pdf
+*.zip
+data/ocr_logs/*.zip
+# Database (large files)
+chroma_db/
+# Logs (can be large)
+*.log
+logs/

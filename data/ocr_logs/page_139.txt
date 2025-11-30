@@ -1,0 +1,97 @@
+The
+safer
+easier
+Way
+to
+help
+you
+pass
+any
+/7
+exams
+New
+package
+access
+*Basics
+Resource roles
+`Requests
+Requestor
+information
+`Lifecycle
+Revicw
+Create
+Summary
+이
+access package
+Configuration
+Basics
+Name
+package1
+Description
+Guest
+Users
+Catalog
+name
+General!
+Resource roles
+Resource
+Type
+Sub Iype
+Role
+Group!
+Group and Team
+Security
+Group
+Member
+Requests
+Users who can
+Yequest access
+All configured
+Connecled
+Organizations
+Require
+[eodde
+No
+Enabled
+Yes
+Requesto!
+infor mation
+Questions
+Question
+Answe?
+euo
+Multiple
+ choice optio
+Required
+Attributes Preview
+Anribute type
+Attribute
+Oefault display string
+Answer
+Tormat
+Multi
+Lifecydle
+Access
+package
+assignments
+expire
+After
+365 days
+Require
+access reviews
+No
+수명
+주기
+항목에
+표시된
+대로
+외부
+사용자
+수명
+주기
+설정을
+구성합니다
+수명주기
+톱을
+클릭하세요
+1387310

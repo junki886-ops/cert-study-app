@@ -1,0 +1,220 @@
+The
+ safer
+easier
+Way
+to help
+you
+pass
+any
+|T
+exams
+Answe?
+Area
+The
+average
+CPU
+percentage is
+Calculated
+[answe]
+Choiccl pe!
+NSG2
+Once
+Y0u
+Tme?
+SIx
+ times
+24 times
+VM1은
+must be
+[answe?
+choicel to
+Optimize
+CPU
+usage
+Scaled up
+Scaled
+down
+Staed ou!
+Explanation:
+평균CPU
+비율은
+하루에
+24번
+계산됩니다
+이는
+전시회가
+24시간
+동안의
+ASP1
+[6
+CPU
+비율을
+시간마다
+하나의
+크lo Il
+포인트와
+그룹이
+함께
+표시하기
+때문입니다
+따라서
+평균
+CPU
+비율은
+[o글은극낚 렵호음zlY
+24번
+계산됩니다1
+CPU
+'릉을융Y
+최적화하려면
+ASP1을
+확장해야
+합니다
+이는
+AsP1의
+CPU
+비율이
+지속적으로
+-
+80%를'초과한다는것을'보여주기
+때문입니다
+이는'앱'서비스
+계획의
+부하가
+높고
+트래픽을
+처리하기'위해"더'
+'많은
+인스턴스가
+필요함을
+나타냅니다수평
+확장은
+'앱'서비스
+계획에
+더
+표시된
+인스턴스를추가하는
+것을'의미하며
+이는
+호스팅되는앱의성능과가용성을
+향상시킬
+VM1과
+-
+있습니다2
+확장이란
+[eIIs YlalY경
+가격
+책정
+계층을
+변경하는
+것을
+의미하며
+이는
+-
+각
+인스턴스에
+사용'가능한
+리소스를
+'수'
+있지만
+반드시
+CPU
+사용량을
+줄이는
+것은
+아닙니다3
+157
+핫스잣
+구독이
+RG1
+이라는
+리소스
+그룹을
+포함하는
+Azure
+있습니다
+template1
+이라는
+ARMAZure
+Manager
+템플릿을
+사용하여
+리소스를
+배포할
+Resource
+계획입니다
+솔루션은
+뭉그
+릉옷Y+장
+충족해야
+합니다
+-
+RG1에
+새
+리소스를
+배포합니다
+리소스를
+배포하기
+전에
+RG1
+Y Io
+기존
+리소스를
+모두
+제거합니다
+새
+경령을
+I 닭lo
+합니까?
+답변하려면
+WebApp!
+Y IIo 등%
+적절한
+옵션을
+선택하세요
+참고:
+-
+올바른
+선택은
+각각
+1
+점의
+가치가
+있습니다
+Answer
+Area
+Hear AxresourceGroupueploynent
+Temploteur!
+"https:!/cantoso
+Con teuplote!"
+YcaplotsPersiestertie
+Psransj300
+RG!
+Noo
+Thest are
+-Name
+QueryString
+Complete
+-ResourceGroupName
+Incrementa
+Jag
+Answer:
+Answer
+Area
+Hew AsResourceGroupueploynent
+Ysmpetcur!
+"htsps:!Icontosocony ceup!ete!'
+YeaplotsPsrsisstert!l
+RG!
+Hoes
+그
+par snsj3on
+Thest ars
+Name
+All
+Querystring
+Complete
+-ReSOUrCEGrOUpNane
+Incrementa
+Jag
+152 7 310

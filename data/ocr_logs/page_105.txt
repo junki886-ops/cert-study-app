@@ -1,0 +1,51 @@
+The
+ safer
+easier
+Way
+to help
+you
+I pass
+any
+IT
+exams
+Answer
+Area
+"rules":
+-
+"enabled":
+Crue
+"name":
+"rulel"
+"type":
+"Lifecycle"
+"definition":
+{
+"actions"{
+'baseslob":
+-
+{
+"LierloCool":
+é'
+daysAfterCreationCreaterThan'
+'daysAfterLastAccessTimeGreaterThan"
+'daysAfterModificationGreater Than"
+'Filters"
+{
+"blobTypes" [
+'AppendBlob'
+'Blockblob"
+'Pageblob"
+"prefixatch":
+Container!
+Explanation:
+1수정
+후일보다크게
+-
+2
+블록블롭
+https:/learnmicrosoft
+-us/azurelstorage/blobs/ifecycle
+Comlen
+management-
+-overviewffrule
+104 7310

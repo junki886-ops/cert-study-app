@@ -1,0 +1,42 @@
+The
+ safer
+easier
+Way
+to help
+you
+pass
+any
+IT
+exams
+Answer
+Area
+"rules":
+[
+"enabled":
+Crue
+"hame":
+"rule1"
+"type":
+"Lifecycle"
+"definiion":
+{
+"actdons":
+{
+baseB1obr:
+{
+"[1erroGool":
+{
+'daysAfterCreationereaterThan'
+"daysAfterLastAccessTimeGreaterThan"
+'daysAfterModificationGreater Than"
+Ifusers":
+{
+"blobTypes":
+[
+'AppendBlob"
+'Blockblob"
+'Pageblob'
+"prefixHatch":
+Con'taine고
+Answer:
+103 7310

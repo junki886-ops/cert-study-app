@@ -1,0 +1,191 @@
+The
+ safer
+easier
+Way
+to help
+you
+pass
+any
+/T
+exams
+A
+메트릭
+경고
+B Azure Log
+작업
+6%
+Analytics
+C
+가상머신
+D
+가상'머신
+-
+확장
+Answer:
+C
+Explanation:
+Azure
+Monitor 는
+세부
+정보
+및
+상관
+관계
+분석을
+위해
+Azure
+가상
+머신에서
+Log
+Analytics
+작업
+직접
+데이터를
+수집할
+수
+있습니다
+Windows
+및
+Linux
+용
+Log
+Analytics
+VM
+확장을
+설치하면
+Azure
+Monitor
+가
+Azure
+VM
+Y Io
+데이터를
+수집할
+수
+있습니다
+Azure
+Log Analytics
+작업
+영역은
+System
+Center
+Operations
+Manager
+Y Ito
+모니터링하는
+온-프레미스
+컴퓨터에도
+사용됩니다
+Reference:
+https:Idocsmicrosoft
+comlen-
+-uslazurelazure-monitor/learn/quick-collect-azurevm
+55핫스핏
+뭉그
+표에
+표시된
+리소스
+그룹을
+포함하는
+Azure
+구독이
+있습니다
+-
+Noms
+Locslion
+RG!
+Es3? us
+RG?
+West US
+이라는
+이름의
+다음
+ARMAZure
+Resource
+Manager
+json
+템플릿을
+만듭니다
+"Sscheres"
+https:! I scheao
+Sonogciieit
+Jurecoa/schemus/201
+01
+O/Geploynentenplale
+Jsonw
+"contentverslon":
+"100o"
+"Oaraueters"
+{}
+"varioblss"
+{}
+"Fesources":
+"lype"!
+'Hiefoso't
+Rssourees/re sourceGr oups
+"Opiverslon"
+'2018
+03 o1"
+"locaton*
+"Cos*us"
+'Oeie을
+Icoicet[
+'56'
+CopyI Nsex]]]]-
+"Cooy-
+"Mat"
+'cory"
+"Count"
+O Isandino
+뭉[그
+Cmdlet
+을
+실행하여
+템플릿을
+배포합니다
+항목-AzSubscriptionDeployment
+-템플릿
+파일
+배포-json
+-location
+각
+또는'다음명세서에
+대해
+1명세서가
+수신되었으면
+예를
+선택합니다
+그렇지
+긍왕
+경우
+아니요를
+선택합니다
+참고:
+올바른
+1점의
+가치가
+있습니다
+Answe! Are?
+Statements
+No
+R61
+RG2는
+이이
+“응
+The commands
+i!!
+I costo
+JOsI!
+Tww rosourcs:
+The commands
+Will ceat?
+Wes! us Azure region
+Is
+52009e
+Seceaunts
+n ue
+The first storage
+Iccout Uua!
+Is created will have a prefix of O
+Answer:
+571310

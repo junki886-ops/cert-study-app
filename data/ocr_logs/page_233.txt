@@ -1,0 +1,222 @@
+The
+ safer
+easier
+Way
+to help
+you
+pass
+any
+|T
+exams
+VNet1
+<>
+Virtual networ!
+O search
+>Move
+Delete
+O Refresh
+Give feedback
+Overview
+A Essentials
+JSON VieW
+Activity log
+Resource group move
+RG!
+Address space
+:10200/16
+Access control Cam
+Location move
+East us
+DNS servers
+Azure provided DOns service
+-
+Iags
+Subscripton move
+:Visual Studio Enterpnse Subscniption
+Flow timeout
+Confgure
+Diagnose and solve problems
+Subscripton ID
+7fetd66e-8694-4b54-beae- 17id819d4
+BGP community string
+Confgure
+Virtual network I
+Settings
+42276248-3a724769-9389-3e767d1bf6
+Address space
+Tags ledit
+:Click here to add tags
+VNet1
+연결된
+장치가
+없습니다
+에
+-
+VNet1을
+VNet2라는'다른'가상
+네트워크에
+피어링할
+계획입니다
+VNet2
+의
+주소
+공간은
+10200/16 입니다
+피어링을
+만들어야
+먼저"무엇을
+해야
+38{호
+-
+-
+A
+VNet2 에서
+서비스
+끝점을
+구성합니다
+VNet1
+의
+주소
+공간을
+수정합니다
+&
+C
+VNet1
+16
+[o l크 lo II
+서브넷을
+추가합니다
+D
+VNet1
+및
+VNet2 에
+서브넷을
+생성합니다
+Answer:
+B
+Explanation:
+두가상'네트워크
+간에
+피어링을
+만들려면
+가상
+네트워크의
+주소
+공간이
+겹치지
+보어왕
+합니다
+VNet1
+의
+주소
+공간은
+10000/16
+'이며
+이는
+VNet2
+의
+주소
+공간
+10200/16 과
+겹칩니다
+따라서
+피어링을
+만들기
+전에
+공간을
+VNet1
+'의
+주소
+1010016과'같은'겹치지않는'범위로
+'수정해야
+합니다
+피어링이
+작동하기
+위해
+서비스
+엔드포인트를구성하거나
+게이트웨이
+서브넷을
+추가하거나
+가상
+네트워크중
+하나에
+서브넷을
+만들
+필요가
+없습니다'그다음에
+-
+'주소'공간'수정]
+참고:[가상
+네트워크
+피어링][가상
+동E공크IF
+244드래그
+드롭
+다음
+표에
+표시된
+리소스가
+포함된
+Azure
+구독이
+있습니다
+Name
+Type
+Description
+Vm1
+Virtual
+machine
+Uses
+basic
+public IP
+address
+?
+Vm2
+Virtual
+machine
+Uses
+basic
+public IP
+address
+?
+nsg1
+Network
+security
+group NSG
+Allows incoming
+traffic
+from
+port
+443
+161
+Load
+Balancer
+Not applicable
+Azure
+Standard [
+161을
+사용하여
+Vm1
+및
+Vm2에
+오It
+HTTPS
+연결의
+부하를
+분산해야
+어떤2세1가지'
+작업을
+순서대로
+수행해야
+합니까?
+답변하려면
+작업
+목록에서
+작업을
+답변
+이동하고
+올바른
+순서로
+정렬하세요
+232 I310

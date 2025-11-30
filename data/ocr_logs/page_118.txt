@@ -1,0 +1,212 @@
+The
+safer
+easier
+Way
+help
+1o
+you
+pass
+any
+/7
+exams
+Explanation:
+상자
+1: User1
+및
+User3
+만
+권한
+Windows
+Server
+Active
+Directory
+소스가
+[6
+사용자의
+ID
+연락처
+정보
+또는
+작업
+정보를
+업데이트하려면
+Windows
+Server
+Active
+Directory
+를
+사용해야
+합니다
+상자
+2:
+사용자1
+사용자2
+및
+사용자3
+-
+사용
+위치는
+Azure AD
+lY lIo
+수정할
+있는
+Azure
+속성입니다Azure
+Connect
+를
+온울
+수
+AD
+동기화된
+Windows
+사용자를
+모든
+사용자에
+Ho
+Server AD
+Reference:
+https:Ildocs
+microsoft
+com/en-uslazurelactive-directory/fundamenta
+Is/active-directory-
+-users-
+profile-azure-portal
+121
+핫스핏
+다음
+표에
+표시된
+사용자가
+포함된
+Azure
+구독이
+있습니다
+Name
+Type
+Axure
+AD
+Toles
+Can
+be
+assig ned
+90
+the
+dno6
+Group1
+Security
+Yes
+Group2
+Secunty
+Yes
+Group3
+Microsoft
+365
+Yes
+그룹은
+다음
+표와
+같이
+구성됩니다
+%
+RG1
+Access
+Contro!
+AM
+Resource group
+~
+Search
+Cr]
+Add
+Download role assignments
+=-
+Edit columns
+5
+Retresh
+*
+Remove
+1
+Got leedback?
+이
+Overview
+Check
+Access
+Role assignments
+Roles
+Deny
+8ssignments
+Classic
+administrator?
+Activity log
+Access control Qam
+Number ot rols assignmcnts lor this subscription
+0
+1a93
+2000
+:
+Resource visuslize!
+O Sesrch by name or emai!
+Type:
+A
+Role:
+A
+Scope
+All scopes
+Group by:
+: Role
+Events
+Sotting
+2Htems 1
+Users
+Groups
+Name
+Jype
+Role
+Scope
+Conditon
+홈
+Oeployments
+0
+Security
+!
+J0uMo
+Polcies
+Group!
+Group
+This resource
+None
+JouMo
+0
+|
+Properties
+Pr
+Use?
+Owner
+0
+Subscripuon Inherited
+None
+-
+Ot
+8
+Locks
+다음각
+대해
+진술이
+참이면
+예를
+선택하수
+않으면
+아니요를
+진술에
+십시오
+그렇지
+선택합니다
+-
+참고:
+올바른
+선택은
+각각
+점의
+가치가
+있습니다
+1
+1171310

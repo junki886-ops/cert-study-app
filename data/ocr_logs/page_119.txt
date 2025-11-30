@@ -1,0 +1,204 @@
+The
+ safer
+easier
+Way
+to help
+you
+pass
+any
+1T
+exams
+Answer
+Area
+Statements
+Yes
+No
+You
+a5sign
+User2
+the
+Owne!
+Tole for
+RG!
+by
+adding
+Group?
+35:
+membe!
+of Group1
+Can
+0
+You can
+assign
+User3
+the
+Owner
+Tole for
+RG1
+by
+adding
+Group3
+35a
+membe
+Of Groupi
+You
+assigh
+User3
+the
+Owne!
+Can
+Tole for
+RG1
+Dy
+3ssigning
+the
+Owne!
+Tole to
+Group3 1or
+RG1
+Answer:
+Answer
+Area
+Statements
+Yes
+V
+You can
+35sigh
+User2
+the
+Owne!
+Tole for
+RG1
+by
+adding
+Group?
+353
+membe!
+of Group1
+0
+You can
+assign
+User3
+the
+Owner
+Tole for
+RG1
+6y
+adding
+Group3
+8s
+membe!
+of Group!
+6
+You
+assign
+User3
+he
+Owne!
+Tole fo!
+RG!
+by
+Owne!
+Can
+3ssigning
+The
+Tole to
+Group3 for
+RG1
+Explanation:
+https:I/learnmicrosoft
+Com/en-us/azurelactive-directory/roles/groups-concepttthow-are-role-signable
+groups-protected
+'그룹
+중첩은
+지원되지
+않습니다
+그룹은
+'역할'할당
+가능
+그룹의
+구성원으로
+추가될
+수
+없습니다'
+두
+번째
+질문의
+경우
+https:I/learnmicrosoftcom/en-us/azurelactive-directory/fundamentals/how-to-manage-groupsttadd-or-
+Femove-a-group-from-another-group
+"우리는
+현재
+다음을
+지원하지
+않습니다:
+Microsoft
+365
+그룹을
+그룹
+또는
+기타
+Microsoft
+365
+그룹에
+추가합니다
+[[2
+번째
+질문의
+경우
+스크린삿에서는
+잘린
+것처럼
+弓jo l> lo굽
+끝남
+여기에
+Microsoft 365
+그룹'지원에
+참조가
+있습니다:
+https://learnmicrosoft
+comlen-us/
+azurelactive
+directory/roles/groups-concept#어떻게-역할-할당-그룹-작업
+"그룹에
+할당하려면
+속성이
+설정된
+새
+또는
+isAssignableToRole
+true
+로
+Microsoft
+365
+그룹을
+만들어야
+122Azure
+구독이
+있습니다
+100
+4개의
+Azure
+가상'머신이
+있습니다
+서비스
+계층을'보다
+저렴한
+서비스로
+변경할
+수
+있는
+활용도가
+낮은
+가상
+머신을
+신속하게
+'Iuh호 oHe룹l
+어떤블레이드를
+사용해야
+합니까?
+A'지표
+B고객통찰력
+C
+모니터
+1187310

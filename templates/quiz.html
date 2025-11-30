@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>AZ-104 CBT 연습</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --brand: #0a6bdf;
+      --brand-dark: #0850a7;
+      --warn: #ffcc00;
+      --bg: #f5f7fa;
+      --ok: #178a00;
+      --bad: #d12929;
+      --card: #fff;
+      --muted: #6b7280;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+    .wrap { width: 100%; max-width: 900px; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
+    }
+    .progress { color: var(--muted); font-size: 14px; }
+    .jump-box {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .jump-box input {
+      width: 70px; padding: 6px 10px; border: 1px solid #e5e7eb;
+      border-radius: 8px; font-size: 14px; text-align: center;
+    }
+    .jump-box button {
+      padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 8px;
+      background: #fff; cursor: pointer; font-size: 13px;
+      transition: all .15s;
+    }
+    .jump-box button:hover {
+      background: var(--brand); color: #fff; border-color: var(--brand);
+    }
+    .pill {
+      font-size: 12px; padding: 6px 10px; border-radius: 999px;
+      background: #f3f4f6; color: #374151;
+    }
+    .card {
+      background: var(--card); border-radius: 14px; padding: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      min-height: 260px;
+    }
+    .qid { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .qtext { font-size: 18px; line-height: 1.5; margin: 0 0 14px; }
+    .options { display: grid; gap: 10px; margin-top: 14px; }
+    .opt {
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      border: 1px solid #e5e7eb; border-radius: 10px; cursor: pointer; background: #fff;
+      transition: background .15s, border-color .15s;
+    }
+    .opt:hover { background: #f0f6ff; border-color: #d1e3ff; }
+    .opt.selected { background: #f0f6ff; border-color: var(--brand); }
+    .opt.correct { border-color: #b8e3c1; background: #effaf2; }
+    .opt.wrong { border-color: #f1b7b7; background: #fff1f1; }
+    .opt.disabled { cursor: not-allowed; opacity: 0.7; }
+    .opt input { accent-color: var(--brand); }
+    .exp {
+      display: none; margin-top: 14px; padding: 12px 14px; border-left: 5px solid var(--brand);
+      background: #eef6ff; border-radius: 8px;
+    }
+    .exp.show { display: block; }
+    .exp .title { margin: 0 0 6px; font-weight: 700; }
+    .exp .ok { color: var(--ok); }
+    .exp .bad { color: var(--bad); }
+    .nav {
+      margin-top: 18px; display: flex; align-items: center; gap: 14px;
+      background: #fff; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      padding: 16px 18px;
+    }
+    .nav-group {
+      display: flex; gap: 8px;
+    }
+    .spacer { flex: 1; }
+    button.btn {
+      border: 0; padding: 10px 18px; border-radius: 10px; color: #fff; background: var(--brand);
+      cursor: pointer; font-weight: 600;
+      transition: background .15s;
+    }
+    button.btn:hover { background: var(--brand-dark); }
+    button.outline {
+      background: #fff; color: #111827; border: 1px solid #e5e7eb;
+    }
+    button.bookmark { background: var(--warn); color: #1f2937; }
+    button[disabled] { opacity: .5; cursor: not-allowed; }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="pill">CBT • 단일문제 모드</div>
+      <div class="jump-box">
+        <span style="font-size: 13px; color: var(--muted);">문제 이동:</span>
+        <input type="number" id="jumpInput" placeholder="번호" min="1" />
+        <button id="jumpBtn">이동</button>
+      </div>
+      <div class="progress" id="progress">문제 0 / 0</div>
+    </div>
+
+    <div class="card">
+      <div id="loading" class="loading">문제를 불러오는 중...</div>
+      <div id="qContainer" style="display: none;">
+        <div class="qid" id="qid"></div>
+        <h2 class="qtext" id="qtext"></h2>
+        <div class="options" id="options"></div>
+        <div class="exp" id="exp"></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn outline" id="homeBtn">🏠 홈</button>
+      <div class="nav-group">
+        <button class="btn outline" id="prevBtn">← 이전</button>
+        <button class="btn outline" id="skipBtn">다음 →</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" id="submitBtn" disabled>정답 확인</button>
+      <button class="btn" id="nextBtn" style="display: none;">정답 후 다음 →</button>
+      <button class="btn bookmark" id="bmBtn">⭐ 복습</button>
+    </div>
+  </div>
+
+  <script>
+    let currentQuestion = null;
+    let selectedOption = null;
+    let answered = false;
+
+    const qidEl = document.getElementById("qid");
+    const qtextEl = document.getElementById("qtext");
+    const optsEl = document.getElementById("options");
+    const expEl = document.getElementById("exp");
+    const progressEl = document.getElementById("progress");
+    const submitBtn = document.getElementById("submitBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const skipBtn = document.getElementById("skipBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const homeBtn = document.getElementById("homeBtn");
+    const bmBtn = document.getElementById("bmBtn");
+    const jumpInput = document.getElementById("jumpInput");
+    const jumpBtn = document.getElementById("jumpBtn");
+    const loadingEl = document.getElementById("loading");
+    const qContainer = document.getElementById("qContainer");
+
+    // localStorage에서 마지막 문제 번호 가져오기
+    function getLastQuestionId() {
+      return parseInt(localStorage.getItem("lastQuestionId")) || null;
+    }
+
+    // localStorage에 현재 문제 번호 저장
+    function saveLastQuestionId(id) {
+      localStorage.setItem("lastQuestionId", id);
+    }
+
+    // 문제 불러오기
+    async function loadQuestion(questionId = null) {
+      loadingEl.style.display = "block";
+      qContainer.style.display = "none";
+      
+      try {
+        const url = questionId ? `/api/question?id=${questionId}` : '/api/question';
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (data.error) {
+          loadingEl.textContent = "❌ " + data.error;
+          return;
+        }
+        
+        currentQuestion = data;
+        render(data);
+        saveLastQuestionId(data.id); // 문제 번호 저장
+        
+        loadingEl.style.display = "none";
+        qContainer.style.display = "block";
+      } catch (err) {
+        loadingEl.textContent = "❌ 문제를 불러오지 못했습니다.";
+        console.error(err);
+      }
+    }
+
+    // 문제 렌더링
+    function render(q) {
+      progressEl.textContent = `문제 ${q.id} / ${q.total}`;
+      qidEl.textContent = `ID ${q.id}`;
+      qtextEl.textContent = q.question;
+      optsEl.innerHTML = "";
+      expEl.classList.remove("show");
+      expEl.innerHTML = "";
+
+      // 입력창 최대값 설정
+      jumpInput.max = q.total;
+      jumpInput.placeholder = `1-${q.total}`;
+
+      // 초기화
+      selectedOption = null;
+      answered = false;
+      submitBtn.disabled = true;
+      submitBtn.style.display = "block";
+      nextBtn.style.display = "none";
+      skipBtn.style.display = "block";
+
+      (q.options || []).forEach(opt => {
+        const label = document.createElement("label");
+        label.className = "opt";
+        
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = `q${q.id}`;
+        input.value = opt;
+        input.addEventListener("change", () => onSelect(opt, label));
+        
+        label.appendChild(input);
+        label.append(opt);
+        optsEl.appendChild(label);
+      });
+    }
+
+    // 선택
+    function onSelect(chosen, labelEl) {
+      if (answered) return;
+      
+      // 모든 선택 해제
+      document.querySelectorAll('.opt').forEach(opt => {
+        opt.classList.remove("selected");
+      });
+      
+      // 새 선택
+      labelEl.classList.add("selected");
+      selectedOption = chosen.charAt(0); // "A. Berlin" -> "A"
+      submitBtn.disabled = false;
+    }
+
+    // 정답 확인
+    submitBtn.addEventListener("click", async () => {
+      if (!selectedOption || answered) return;
+      
+      try {
+        const res = await fetch("/api/answer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question_id: currentQuestion.id,
+            chosen: selectedOption,
+            user_id: "default"
+          })
+        });
+        
+        const result = await res.json();
+        answered = true;
+        
+        // 정답/오답 표시
+        document.querySelectorAll('.opt').forEach(opt => {
+          opt.classList.add("disabled");
+          const optLetter = opt.textContent.charAt(0);
+          if (optLetter === result.answer) {
+            opt.classList.add("correct");
+          } else if (optLetter === selectedOption && !result.correct) {
+            opt.classList.add("wrong");
+          }
+        });
+        
+        // 해설 표시
+        showExplanation(result);
+        
+        submitBtn.style.display = "none";
+        nextBtn.style.display = "block";
+        skipBtn.style.display = "none";
+      } catch (err) {
+        console.error(err);
+        alert("채점 중 오류가 발생했습니다.");
+      }
+    });
+
+    // 해설 표시
+    function showExplanation(result) {
+      expEl.classList.add("show");
+      const isCorrect = result.correct;
+      expEl.innerHTML = `
+        <div class="title ${isCorrect ? 'ok':'bad'}">
+          ${isCorrect ? "✅ 정답입니다!" : "❌ 오답입니다. 정답: " + result.answer}
+        </div>
+        <div>${result.explanation || "해설이 없습니다."}</div>
+      `;
+    }
+
+    // 다음 문제
+    nextBtn.addEventListener("click", async () => {
+      try {
+        const res = await fetch(`/api/next?current_id=${currentQuestion.id}`);
+        const data = await res.json();
+        
+        if (data.end) {
+          alert("마지막 문제입니다!");
+          return;
+        }
+        
+        currentQuestion = data;
+        render(data);
+        saveLastQuestionId(data.id); // 문제 번호 저장
+      } catch (err) {
+        console.error(err);
+        alert("다음 문제를 불러오는데 실패했습니다.");
+      }
+    });
+
+    // 이전 문제
+    prevBtn.addEventListener("click", async () => {
+      if (!currentQuestion || currentQuestion.id <= 1) {
+        alert("첫 번째 문제입니다!");
+        return;
+      }
+      
+      try {
+        const prevId = currentQuestion.id - 1;
+        await loadQuestion(prevId);
+      } catch (err) {
+        console.error(err);
+        alert("이전 문제를 불러오는데 실패했습니다.");
+      }
+    });
+
+    // 홈으로 이동
+    homeBtn.addEventListener("click", () => {
+      window.location.href = "/";
+    });
+
+    // 건너뛰기 (답 확인 없이 다음 문제)
+    skipBtn.addEventListener("click", async () => {
+      try {
+        const res = await fetch(`/api/next?current_id=${currentQuestion.id}`);
+        const data = await res.json();
+        
+        if (data.end) {
+          alert("마지막 문제입니다!");
+          return;
+        }
+        
+        currentQuestion = data;
+        render(data);
+        saveLastQuestionId(data.id);
+      } catch (err) {
+        console.error(err);
+        alert("다음 문제를 불러오는데 실패했습니다.");
+      }
+    });
+
+    // 문제 번호로 이동
+    jumpBtn.addEventListener("click", async () => {
+      const targetId = parseInt(jumpInput.value);
+      if (!targetId || targetId < 1) {
+        alert("올바른 문제 번호를 입력하세요.");
+        return;
+      }
+      
+      if (currentQuestion && targetId > currentQuestion.total) {
+        alert(`문제 번호는 1부터 ${currentQuestion.total}까지입니다.`);
+        return;
+      }
+      
+      await loadQuestion(targetId);
+      jumpInput.value = "";
+    });
+
+    // Enter 키로 문제 이동
+    jumpInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        jumpBtn.click();
+      }
+    });
+
+    // 복습 추가
+    bmBtn.addEventListener("click", async () => {
+      if (!currentQuestion) return;
+      
+      try {
+        const res = await fetch("/api/review_add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question_id: currentQuestion.id,
+            user_id: "default"
+          })
+        });
+        
+        const data = await res.json();
+        alert(data.message);
+      } catch (err) {
+        console.error(err);
+        alert("복습노트 추가 중 오류가 발생했습니다.");
+      }
+    });
+
+    // 키보드 단축키
+    window.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !submitBtn.disabled && submitBtn.style.display !== "none") {
+        submitBtn.click();
+      }
+      if (e.key === "ArrowRight" && nextBtn.style.display !== "none") {
+        nextBtn.click();
+      }
+      if (e.key === "ArrowLeft") {
+        prevBtn.click();
+      }
+    });
+
+    // 페이지 로드시 마지막 문제 또는 첫 문제
+    const lastId = getLastQuestionId();
+    if (lastId) {
+      loadQuestion(lastId);
+    } else {
+      loadQuestion();
+    }
+  </script>
+</body>
+</html>
