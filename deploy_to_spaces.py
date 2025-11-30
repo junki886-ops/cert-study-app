@@ -62,7 +62,7 @@ hf_token = get_hf_token()
 AUTH_REPO_URL = f"https://{HF_USERNAME}:{hf_token}@huggingface.co/spaces/{HF_USERNAME}/{SPACE_NAME}"
 
 # ======================================================
-# 🧰 3️⃣ 필수 파일 생성 (requirements.txt, runtime.txt, .env)
+# 🧰 3️⃣ 필수 파일 생성 (requirements.txt, runtime.txt, README.md, .env)
 # ======================================================
 print("\n📦 필수 파일 생성 중...")
 
@@ -89,6 +89,43 @@ paddlepaddle-gpu
 
 runtime = "python-3.10\n"
 
+readme = """---
+title: Cert Study App
+emoji: 📚
+colorFrom: blue
+colorTo: green
+sdk: gradio
+sdk_version: "4.0.0"
+app_file: app.py
+pinned: false
+license: apache-2.0
+---
+
+# Cert Study App 📚
+
+AI-powered certification exam study application with intelligent question generation and adaptive learning.
+
+## Features
+
+- 📄 PDF parsing with OCR support
+- 🤖 AI-powered question generation
+- 📊 Study progress tracking
+- 🎯 Adaptive learning system
+- 🔍 Semantic search for questions
+
+## Usage
+
+Upload your study materials and start practicing with AI-generated questions tailored to your learning needs.
+
+## Tech Stack
+
+- Flask
+- LangChain
+- ChromaDB
+- PaddleOCR
+- Hugging Face Transformers
+"""
+
 env_template = """# 로컬 실행용 환경 변수
 # ⚠️ 이 파일은 절대 Git에 올리지 마세요!
 
@@ -104,6 +141,21 @@ print("✅ requirements.txt 생성 완료")
 # runtime.txt 생성
 Path("runtime.txt").write_text(runtime, encoding="utf-8")
 print("✅ runtime.txt 생성 완료")
+
+# README.md 생성
+readme_path = Path("README.md")
+if not readme_path.exists():
+    readme_path.write_text(readme, encoding="utf-8")
+    print("✅ README.md 생성 완료")
+else:
+    # 기존 README가 있으면 frontmatter 확인
+    content = readme_path.read_text(encoding="utf-8")
+    if not content.startswith("---"):
+        # frontmatter가 없으면 추가
+        readme_path.write_text(readme + "\n\n" + content, encoding="utf-8")
+        print("✅ README.md에 Hugging Face 설정 추가")
+    else:
+        print("ℹ️  README.md가 이미 존재합니다 (유지)")
 
 # 🔐 .env가 이미 있으면 유지, 없을 때만 템플릿 생성
 env_path = Path(".env")
