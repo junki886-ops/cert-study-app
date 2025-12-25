@@ -1,5 +1,5 @@
 # ==============================================
-# app.py — CBT + REVIEW(⭐) + WRONG + 통합 노트 + OCR Parser (확정 안정 전체 버전)
+# app.py — CBT + REVIEW(⭐) + WRONG + 통합 노트 + OCR Parser (최적화 + 자동 DB화 완성본)
 # ==============================================
 
 import os
@@ -15,13 +15,15 @@ from ingest import ingest_questions
 
 try:
     from pdf_parser_adaptive import parse_pdf as _parse_pdf
-except:
+except Exception:
     _parse_pdf = None
 
 load_dotenv()
 app = Flask(__name__)
-init_db()
 
+# -----------------------------
+# Paths
+# -----------------------------
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 UPLOAD_DIR = os.path.join(DATA_DIR, "uploads")
@@ -31,17 +33,53 @@ for d in [DATA_DIR, UPLOAD_DIR, PARSED_DIR]:
 
 DEFAULT_USER = "default"
 
+# -----------------------------
+# DB init (패치/구버전 모두 호환)
+# -----------------------------
+try:
+    init_db(apply_light_migrations=True)
+except TypeError:
+    init_db()
 
+
+# -----------------------------
+# Utils
+# -----------------------------
 def normalize_options(raw):
+    """
+    어떤 형태로 저장되어 있어도 "표시용 문자열 리스트"로 변환.
+    - 표준: [{"key":"A","text":"..."}] -> ["A. ...", ...]
+    - 레거시: {"A":"..."} -> ["A. ...", ...]
+    - 레거시: ["...","..."] -> 그대로
+    """
     if not raw:
         return []
-    try:
-        if isinstance(raw, dict):
+
+    # 표준: list[dict]
+    if isinstance(raw, list) and raw and isinstance(raw[0], dict):
+        out = []
+        for o in raw:
+            k = str(o.get("key", "")).strip()
+            t = str(o.get("text", "")).strip()
+            if k and t:
+                out.append(f"{k}. {t}")
+            elif t:
+                out.append(t)
+            elif k:
+                out.append(k)
+        return out
+
+    # 레거시: dict
+    if isinstance(raw, dict):
+        try:
             return [f"{k}. {v}" for k, v in sorted(raw.items(), key=lambda kv: kv[0])]
-        if isinstance(raw, list):
-            return raw
-    except:
-        pass
+        except Exception:
+            return [str(raw)]
+
+    # 레거시: list[str]
+    if isinstance(raw, list):
+        return [str(x) for x in raw]
+
     return []
 
 
@@ -54,6 +92,127 @@ def parse_pdf_wrapper(pdf_path):
     return out_json
 
 
+def first_question(db):
+    """
+    첫 문제 선택:
+    - page_no/q_no_on_page/global_no 컬럼이 있으면 PDF 순서로
+    - 없으면 id로
+    """
+    q = db.query(Question)
+    if hasattr(Question, "page_no") and hasattr(Question, "q_no_on_page"):
+        return q.order_by(
+            Question.page_no.asc().nulls_last(),
+            Question.q_no_on_page.asc().nulls_last(),
+            Question.id.asc()
+        ).first()
+    if hasattr(Question, "global_no"):
+        return q.order_by(
+            Question.global_no.asc().nulls_last(),
+            Question.id.asc()
+        ).first()
+    return q.order_by(Question.id.asc()).first()
+
+
+def api_payload(db, q: Question):
+    """
+    기존 프론트 호환 필드 유지 + 신규 필드(있으면)만 추가
+    """
+    total = db.query(Question).count()
+    payload = {
+        "id": q.id,
+        "question": q.stem,
+        "options": normalize_options(q.get_options()),
+        "answer": q.answer,  # 레거시 유지
+        "explanation": q.explanation,
+        "total": total,
+    }
+
+    # 신규(모델이 지원할 때만)
+    if hasattr(q, "get_answer_keys"):
+        payload["answer_keys"] = q.get_answer_keys()
+    if hasattr(q, "get_answer_steps"):
+        payload["answer_steps"] = q.get_answer_steps()
+    if hasattr(q, "get_images"):
+        payload["images"] = q.get_images()
+
+    # 순서 메타(있을 때만)
+    if hasattr(q, "page_no"):
+        payload["page_no"] = q.page_no
+    if hasattr(q, "q_no_on_page"):
+        payload["q_no_on_page"] = q.q_no_on_page
+    if hasattr(q, "global_no"):
+        payload["global_no"] = q.global_no
+
+    return payload
+
+
+def is_correct(q: Question, chosen):
+    """
+    최소 변경으로 정답 판정 개선:
+    - models.py에 get_answer_keys/get_answer_steps 있으면 그걸 우선 사용
+    - 없으면 레거시 answer(string)로 비교
+    """
+    # chosen 표준화 (string/list 모두 허용)
+    if isinstance(chosen, list):
+        chosen_list = [str(x).strip().upper() for x in chosen if str(x).strip()]
+    else:
+        s = str(chosen).strip()
+        if "," in s:
+            chosen_list = [x.strip().upper() for x in s.split(",") if x.strip()]
+        else:
+            chosen_list = [s.upper()] if s else []
+
+    # Steps 우선
+    if hasattr(q, "get_answer_steps"):
+        ans_steps = [str(x).strip().upper() for x in (q.get_answer_steps() or [])]
+        if ans_steps:
+            return chosen_list == ans_steps  # 순서/중복까지 동일
+
+    # 복수정답(중복 포함) 우선
+    if hasattr(q, "get_answer_keys"):
+        ans_keys = [str(x).strip().upper() for x in (q.get_answer_keys() or [])]
+        if ans_keys:
+            from collections import Counter
+            return Counter(chosen_list) == Counter(ans_keys)
+
+    # 레거시 단일 비교
+    return str(chosen).strip().upper() == str(q.answer or "").strip().upper()
+
+
+def auto_ingest_json_if_empty(json_path="data/questions.json", source_name="az104_dump"):
+    """
+    ✅ 서버 시작 시 자동 DB화:
+    - DB에 문제가 0개면 json_path를 자동 ingest
+    - DB 삭제 후 재실행해도 자동으로 다시 쌓임
+    """
+    # JSON 존재 확인
+    abs_json = json_path if os.path.isabs(json_path) else os.path.join(BASE_DIR, json_path)
+    if not os.path.exists(abs_json):
+        print(f"[WARN] JSON not found: {abs_json}")
+        return
+
+    db = SessionLocal()
+    try:
+        n = db.query(Question).count()
+    finally:
+        db.close()
+
+    if n > 0:
+        print(f"[INFO] DB already has {n} questions. skip auto ingest.")
+        return
+
+    print(f"[INFO] AUTO INGEST start: {abs_json}")
+    inserted = ingest_questions(abs_json, source_name=source_name)
+    print(f"[INFO] AUTO INGEST done: inserted={inserted}")
+
+
+# ✅ 여기서 자동 ingest 실행 (원하는 경로: data/questions.json)
+auto_ingest_json_if_empty("data/questions.json", "az104_dump")
+
+
+# -----------------------------
+# Pages
+# -----------------------------
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -79,6 +238,9 @@ def healthz():
     return jsonify({"ok": True})
 
 
+# -----------------------------
+# Admin: upload pdf -> parse -> ingest
+# -----------------------------
 @app.route("/admin/upload", methods=["GET", "POST"])
 def upload_pdf():
     if request.method == "GET":
@@ -100,29 +262,34 @@ def upload_pdf():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# -----------------------------
+# API: question
+# - ✅ id 없거나/없는 id면 첫 문제 fallback (DB 삭제 후 404 방지)
+# -----------------------------
 @app.route("/api/question", methods=["GET"])
 def api_question():
-    qid = request.args.get("id")
+    qid = request.args.get("id", type=int)
     db = SessionLocal()
     try:
-        q = db.query(Question).filter(Question.id == int(qid)).first() if qid \
-            else db.query(Question).order_by(Question.id.asc()).first()
+        q = None
+        if qid:
+            q = db.query(Question).filter(Question.id == qid).first()
+
+        if not q:
+            q = first_question(db)
+
         if not q:
             return jsonify({"error": "문제 없음"}), 404
 
-        total = db.query(Question).count()
-        return jsonify({
-            "id": q.id,
-            "question": q.stem,
-            "options": normalize_options(q.get_options()),
-            "answer": q.answer,
-            "explanation": q.explanation,
-            "total": total
-        })
+        return jsonify(api_payload(db, q))
     finally:
         db.close()
 
 
+# -----------------------------
+# API: answer
+# - ✅ chosen list/string 둘 다 허용 + (가능하면) 복수/순서 정답 판정
+# -----------------------------
 @app.route("/api/answer", methods=["POST"])
 def api_answer():
     data = request.get_json(force=True) or {}
@@ -130,18 +297,23 @@ def api_answer():
     chosen = data.get("chosen")
     user_id = str(data.get("user_id", DEFAULT_USER))
 
-    if not qid or not chosen:
+    if not qid or chosen is None:
         return jsonify({"error": "question_id 또는 chosen 누락"}), 400
 
     db = SessionLocal()
     try:
         q = db.query(Question).filter(Question.id == int(qid)).first()
-        correct = (str(chosen).upper() == str(q.answer).upper())
+        if not q:
+            return jsonify({"error": "해당 문제 없음"}), 404
+
+        correct = is_correct(q, chosen)
+
+        chosen_store = json.dumps(chosen, ensure_ascii=False) if isinstance(chosen, list) else str(chosen)
 
         db.add(Attempt(
             user_id=user_id,
             question_id=q.id,
-            chosen=str(chosen),
+            chosen=chosen_store,
             correct=bool(correct),
             note_type="wrong" if not correct else None
         ))
@@ -152,11 +324,22 @@ def api_answer():
         db.close()
 
 
+# -----------------------------
+# API: next
+# - ✅ 최소 수정: current_id 없으면 첫 문제
+# - (PDF 순서 next까지 완전 구현은 코드가 길어져서, 여기선 레거시 id-next 유지)
+# -----------------------------
 @app.route("/api/next", methods=["GET"])
 def api_next():
-    current_id = int(request.args.get("current_id", 1))
+    current_id = request.args.get("current_id", type=int, default=None)
     db = SessionLocal()
     try:
+        if not current_id:
+            q = first_question(db)
+            if not q:
+                return jsonify({"end": True})
+            return jsonify(api_payload(db, q))
+
         nxt = (
             db.query(Question)
             .filter(Question.id > current_id)
@@ -166,19 +349,14 @@ def api_next():
         if not nxt:
             return jsonify({"end": True})
 
-        total = db.query(Question).count()
-        return jsonify({
-            "id": nxt.id,
-            "question": nxt.stem,
-            "options": normalize_options(nxt.get_options()),
-            "answer": nxt.answer,
-            "explanation": nxt.explanation,
-            "total": total
-        })
+        return jsonify(api_payload(db, nxt))
     finally:
         db.close()
 
 
+# -----------------------------
+# Review add/remove
+# -----------------------------
 @app.route("/api/review_add", methods=["POST"])
 def review_add():
     data = request.get_json(force=True) or {}
@@ -211,7 +389,7 @@ def review_remove():
         db.close()
 
 
-# ✅ 오답 + 복습 통합 조회
+# ✅ 오답 + 복습 통합 조회 (기존 그대로 유지)
 @app.route("/api/wrong_review", methods=["GET"])
 def wrong_review():
     user_id = request.args.get("user_id", DEFAULT_USER)
@@ -245,7 +423,7 @@ def wrong_review():
         db.close()
 
 
-# ✅ 오답에서 제거 (복습에서도 제거)
+# ✅ 오답에서 제거 (기존 그대로 유지)
 @app.route("/api/wrong_remove", methods=["POST"])
 def wrong_remove():
     data = request.get_json(force=True) or {}
@@ -265,5 +443,6 @@ def wrong_remove():
 
 
 if __name__ == "__main__":
-    print("[INFO] http://127.0.0.1:5000 실행 중")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.getenv("PORT", 7860))
+    print(f"[INFO] 서버 시작: 0.0.0.0:{port} (HF/로컬 공통)")
+    app.run(host="0.0.0.0", port=port, debug=False)

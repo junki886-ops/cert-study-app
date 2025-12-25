@@ -14,6 +14,7 @@
       --bad: #d12929;
       --card: #fff;
       --muted: #6b7280;
+      --text: #1f2937;
     }
     body {
       margin: 0;
@@ -22,20 +23,23 @@
       padding: 24px;
       display: flex;
       justify-content: center;
+      color: var(--text);
     }
     .wrap { width: 100%; max-width: 900px; }
+
+    /* Topbar */
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
     }
-    .progress { color: var(--muted); font-size: 14px; }
-    .jump-box {
-      display: flex; align-items: center; gap: 8px;
-    }
+    .progress { color: var(--muted); font-size: 14px; font-weight: 500; }
+    .jump-box { display: flex; align-items: center; gap: 8px; }
     .jump-box input {
-      width: 70px; padding: 6px 10px; border: 1px solid #e5e7eb;
+      width: 60px; padding: 6px 10px; border: 1px solid #e5e7eb;
       border-radius: 8px; font-size: 14px; text-align: center;
+      outline: none;
     }
+    .jump-box input:focus { border-color: var(--brand); }
     .jump-box button {
       padding: 6px 12px; border: 1px solid #e5e7eb; border-radius: 8px;
       background: #fff; cursor: pointer; font-size: 13px;
@@ -45,388 +49,653 @@
       background: var(--brand); color: #fff; border-color: var(--brand);
     }
     .pill {
-      font-size: 12px; padding: 6px 10px; border-radius: 999px;
-      background: #f3f4f6; color: #374151;
+      font-size: 12px; padding: 6px 12px; border-radius: 999px;
+      background: #e0e7ff; color: var(--brand-dark); font-weight: 600;
     }
+
+    /* Card */
     .card {
-      background: var(--card); border-radius: 14px; padding: 22px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.08);
-      min-height: 260px;
+      background: var(--card); border-radius: 16px; padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+      min-height: 300px; position: relative;
     }
-    .qid { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-    .qtext { font-size: 18px; line-height: 1.5; margin: 0 0 14px; }
-    .options { display: grid; gap: 10px; margin-top: 14px; }
+
+    /* Fade Animation */
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .qid { font-size: 13px; color: var(--muted); margin-bottom: 8px; font-weight: 600; }
+    .qtext { font-size: 19px; line-height: 1.55; margin: 0 0 20px; font-weight: 700; word-break: keep-all; }
+
+    /* Options */
+    .options { display: grid; gap: 12px; margin-top: 16px; }
     .opt {
-      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
-      border: 1px solid #e5e7eb; border-radius: 10px; cursor: pointer; background: #fff;
-      transition: background .15s, border-color .15s;
+      display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
+      border: 2px solid #e5e7eb; border-radius: 12px; cursor: pointer; background: #fff;
+      transition: all .2s; position: relative;
     }
-    .opt:hover { background: #f0f6ff; border-color: #d1e3ff; }
-    .opt.selected { background: #f0f6ff; border-color: var(--brand); }
-    .opt.correct { border-color: #b8e3c1; background: #effaf2; }
-    .opt.wrong { border-color: #f1b7b7; background: #fff1f1; }
-    .opt.disabled { cursor: not-allowed; opacity: 0.7; }
-    .opt input { accent-color: var(--brand); }
+    .opt:hover:not(.disabled) { background: #f8fafc; border-color: #cbd5e1; }
+    .opt.selected { background: #eff6ff; border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+    .opt.correct { border-color: var(--ok); background: #f0fdf4; }
+    .opt.wrong { border-color: var(--bad); background: #fef2f2; }
+    .opt.disabled { cursor: default; opacity: 0.8; pointer-events: none; }
+
+    /* Input Custom Style */
+    .opt input { margin-top: 4px; accent-color: var(--brand); cursor: pointer; }
+    .opt-key {
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      min-width: 20px; margin-top: 3px;
+    }
+
+    /* Explanation */
     .exp {
-      display: none; margin-top: 14px; padding: 12px 14px; border-left: 5px solid var(--brand);
-      background: #eef6ff; border-radius: 8px;
+      display: none; margin-top: 20px; padding: 16px;
+      border-left: 5px solid var(--brand);
+      background: #f0f9ff; border-radius: 8px;
+      line-height: 1.6;
     }
-    .exp.show { display: block; }
-    .exp .title { margin: 0 0 6px; font-weight: 700; }
+    .exp.show { display: block; animation: fadeIn 0.3s; }
+    .exp .title { margin: 0 0 8px; font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 6px; }
     .exp .ok { color: var(--ok); }
     .exp .bad { color: var(--bad); }
+
+    /* Navigation */
     .nav {
-      margin-top: 18px; display: flex; align-items: center; gap: 14px;
-      background: #fff; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.08);
-      padding: 16px 18px;
+      margin-top: 20px; display: flex; align-items: center; gap: 12px;
+      background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.06);
+      padding: 16px 20px; flex-wrap: wrap;
     }
-    .nav-group {
-      display: flex; gap: 8px;
-    }
+    .nav-group { display: flex; gap: 8px; }
     .spacer { flex: 1; }
+
     button.btn {
-      border: 0; padding: 10px 18px; border-radius: 10px; color: #fff; background: var(--brand);
-      cursor: pointer; font-weight: 600;
-      transition: background .15s;
+      border: 0; padding: 12px 20px; border-radius: 10px; color: #fff; background: var(--brand);
+      cursor: pointer; font-weight: 600; font-size: 15px;
+      transition: background .15s, transform .05s;
     }
-    button.btn:hover { background: var(--brand-dark); }
+    button.btn:active { transform: scale(0.98); }
+    button.btn:hover:not([disabled]) { background: var(--brand-dark); }
     button.outline {
-      background: #fff; color: #111827; border: 1px solid #e5e7eb;
+      background: #fff; color: #374151; border: 1px solid #d1d5db;
     }
-    button.bookmark { background: var(--warn); color: #1f2937; }
-    button[disabled] { opacity: .5; cursor: not-allowed; }
-    .loading {
-      text-align: center;
-      padding: 40px;
+    button.outline:hover { background: #f9fafb; border-color: #9ca3af; }
+    button.bookmark { background: #fffbeb; color: #92400e; border: 1px solid #fcd34d; }
+    button.bookmark:hover { background: #fef3c7; }
+    button[disabled] { opacity: .5; cursor: not-allowed; background: #9ca3af; }
+
+    .loading { text-align: center; padding: 60px 0; color: var(--muted); font-size: 15px; }
+
+    /* Toast Notification */
+    #toast-container {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+    }
+    .toast {
+      background: #1f2937; color: #fff; padding: 12px 24px; border-radius: 50px;
+      font-size: 14px; opacity: 0; transform: translateY(20px);
+      transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Multi-answer hint */
+    .multi-hint {
+      margin-top: 10px;
+      font-size: 13px;
       color: var(--muted);
+      display: none;
+    }
+    .multi-hint.show { display: block; }
+
+    /* Mobile Responsive */
+    @media (max-width: 640px) {
+      body { padding: 12px; padding-bottom: 80px; }
+      .topbar { flex-direction: column; align-items: stretch; gap: 10px; }
+      .jump-box { justify-content: space-between; }
+      .jump-box input { width: 100%; flex:1; }
+      .card { padding: 20px; }
+      .qtext { font-size: 17px; }
+      .nav {
+        flex-direction: column; gap: 10px; padding: 12px 16px;
+        position: fixed; bottom: 0; left: 0; right: 0;
+        border-radius: 20px 20px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+        z-index: 50;
+      }
+      .nav-group { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+      button.btn { width: 100%; padding: 12px; }
+      .spacer { display: none; }
+      #homeBtn, #bmBtn { display: none; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
-      <div class="pill">CBT • 단일문제 모드</div>
+      <div class="pill">AZ-104 CBT 연습</div>
+      <div class="spacer" style="flex:1"></div>
+      <div class="progress" id="progress">문제 - / -</div>
       <div class="jump-box">
-        <span style="font-size: 13px; color: var(--muted);">문제 이동:</span>
-        <input type="number" id="jumpInput" placeholder="번호" min="1" />
+        <input type="number" id="jumpInput" placeholder="No." min="1" />
         <button id="jumpBtn">이동</button>
       </div>
-      <div class="progress" id="progress">문제 0 / 0</div>
     </div>
 
     <div class="card">
-      <div id="loading" class="loading">문제를 불러오는 중...</div>
+      <div id="loading" class="loading">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="animation: spin 1s linear infinite; margin-bottom: 10px; display:block; margin: 0 auto 10px;">
+          <path d="M12 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 18V22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4.93 4.93L7.76 7.76" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M16.24 16.24L19.07 19.07" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M2 12H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 12H22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M4.93 19.07L7.76 16.24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+        문제를 불러오는 중...
+      </div>
+
       <div id="qContainer" style="display: none;">
         <div class="qid" id="qid"></div>
         <h2 class="qtext" id="qtext"></h2>
+
+        <!-- ✅ 멀티/스텝 힌트 -->
+        <div id="multiHint" class="multi-hint"></div>
+
         <div class="options" id="options"></div>
         <div class="exp" id="exp"></div>
       </div>
     </div>
 
     <div class="nav">
-      <button class="btn outline" id="homeBtn">🏠 홈</button>
+      <button class="btn outline" id="homeBtn" title="홈으로">🏠</button>
       <div class="nav-group">
         <button class="btn outline" id="prevBtn">← 이전</button>
-        <button class="btn outline" id="skipBtn">다음 →</button>
+        <button class="btn outline" id="skipBtn">스킵 →</button>
       </div>
       <div class="spacer"></div>
-      <button class="btn" id="submitBtn" disabled>정답 확인</button>
-      <button class="btn" id="nextBtn" style="display: none;">정답 후 다음 →</button>
-      <button class="btn bookmark" id="bmBtn">⭐ 복습</button>
+
+      <button class="btn" id="submitBtn" disabled>정답 확인 (Enter)</button>
+      <button class="btn" id="nextBtn" style="display: none;">다음 문제 →</button>
+
+      <button class="btn bookmark" id="bmBtn">⭐ 복습 저장</button>
     </div>
   </div>
 
+  <div id="toast-container"></div>
+
   <script>
+    /* --- Global State --- */
     let currentQuestion = null;
-    let selectedOption = null;
     let answered = false;
 
-    const qidEl = document.getElementById("qid");
-    const qtextEl = document.getElementById("qtext");
-    const optsEl = document.getElementById("options");
-    const expEl = document.getElementById("exp");
-    const progressEl = document.getElementById("progress");
-    const submitBtn = document.getElementById("submitBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const skipBtn = document.getElementById("skipBtn");
-    const prevBtn = document.getElementById("prevBtn");
-    const homeBtn = document.getElementById("homeBtn");
-    const bmBtn = document.getElementById("bmBtn");
-    const jumpInput = document.getElementById("jumpInput");
-    const jumpBtn = document.getElementById("jumpBtn");
-    const loadingEl = document.getElementById("loading");
-    const qContainer = document.getElementById("qContainer");
+    // ✅ 단일/복수/스텝에 따라 UI/채점 모드
+    // mode: "single" | "multi" | "steps"
+    let answerMode = "single";
 
-    // localStorage에서 마지막 문제 번호 가져오기
+    // ✅ 선택값
+    // single: string("A")
+    // multi/steps: array(["A","C"]) / array(["E","B","C"])
+    let selected = null;
+
+    /* --- Elements --- */
+    const els = {
+      qid: document.getElementById("qid"),
+      qtext: document.getElementById("qtext"),
+      opts: document.getElementById("options"),
+      exp: document.getElementById("exp"),
+      progress: document.getElementById("progress"),
+      submitBtn: document.getElementById("submitBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      skipBtn: document.getElementById("skipBtn"),
+      prevBtn: document.getElementById("prevBtn"),
+      homeBtn: document.getElementById("homeBtn"),
+      bmBtn: document.getElementById("bmBtn"),
+      jumpInput: document.getElementById("jumpInput"),
+      jumpBtn: document.getElementById("jumpBtn"),
+      loading: document.getElementById("loading"),
+      qContainer: document.getElementById("qContainer"),
+      toastContainer: document.getElementById("toast-container"),
+      multiHint: document.getElementById("multiHint"),
+    };
+
+    /* --- Utils --- */
+    function showToast(message) {
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = message;
+      els.toastContainer.appendChild(toast);
+
+      void toast.offsetWidth;
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+
     function getLastQuestionId() {
       return parseInt(localStorage.getItem("lastQuestionId")) || null;
     }
 
-    // localStorage에 현재 문제 번호 저장
     function saveLastQuestionId(id) {
       localStorage.setItem("lastQuestionId", id);
     }
 
-    // 문제 불러오기
+    function setLoading(isLoading) {
+      els.loading.style.display = isLoading ? "block" : "none";
+      els.qContainer.style.display = isLoading ? "none" : "block";
+    }
+
+    function toKey(opt) {
+      // opt: "A. text" / "2-D. text" 형태
+      const s = String(opt || "").trim();
+      if (!s) return "";
+      // 첫 토큰을 key로: "A." / "2-D." / "B)" 등
+      const first = s.split(/\s+/)[0];
+      return first.replace(/[.)]$/, "").trim();
+    }
+
+    function inferModeFromQuestion(q) {
+      // ✅ Steps 우선 (백엔드가 answer_steps 내려주면 확정)
+      if (Array.isArray(q.answer_steps) && q.answer_steps.length) return "steps";
+
+      // ✅ 멀티: answer_keys가 2개 이상이거나 answer 문자열에 쉼표가 있으면
+      if (Array.isArray(q.answer_keys) && q.answer_keys.length >= 2) return "multi";
+      if (typeof q.answer === "string" && q.answer.includes(",")) return "multi";
+
+      return "single";
+    }
+
+    function setHint(mode) {
+      els.multiHint.classList.remove("show");
+      els.multiHint.textContent = "";
+
+      if (mode === "multi") {
+        els.multiHint.textContent = "💡 복수 정답 문제입니다. 정답을 여러 개 선택한 뒤 제출하세요.";
+        els.multiHint.classList.add("show");
+      } else if (mode === "steps") {
+        els.multiHint.textContent = "💡 순서(단계) 문제입니다. 정답을 순서대로 클릭하세요. (다시 클릭하면 마지막 선택이 취소됩니다)";
+        els.multiHint.classList.add("show");
+      }
+    }
+
+    function resetState() {
+      selected = null;
+      answered = false;
+      els.submitBtn.disabled = true;
+      els.submitBtn.style.display = "block";
+      els.nextBtn.style.display = "none";
+      els.skipBtn.style.display = "block";
+      els.exp.classList.remove("show");
+      els.exp.innerHTML = "";
+      els.opts.innerHTML = "";
+    }
+
+    function updateSubmitEnabled() {
+      if (answerMode === "single") {
+        els.submitBtn.disabled = !selected;
+      } else {
+        els.submitBtn.disabled = !(Array.isArray(selected) && selected.length > 0);
+      }
+    }
+
+    // steps 모드: 선택 순서 표시(옵션 우측 상단 배지 대신, 간단히 selected 클래스로만 유지)
+    function toggleSelectedClass(labelEl, on) {
+      if (on) labelEl.classList.add("selected");
+      else labelEl.classList.remove("selected");
+    }
+
+    function clearAllSelectedClass() {
+      document.querySelectorAll(".opt").forEach(el => el.classList.remove("selected"));
+    }
+
+    function getSelectedArray() {
+      if (!Array.isArray(selected)) return [];
+      return selected.slice();
+    }
+
+    /* --- Core Logic --- */
+
     async function loadQuestion(questionId = null) {
-      loadingEl.style.display = "block";
-      qContainer.style.display = "none";
-      
+      setLoading(true);
       try {
-        const url = questionId ? `/api/question?id=${questionId}` : '/api/question';
+        const url = questionId ? `/api/question?id=${questionId}` : "/api/question";
         const res = await fetch(url);
+        if (!res.ok) throw new Error("네트워크 응답 오류");
+
         const data = await res.json();
-        
         if (data.error) {
-          loadingEl.textContent = "❌ " + data.error;
+          els.loading.innerHTML = `<span style="color:var(--bad)">⚠️ ${data.error}</span>`;
           return;
         }
-        
+
         currentQuestion = data;
         render(data);
-        saveLastQuestionId(data.id); // 문제 번호 저장
-        
-        loadingEl.style.display = "none";
-        qContainer.style.display = "block";
+        saveLastQuestionId(data.id);
+        setLoading(false);
       } catch (err) {
-        loadingEl.textContent = "❌ 문제를 불러오지 못했습니다.";
+        els.loading.innerHTML = `<span style="color:var(--bad)">⚠️ 문제를 불러오지 못했습니다.<br><small>${err.message}</small></span>`;
         console.error(err);
       }
     }
 
-    // 문제 렌더링
     function render(q) {
-      progressEl.textContent = `문제 ${q.id} / ${q.total}`;
-      qidEl.textContent = `ID ${q.id}`;
-      qtextEl.textContent = q.question;
-      optsEl.innerHTML = "";
-      expEl.classList.remove("show");
-      expEl.innerHTML = "";
+      els.qContainer.classList.remove("fade-in");
+      void els.qContainer.offsetWidth;
+      els.qContainer.classList.add("fade-in");
 
-      // 입력창 최대값 설정
-      jumpInput.max = q.total;
-      jumpInput.placeholder = `1-${q.total}`;
+      els.progress.textContent = `문제 ${q.id} / ${q.total}`;
+      els.qid.textContent = `Question ID: ${q.id}`;
+      els.qtext.textContent = q.question;
 
-      // 초기화
-      selectedOption = null;
-      answered = false;
-      submitBtn.disabled = true;
-      submitBtn.style.display = "block";
-      nextBtn.style.display = "none";
-      skipBtn.style.display = "block";
+      els.jumpInput.max = q.total;
+      els.jumpInput.placeholder = `Total ${q.total}`;
 
-      (q.options || []).forEach(opt => {
+      resetState();
+
+      // ✅ 모드 판별 + 힌트
+      answerMode = inferModeFromQuestion(q);
+      setHint(answerMode);
+
+      // ✅ 옵션 렌더
+      (q.options || []).forEach((opt, index) => {
+        const line = (typeof opt === "string") ? opt : `${opt.key}. ${opt.text}`;
+
+        const key = toKey(line);
+        let text = line.replace(/^[^\s]+[\s]*/, ""); // 첫 토큰 제거 후 나머지
+        // "A. xxx" 같은 경우 앞에 "A." 제거가 덜 될 수 있어 보정
+        text = text.replace(/^[A-Z]\s*[\.\)]\s*/, "");
+
         const label = document.createElement("label");
         label.className = "opt";
-        
+        label.dataset.key = key;
+        label.dataset.idx = index + 1;
+
         const input = document.createElement("input");
-        input.type = "radio";
         input.name = `q${q.id}`;
-        input.value = opt;
-        input.addEventListener("change", () => onSelect(opt, label));
-        
+
+        // ✅ single=radio, multi/steps=checkbox (steps도 체크박스를 쓰되, 클릭 순서로 배열 관리)
+        input.type = (answerMode === "single") ? "radio" : "checkbox";
+        input.value = key;
+
+        // 클릭/변경 이벤트 통합 처리
+        input.addEventListener("change", (e) => onSelect(key, label, e.target.checked));
+
+        const keySpan = document.createElement("div");
+        keySpan.className = "opt-key";
+        keySpan.textContent = key + ".";
+
+        const textSpan = document.createElement("div");
+        textSpan.style.flex = "1";
+        textSpan.textContent = text;
+
         label.appendChild(input);
-        label.append(opt);
-        optsEl.appendChild(label);
+        label.appendChild(keySpan);
+        label.appendChild(textSpan);
+        els.opts.appendChild(label);
+
+        // label 클릭해도 토글되게(모바일 체감 좋음)
+        label.addEventListener("click", (e) => {
+          if (answered) return;
+          // input 자체 클릭은 기본 동작에 맡기고, label 영역 클릭만 보정
+          if (e.target.tagName !== "INPUT") input.click();
+        });
       });
     }
 
-    // 선택
-    function onSelect(chosen, labelEl) {
+    function onSelect(key, labelEl, checked) {
       if (answered) return;
-      
-      // 모든 선택 해제
-      document.querySelectorAll('.opt').forEach(opt => {
-        opt.classList.remove("selected");
-      });
-      
-      // 새 선택
-      labelEl.classList.add("selected");
-      selectedOption = chosen.charAt(0); // "A. Berlin" -> "A"
-      submitBtn.disabled = false;
+
+      if (answerMode === "single") {
+        // 기존 동작 유지
+        document.querySelectorAll(".opt").forEach(opt => opt.classList.remove("selected"));
+        labelEl.classList.add("selected");
+        selected = key;
+        updateSubmitEnabled();
+        return;
+      }
+
+      // multi / steps: 배열로 관리
+      if (!Array.isArray(selected)) selected = [];
+
+      if (answerMode === "multi") {
+        // checkbox 그대로 반영
+        if (checked) {
+          if (!selected.includes(key)) selected.push(key);
+          toggleSelectedClass(labelEl, true);
+        } else {
+          selected = selected.filter(x => x !== key);
+          toggleSelectedClass(labelEl, false);
+        }
+        updateSubmitEnabled();
+        return;
+      }
+
+      // steps: 클릭 순서가 중요
+      // 규칙: 체크되면 push, 해제되면 "마지막 요소"일 때만 pop 허용(사용자 실수 방지)
+      if (checked) {
+        if (!selected.includes(key)) selected.push(key);
+        toggleSelectedClass(labelEl, true);
+      } else {
+        // 마지막만 취소 허용
+        const last = selected[selected.length - 1];
+        if (last === key) {
+          selected.pop();
+          toggleSelectedClass(labelEl, false);
+        } else {
+          // 되돌리고 안내
+          const input = labelEl.querySelector("input");
+          if (input) input.checked = true;
+          showToast("순서 문제는 마지막 선택만 취소할 수 있어요.");
+        }
+      }
+      updateSubmitEnabled();
     }
 
-    // 정답 확인
-    submitBtn.addEventListener("click", async () => {
-      if (!selectedOption || answered) return;
-      
+    // 정답 제출
+    els.submitBtn.addEventListener("click", async () => {
+      if (answered) return;
+
+      // 선택 값 만들기
+      let chosenPayload = null;
+      if (answerMode === "single") {
+        if (!selected) return;
+        chosenPayload = selected;
+      } else {
+        const arr = getSelectedArray();
+        if (!arr.length) return;
+        chosenPayload = arr.length === 1 ? arr[0] : arr; // 백엔드 호환(1개면 string)
+      }
+
+      els.submitBtn.disabled = true;
+
       try {
         const res = await fetch("/api/answer", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             question_id: currentQuestion.id,
-            chosen: selectedOption,
+            chosen: chosenPayload,
             user_id: "default"
           })
         });
-        
+
         const result = await res.json();
         answered = true;
-        
-        // 정답/오답 표시
-        document.querySelectorAll('.opt').forEach(opt => {
-          opt.classList.add("disabled");
-          const optLetter = opt.textContent.charAt(0);
-          if (optLetter === result.answer) {
-            opt.classList.add("correct");
-          } else if (optLetter === selectedOption && !result.correct) {
-            opt.classList.add("wrong");
+
+        // 정답키/steps키를 받을 수 있으면 우선 사용
+        // - 최적화 app.py: answer_keys / answer_steps를 내려줄 수 있음
+        const answerKeys = Array.isArray(currentQuestion.answer_keys) ? currentQuestion.answer_keys.map(String) : [];
+        const answerSteps = Array.isArray(currentQuestion.answer_steps) ? currentQuestion.answer_steps.map(String) : [];
+
+        // 서버가 answer를 "A,B"로 주는 구버전이면 파싱
+        const legacyKeys = (typeof result.answer === "string" && result.answer.includes(","))
+          ? result.answer.split(",").map(x => x.trim()).filter(Boolean)
+          : [];
+
+        // 채점용 정답 리스트 결정
+        let correctList = [];
+        if (answerMode === "steps" && answerSteps.length) correctList = answerSteps;
+        else if (answerMode !== "single" && answerKeys.length) correctList = answerKeys;
+        else if (legacyKeys.length) correctList = legacyKeys;
+        else if (typeof result.answer === "string" && result.answer) correctList = [result.answer];
+
+        // 스타일 적용
+        document.querySelectorAll(".opt").forEach(optEl => {
+          optEl.classList.add("disabled");
+          const optKey = optEl.dataset.key;
+
+          // correctList에 있으면 correct 표기 (멀티면 여러개)
+          if (correctList.includes(optKey)) {
+            optEl.classList.add("correct");
+          }
+
+          // 오답 표기: 선택했는데 correctList에 없으면 wrong
+          if (answerMode === "single") {
+            if (optKey === selected && !result.correct && !correctList.includes(optKey)) {
+              optEl.classList.add("wrong");
+            }
+          } else {
+            const selArr = Array.isArray(selected) ? selected : [];
+            if (selArr.includes(optKey) && !result.correct && !correctList.includes(optKey)) {
+              optEl.classList.add("wrong");
+            }
           }
         });
-        
-        // 해설 표시
-        showExplanation(result);
-        
-        submitBtn.style.display = "none";
-        nextBtn.style.display = "block";
-        skipBtn.style.display = "none";
+
+        showExplanation(result, correctList);
+
+        els.submitBtn.style.display = "none";
+        els.nextBtn.style.display = "block";
+        els.skipBtn.style.display = "none";
+        els.nextBtn.focus();
+
       } catch (err) {
         console.error(err);
-        alert("채점 중 오류가 발생했습니다.");
+        showToast("❌ 채점 중 오류가 발생했습니다.");
+        els.submitBtn.disabled = false;
       }
     });
 
-    // 해설 표시
-    function showExplanation(result) {
-      expEl.classList.add("show");
-      const isCorrect = result.correct;
-      expEl.innerHTML = `
+    function showExplanation(result, correctList) {
+      els.exp.classList.add("show");
+
+      const isCorrect = !!result.correct;
+      const correctText = correctList.length ? correctList.join(", ") : (result.answer || "(정답 정보 없음)");
+
+      const extra =
+        (answerMode === "multi") ? `<div style="margin-top:6px;color:var(--muted);font-size:13px">선택: ${Array.isArray(selected) ? selected.join(", ") : selected}</div>` :
+        (answerMode === "steps") ? `<div style="margin-top:6px;color:var(--muted);font-size:13px">선택(순서): ${Array.isArray(selected) ? selected.join(" → ") : selected}</div>` :
+        "";
+
+      els.exp.innerHTML = `
         <div class="title ${isCorrect ? 'ok':'bad'}">
-          ${isCorrect ? "✅ 정답입니다!" : "❌ 오답입니다. 정답: " + result.answer}
+          ${isCorrect ? "✅ 정답입니다!" : "❌ 오답! 정답은 " + correctText + " 입니다."}
         </div>
-        <div>${result.explanation || "해설이 없습니다."}</div>
+        ${extra}
+        <div>${result.explanation || "해설 정보가 없습니다."}</div>
       `;
     }
 
-    // 다음 문제
-    nextBtn.addEventListener("click", async () => {
-      try {
-        const res = await fetch(`/api/next?current_id=${currentQuestion.id}`);
-        const data = await res.json();
-        
-        if (data.end) {
-          alert("마지막 문제입니다!");
-          return;
-        }
-        
-        currentQuestion = data;
-        render(data);
-        saveLastQuestionId(data.id); // 문제 번호 저장
-      } catch (err) {
-        console.error(err);
-        alert("다음 문제를 불러오는데 실패했습니다.");
-      }
-    });
+    // 다음/이전/스킵
+    async function moveQuestion(direction) {
+      if (!currentQuestion) return;
 
-    // 이전 문제
-    prevBtn.addEventListener("click", async () => {
-      if (!currentQuestion || currentQuestion.id <= 1) {
-        alert("첫 번째 문제입니다!");
+      if (direction === "prev") {
+        if (currentQuestion.id <= 1) { showToast("첫 번째 문제입니다."); return; }
+        await loadQuestion(currentQuestion.id - 1);
         return;
       }
-      
-      try {
-        const prevId = currentQuestion.id - 1;
-        await loadQuestion(prevId);
-      } catch (err) {
-        console.error(err);
-        alert("이전 문제를 불러오는데 실패했습니다.");
-      }
-    });
 
-    // 홈으로 이동
-    homeBtn.addEventListener("click", () => {
-      window.location.href = "/";
-    });
-
-    // 건너뛰기 (답 확인 없이 다음 문제)
-    skipBtn.addEventListener("click", async () => {
       try {
         const res = await fetch(`/api/next?current_id=${currentQuestion.id}`);
         const data = await res.json();
-        
-        if (data.end) {
-          alert("마지막 문제입니다!");
-          return;
-        }
-        
+        if (data.end) { showToast("🎉 마지막 문제입니다!"); return; }
         currentQuestion = data;
         render(data);
         saveLastQuestionId(data.id);
       } catch (err) {
-        console.error(err);
-        alert("다음 문제를 불러오는데 실패했습니다.");
+        showToast("❌ 이동 실패");
       }
-    });
+    }
 
-    // 문제 번호로 이동
-    jumpBtn.addEventListener("click", async () => {
-      const targetId = parseInt(jumpInput.value);
-      if (!targetId || targetId < 1) {
-        alert("올바른 문제 번호를 입력하세요.");
-        return;
-      }
-      
-      if (currentQuestion && targetId > currentQuestion.total) {
-        alert(`문제 번호는 1부터 ${currentQuestion.total}까지입니다.`);
-        return;
-      }
-      
-      await loadQuestion(targetId);
-      jumpInput.value = "";
-    });
+    els.nextBtn.addEventListener("click", () => moveQuestion("next"));
+    els.skipBtn.addEventListener("click", () => moveQuestion("next"));
+    els.prevBtn.addEventListener("click", () => moveQuestion("prev"));
 
-    // Enter 키로 문제 이동
-    jumpInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        jumpBtn.click();
-      }
-    });
-
-    // 복습 추가
-    bmBtn.addEventListener("click", async () => {
+    // 북마크
+    els.bmBtn.addEventListener("click", async () => {
       if (!currentQuestion) return;
-      
       try {
         const res = await fetch("/api/review_add", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            question_id: currentQuestion.id,
-            user_id: "default"
-          })
+          body: JSON.stringify({ question_id: currentQuestion.id, user_id: "default" })
         });
-        
         const data = await res.json();
-        alert(data.message);
+        showToast("⭐ " + (data.message || "복습 노트에 저장되었습니다."));
       } catch (err) {
-        console.error(err);
-        alert("복습노트 추가 중 오류가 발생했습니다.");
+        showToast("❌ 저장 실패");
       }
     });
+
+    // 점프
+    function jumpTo() {
+      const targetId = parseInt(els.jumpInput.value);
+      if (!targetId || targetId < 1) { showToast("⚠️ 올바른 번호를 입력하세요."); return; }
+      if (currentQuestion && targetId > currentQuestion.total) { showToast(`⚠️ 1 ~ ${currentQuestion.total} 사이만 가능합니다.`); return; }
+      loadQuestion(targetId);
+      els.jumpInput.value = "";
+    }
+    els.jumpBtn.addEventListener("click", jumpTo);
+    els.jumpInput.addEventListener("keypress", (e) => { if (e.key === "Enter") jumpTo(); });
+    els.homeBtn.addEventListener("click", () => window.location.href = "/");
 
     // 키보드 단축키
     window.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !submitBtn.disabled && submitBtn.style.display !== "none") {
-        submitBtn.click();
+      if (document.activeElement.tagName === "INPUT") return;
+
+      const key = e.key.toUpperCase();
+
+      // 선택지 선택(1~4 / A~D) — 멀티/스텝에서도 "토글"로 동작
+      if (!answered) {
+        const keyMap = { "1":"A", "2":"B", "3":"C", "4":"D", "A":"A", "B":"B", "C":"C", "D":"D" };
+        if (keyMap[key]) {
+          const targetKey = keyMap[key];
+          const targetLabel = document.querySelector(`.opt[data-key="${targetKey}"]`);
+          if (targetLabel) {
+            const input = targetLabel.querySelector("input");
+            if (input) input.click();
+          }
+        }
       }
-      if (e.key === "ArrowRight" && nextBtn.style.display !== "none") {
-        nextBtn.click();
+
+      // 제출/다음 (Enter)
+      if (e.key === "Enter") {
+        if (!els.submitBtn.disabled && els.submitBtn.style.display !== "none") {
+          els.submitBtn.click();
+        } else if (els.nextBtn.style.display !== "none") {
+          els.nextBtn.click();
+        }
+      }
+
+      // 이동 (좌우)
+      if (e.key === "ArrowRight") {
+        if (els.nextBtn.style.display !== "none") els.nextBtn.click();
       }
       if (e.key === "ArrowLeft") {
-        prevBtn.click();
+        els.prevBtn.click();
       }
     });
 
-    // 페이지 로드시 마지막 문제 또는 첫 문제
+    // 초기 실행
     const lastId = getLastQuestionId();
-    if (lastId) {
-      loadQuestion(lastId);
-    } else {
-      loadQuestion();
-    }
+    loadQuestion(lastId || undefined);
   </script>
 </body>
 </html>
