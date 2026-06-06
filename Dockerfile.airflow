@@ -1,0 +1,20 @@
+FROM apache/airflow:2.10.5-python3.10
+
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        libgomp1 \
+        libglib2.0-0 \
+        libgl1 \
+        poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+USER airflow
+WORKDIR /opt/airflow
+
+COPY requirements.txt /tmp/requirements-app.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-app.txt --extra-index-url https://download.pytorch.org/whl/torch_stable.html
+
+COPY cert_study_app /opt/airflow/cert_study_app
+COPY pdf_parser_adaptive.py /opt/airflow/pdf_parser_adaptive.py

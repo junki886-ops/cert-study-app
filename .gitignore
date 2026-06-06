@@ -9,7 +9,15 @@ __pycache__/
 
 # VSCode 설정
 .vscode/
+.DS_Store
+
+# 환경/비밀값
+.env
+.streamlit/credentials.toml
 
 # 데이터 업로드
-data/uploads/
-data/images/
+data/
+instance/
+chroma_db/
+airflow_logs/
+airflow_db/

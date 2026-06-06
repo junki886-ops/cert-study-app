@@ -16,24 +16,22 @@ fire==0.7.1
 typing_extensions==4.12.2
 
 # --- PaddleOCR (CPU 버전, No OpenCV) ---
-paddlepaddle==2.6.1
+paddlepaddle==2.6.2
 paddleocr==2.7.3
 lmdb==1.7.5
 
 # --- PDF / Image Handling ---
 pdf2image==1.17.0
-PyMuPDF==1.20.2
+PyMuPDF==1.24.14
 
-# --- Flask & Web Server ---
-Flask==3.0.3
+# --- Streamlit App ---
+streamlit==1.40.2
 python-dotenv==1.0.1
-Werkzeug==3.0.3
-Jinja2==3.1.4
-itsdangerous==2.2.0
 
 # --- Database / ORM ---
-SQLAlchemy==2.0.36
+SQLAlchemy==1.4.54
 alembic==1.13.2
+pg8000==1.31.2
 
 # --- Deep Learning (PyTorch CPU 전용) ---
 torch==2.2.2
@@ -49,7 +47,8 @@ huggingface_hub==0.36.0
 tokenizers==0.20.3
 langchain==0.2.16
 langchain-community==0.2.12
-langchain-huggingface==0.1.0
+langchain-huggingface==0.0.3
+langgraph==0.2.76
 chromadb==0.5.5
 sentence-transformers==3.0.1
 

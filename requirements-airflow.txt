@@ -1,0 +1,4 @@
+# Airflow is intentionally separated from the app runtime because it pins
+# Flask and SQLAlchemy to older ranges and may require native google-re2
+# build dependencies on macOS.
+apache-airflow==2.10.5
