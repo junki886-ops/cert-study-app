@@ -680,6 +680,29 @@ def box_choice_labels(question, count: int) -> list[str]:
 
 
 def yes_no_answer_labels(value: str) -> list[str]:
+    if isinstance(value, (list, dict)):
+        raw_value = value
+    else:
+        raw_value = None
+        try:
+            raw_value = json.loads(value) if isinstance(value, str) else None
+        except Exception:
+            raw_value = None
+
+    if isinstance(raw_value, list):
+        values = [
+            item.get("value") or item.get("answer") or item.get("selected_answer")
+            for item in raw_value
+            if isinstance(item, dict)
+        ]
+        labels = yes_no_answer_labels(",".join(str(item) for item in values if item))
+        if labels:
+            return labels
+    elif isinstance(raw_value, dict):
+        labels = yes_no_answer_labels(",".join(str(item) for item in raw_value.values()))
+        if labels:
+            return labels
+
     text = str(value or "")
     if re.fullmatch(r"\s*[YNyn](?:\s*,\s*[YNyn])+\s*", text):
         return [token.upper() for token in re.findall(r"[YNyn]", text)]
@@ -691,8 +714,12 @@ def yes_no_answer_labels(value: str) -> list[str]:
 
 def is_yes_no_hotspot(question) -> bool:
     question_type = (question.get("question_type") or "").lower()
-    if question_type not in {"hotspot", "table_choice"}:
+    if "in-context" in question_type:
         return False
+    if not any(keyword in question_type for keyword in ["hotspot", "table_choice", "yes_no", "true/false"]):
+        return False
+    if "true/false" in question_type:
+        return True
     text = " ".join(
         [
             question.get("question") or "",
@@ -704,6 +731,65 @@ def is_yes_no_hotspot(question) -> bool:
     return bool(
         re.search(r"다음\s*각\s*(진술|설명|항목)|각\s*(진술|설명|항목).*예|예를\s*선택|아니오를\s*선택|아니요를\s*선택", text)
     )
+
+
+def statement_option_rows(options: list[str], expected_count: int) -> list[str]:
+    rows = []
+    for option in options or []:
+        text = str(option or "").strip()
+        if not text:
+            continue
+        cleaned = re.sub(r"^\s*(?:[0-9]+|[A-Z])[-.)]\s*", "", text).strip()
+        if re.fullmatch(r"예|아니오|아니요|yes|no", cleaned, re.I):
+            continue
+        rows.append(cleaned)
+    if expected_count and len(rows) >= expected_count:
+        return rows[:expected_count]
+    return rows
+
+
+def grouped_option_rows(options: list[str]) -> list[dict]:
+    grouped = {}
+    order = []
+    for option in options or []:
+        text = str(option or "").strip()
+        match = re.match(r"^\s*(\d+)-([A-Z])[\.)]?\s*(.+)$", text, re.I)
+        if not match:
+            continue
+        group_key = match.group(1)
+        body = match.group(3).strip()
+        row_label = f"항목 {group_key}"
+        value = body
+        if ":" in body:
+            row_label, value = [part.strip() for part in body.split(":", 1)]
+        if group_key not in grouped:
+            grouped[group_key] = {"label": row_label, "options": []}
+            order.append(group_key)
+        grouped[group_key]["options"].append(value)
+    rows = [grouped[key] for key in order]
+    return rows if len(rows) >= 2 and all(row["options"] for row in rows) else []
+
+
+def render_grouped_option_selects(question, key_prefix, rows):
+    selections = []
+    all_yes_no = all(
+        all(str(option).strip().lower() in {"yes", "no", "예", "아니오", "아니요"} for option in row["options"])
+        for row in rows
+    )
+    st.markdown("#### 항목별 답안")
+    for index, row in enumerate(rows, 1):
+        options = [str(option).strip() for option in row["options"] if str(option).strip()]
+        selected = st.selectbox(
+            row["label"] or f"항목 {index}",
+            ["선택 안 함"] + options,
+            key=f"{key_prefix}_grouped_options_{question['id']}_{index}",
+        )
+        if selected != "선택 안 함":
+            if all_yes_no:
+                selections.append("Y" if selected.lower() in {"yes", "예"} else "N")
+            else:
+                selections.append(selected)
+    return ",".join(selections) if len(selections) == len(rows) else None
 
 
 def visual_statements(question) -> list[dict]:
@@ -761,12 +847,16 @@ def render_answer_input(question, key_prefix):
     if statement_rows:
         return render_yes_no_matrix(question, f"{key_prefix}_statements", statement_rows)
 
+    grouped_rows = grouped_option_rows(options)
+    if grouped_rows:
+        return render_grouped_option_selects(question, key_prefix, grouped_rows)
+
     if is_yes_no_hotspot(question):
         answer_count = len(yes_no_answer_labels(question.get("answer") or "")) or len(
             yes_no_answer_labels(question.get("explanation") or "")
         )
         row_count = max(3, answer_count, len(statement_rows))
-        rows = yes_no_lines(question.get("question") or "")
+        rows = statement_option_rows(options, row_count) or yes_no_lines(question.get("question") or "")
         if statement_rows:
             rows = statement_rows
         if len(rows) < row_count:

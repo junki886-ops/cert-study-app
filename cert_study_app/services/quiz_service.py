@@ -132,6 +132,29 @@ def normalize_choice_answer(value: str, ordered: bool = False) -> str:
 
 
 def yes_no_labels(value: str) -> list[str]:
+    if isinstance(value, (list, dict)):
+        raw_value = value
+    else:
+        raw_value = None
+        try:
+            raw_value = json.loads(value) if isinstance(value, str) else None
+        except Exception:
+            raw_value = None
+
+    if isinstance(raw_value, list):
+        values = [
+            item.get("value") or item.get("answer") or item.get("selected_answer")
+            for item in raw_value
+            if isinstance(item, dict)
+        ]
+        labels = yes_no_labels(",".join(str(item) for item in values if item))
+        if labels:
+            return labels
+    elif isinstance(raw_value, dict):
+        labels = yes_no_labels(",".join(str(item) for item in raw_value.values()))
+        if labels:
+            return labels
+
     text = str(value or "").strip().lower()
     if not text:
         return []
@@ -143,6 +166,28 @@ def yes_no_labels(value: str) -> list[str]:
         lowered = token.lower()
         labels.append("Y" if token == "예" or lowered == "yes" else "N")
     return labels if len(labels) >= 2 else []
+
+
+def structured_answer_values(value) -> list[str]:
+    if isinstance(value, (list, dict)):
+        raw_value = value
+    else:
+        try:
+            raw_value = json.loads(value) if isinstance(value, str) else None
+        except Exception:
+            raw_value = None
+
+    if isinstance(raw_value, list):
+        values = [
+            item.get("value") or item.get("answer") or item.get("selected_answer")
+            for item in raw_value
+            if isinstance(item, dict)
+        ]
+    elif isinstance(raw_value, dict):
+        values = list(raw_value.values())
+    else:
+        return []
+    return [str(item).strip() for item in values if str(item).strip()]
 
 
 def option_text(options: list[str], label: str) -> str:
@@ -203,7 +248,19 @@ def effective_answer(question) -> str:
     answer = question.answer or ""
     question_type = (question.question_type or "").lower()
     options = normalize_options(question.get_options()) or extract_options_from_stem(question.stem)
-    if question_type in {"hotspot", "table_choice", "matching", "ordering", "yes_no"}:
+    structured_values = structured_answer_values(answer)
+    if structured_values:
+        structured_yn = yes_no_labels(",".join(structured_values))
+        return ",".join(structured_yn or structured_values)
+
+    is_structured_visual = any(
+        keyword in question_type
+        for keyword in ["hotspot", "table_choice", "matching", "ordering", "yes_no", "true/false"]
+    ) and "in-context" not in question_type
+    if is_structured_visual:
+        answer_labels = yes_no_labels(answer)
+        if answer_labels and "true/false" in question_type:
+            return ",".join(answer_labels)
         analysis = visual_analysis(question)
         statements = analysis.get("statements")
         if isinstance(statements, list):
@@ -228,7 +285,7 @@ def effective_answer(question) -> str:
             labels = option_labels_from_texts(options, selected, allow_duplicates=True)
             if labels:
                 return ",".join(labels)
-    if question_type in {"hotspot", "table_choice"} and not yes_no_labels(answer):
+    if is_structured_visual and not yes_no_labels(answer):
         explanation_labels = yes_no_labels(question.explanation or "")
         if explanation_labels:
             return ",".join(explanation_labels)
