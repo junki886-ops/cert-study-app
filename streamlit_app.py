@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import streamlit as st
+import streamlit.components.v1 as components
 from sqlalchemy import func
 
 from cert_study_app.config import DEFAULT_USER, ensure_runtime_dirs
@@ -38,6 +39,55 @@ EMBEDDING_MODEL_OPTIONS = [
     "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
     "sentence-transformers/all-MiniLM-L6-v2",
 ]
+
+
+def inject_pwa_assets():
+    components.html(
+        """
+        <script>
+        (function () {
+          const doc = window.parent.document;
+
+          function ensureLink(rel, href, attrs) {
+            if (doc.querySelector(`link[rel="${rel}"][href="${href}"]`)) {
+              return;
+            }
+            const link = doc.createElement("link");
+            link.rel = rel;
+            link.href = href;
+            Object.entries(attrs || {}).forEach(([key, value]) => link.setAttribute(key, value));
+            doc.head.appendChild(link);
+          }
+
+          function ensureMeta(name, content) {
+            let meta = doc.querySelector(`meta[name="${name}"]`);
+            if (!meta) {
+              meta = doc.createElement("meta");
+              meta.name = name;
+              doc.head.appendChild(meta);
+            }
+            meta.content = content;
+          }
+
+          ensureLink("manifest", "/app/static/manifest.webmanifest");
+          ensureLink("icon", "/app/static/icons/icon.svg", { type: "image/svg+xml" });
+          ensureLink("apple-touch-icon", "/app/static/icons/icon.svg");
+          ensureMeta("theme-color", "#2563eb");
+          ensureMeta("apple-mobile-web-app-capable", "yes");
+          ensureMeta("apple-mobile-web-app-title", "Cert Study");
+          ensureMeta("mobile-web-app-capable", "yes");
+
+          if ("serviceWorker" in window.parent.navigator) {
+            window.parent.navigator.serviceWorker
+              .register("/app/static/service-worker.js")
+              .catch(function () {});
+          }
+        })();
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
 
 
 def get_service():
@@ -1889,6 +1939,7 @@ def main():
     ensure_runtime_dirs()
     init_db(verbose=False)
     init_state()
+    inject_pwa_assets()
     apply_mobile_styles()
 
     st.title("Cert Study")

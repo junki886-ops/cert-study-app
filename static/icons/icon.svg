@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Cert Study App">
+  <defs>
+    <linearGradient id="bg" x1="96" x2="416" y1="64" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path fill="#ffffff" d="M144 130c0-18 14-32 32-32h160c18 0 32 14 32 32v252c0 18-14 32-32 32H176c-18 0-32-14-32-32V130z"/>
+  <path fill="#dbeafe" d="M184 150h144v56H184z"/>
+  <path fill="#1e40af" d="M190 252h132v24H190zM190 304h92v24h-92z"/>
+  <circle cx="352" cy="352" r="74" fill="#0f172a"/>
+  <path fill="#ffffff" d="m323 350 18-18 14 14 34-36 19 18-53 56-32-34z"/>
+</svg>
