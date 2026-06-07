@@ -25,6 +25,7 @@ pinned: false
 - 파싱 품질 검증 및 품질 게이트
 - 문제, 정답, 해설, 풀이 기록 저장
 - Streamlit 기반 문제풀이 화면
+- 공통 지문, 원문 이미지, Yes/No 진술형 문제풀이 UI
 - 오답/복습 화면
 - 개념 정리 화면
 - Chroma 기반 유사 문제 검색 구조
@@ -70,6 +71,31 @@ docker compose up --build
 - Streamlit 앱: `http://localhost:8501`
 - Airflow 웹서버: `http://localhost:8080`
 - PostgreSQL: `localhost:5432`
+
+로컬에서 Streamlit만 빠르게 확인할 때는 임시 SQLite DB를 사용할 수 있습니다.
+
+```bash
+DATABASE_URL=sqlite:////tmp/cert-study-local-check.db \
+  python -m streamlit run streamlit_app.py
+```
+
+## 배포용 문제 데이터
+
+Hugging Face Space에는 로컬 DB나 PDF 원본을 올리지 않고, `cert_study_app/demo_data/questions_seed.json`과 `static/question_assets/`의 참조 이미지를 사용합니다.
+
+현재 배포용 seed는 321문항, 공통 지문 포함 문항, 원문 이미지, Yes/No 진술형 문제 UI에 필요한 구조를 포함합니다. seed는 아래 명령으로 다시 만들 수 있습니다.
+
+```bash
+python scripts/export_hf_seed.py
+```
+
+## 변경 이력 확인
+
+Git 커밋은 날짜와 함께 남기 때문에 일자별 변경 내용을 확인할 수 있습니다.
+
+```bash
+scripts/git_daily_changes.sh 2026-06-07
+```
 
 ## 환경 변수
 

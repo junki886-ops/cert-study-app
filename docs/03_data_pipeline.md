@@ -129,6 +129,28 @@ LLM은 모든 단계에서 무조건 쓰는 것이 아니라, 구조화가 어�
 
 이때 PostgreSQL의 문제 ID와 Chroma의 벡터 데이터가 연결되어 있어야 합니다. 그래야 유사 검색 결과를 다시 실제 문제 화면으로 가져올 수 있습니다.
 
+## 배포용 Seed 생성
+
+Hugging Face Space에서는 로컬 PostgreSQL DB, Chroma 인덱스, PDF 원본을 직접 올리지 않습니다. 대신 배포 시 바로 문제풀이를 확인할 수 있도록 seed 데이터를 생성합니다.
+
+현재 배포용 seed 생성 명령은 다음과 같습니다.
+
+```bash
+python scripts/export_hf_seed.py
+```
+
+이 스크립트는 기본적으로 아래 두 데이터를 합쳐 사용합니다.
+
+- `data/Json/questions.json`: 문제, 보기, 정답, 해설이 정리된 기준 데이터
+- `data/parsed_json/reparsed_multipage_images_20260601_205501.json`: 공통 지문과 공통 지문 원문 이미지 정보
+
+생성 결과:
+
+- `cert_study_app/demo_data/questions_seed.json`
+- `static/question_assets/`
+
+현재 seed에는 321문항이 들어 있으며, 공통 지문이 있는 문항은 긴 지문과 원문 이미지 경로가 함께 저장됩니다. Yes/No 진술형 문제는 화면에서 진술별 `예 / 아니오`로 풀 수 있도록 정답이 `Y,N,Y` 같은 형태로 정규화됩니다.
+
 ## 파이프라인에서 중요한 점
 
 ### 저장 전에 품질을 확인한다

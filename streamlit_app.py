@@ -22,7 +22,7 @@ from cert_study_app.services.ingestion_job_service import IngestionJobService
 from cert_study_app.services.parse_quality_service import default_quality_report_path
 from cert_study_app.services.question_type_metadata_service import automation_summary, status_label, type_metadata
 from cert_study_app.services.question_concept_service import classify_question_batch, concept_label
-from cert_study_app.services.quiz_service import QuizService
+from cert_study_app.services.quiz_service import QuizService, yes_no_labels
 from cert_study_app.services.study_assistant_service import StudyAssistantService
 from cert_study_app.services.vector_service import QuestionVectorStore
 
@@ -680,36 +680,7 @@ def box_choice_labels(question, count: int) -> list[str]:
 
 
 def yes_no_answer_labels(value: str) -> list[str]:
-    if isinstance(value, (list, dict)):
-        raw_value = value
-    else:
-        raw_value = None
-        try:
-            raw_value = json.loads(value) if isinstance(value, str) else None
-        except Exception:
-            raw_value = None
-
-    if isinstance(raw_value, list):
-        values = [
-            item.get("value") or item.get("answer") or item.get("selected_answer")
-            for item in raw_value
-            if isinstance(item, dict)
-        ]
-        labels = yes_no_answer_labels(",".join(str(item) for item in values if item))
-        if labels:
-            return labels
-    elif isinstance(raw_value, dict):
-        labels = yes_no_answer_labels(",".join(str(item) for item in raw_value.values()))
-        if labels:
-            return labels
-
-    text = str(value or "")
-    if re.fullmatch(r"\s*[YNyn](?:\s*,\s*[YNyn])+\s*", text):
-        return [token.upper() for token in re.findall(r"[YNyn]", text)]
-    tokens = re.findall(r"(?<![가-힣])예(?![가-힣])|아니오|아니요|\byes\b|\bno\b", text, re.I)
-    if len(tokens) < 2:
-        return []
-    return ["Y" if token == "예" or token.lower() == "yes" else "N" for token in tokens]
+    return yes_no_labels(value)
 
 
 def is_yes_no_hotspot(question) -> bool:

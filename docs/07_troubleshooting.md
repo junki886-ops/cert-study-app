@@ -48,6 +48,12 @@ docker compose logs cert-study-app
 - 8501 포트를 다른 프로그램이 사용 중인지 확인한다.
 - 필요하면 `http://127.0.0.1:8501`로도 접속해 본다.
 
+로컬 가상환경의 `streamlit` 실행 파일이 예전 경로를 가리킬 수 있습니다. 이 경우 아래처럼 Python 모듈 방식으로 실행합니다.
+
+```bash
+python -m streamlit run streamlit_app.py
+```
+
 ## PostgreSQL 연결 오류
 
 ### 증상
@@ -99,6 +105,19 @@ CERT_STUDY_DB_FALLBACK=1
 ```
 
 운영 또는 배포 환경에서는 PostgreSQL을 기준으로 맞추는 것이 좋습니다.
+
+### `attempt to write a readonly database` 오류가 날 때
+
+기존 SQLite 파일 권한 때문에 seed 갱신이 실패할 수 있습니다.
+
+빠르게 화면만 확인하려면 새 임시 DB를 지정합니다.
+
+```bash
+DATABASE_URL=sqlite:////tmp/cert-study-local-check.db \
+  python -m streamlit run streamlit_app.py
+```
+
+기존 DB를 계속 쓰려면 `data/questions.db` 파일 권한과 소유자를 확인합니다.
 
 ## Airflow 화면에 접속되지 않을 때
 
@@ -158,6 +177,40 @@ PDF 업로드 후 처리 현황이 오래 바뀌지 않습니다.
 - OCR이 필요한 PDF인지 확인한다.
 - 문제 번호 패턴과 보기 패턴을 더 명확히 처리한다.
 - 모든 문제를 LLM으로 처리하기보다, 실패 가능성이 높은 문제만 보정하는 방향이 좋다.
+
+## 공통 지문이 보이지 않을 때
+
+### 증상
+
+케이스 스터디 문제인데 `공통 지문 보기`가 나타나지 않습니다.
+
+### 확인할 것
+
+- `questions_seed.json`에 `parent_stem`이 들어 있는지 확인한다.
+- 앱이 오래된 DB를 보고 있지 않은지 확인한다.
+- seed refresh가 DB에 쓸 수 있는 상태인지 확인한다.
+
+### 해결 방향
+
+- Space 또는 로컬 앱을 재시작한다.
+- 로컬에서는 임시 SQLite DB로 다시 실행해 seed 자체가 정상인지 확인한다.
+- 기존 DB가 읽기 전용이면 권한을 수정하거나 새 DB를 사용한다.
+
+## Yes/No 문제가 객관식처럼 보일 때
+
+### 증상
+
+`다음 각 진술에 대해 예/아니오를 선택`하는 문제가 A/B/C 보기처럼 표시됩니다.
+
+### 설명
+
+Yes/No 진술형 문제는 일반 객관식과 다르게 진술별 `예 / 아니오` 입력 UI가 필요합니다.
+
+### 확인할 것
+
+- `question_type`이 `Hotspot (True/False)` 또는 유사한 값인지 확인한다.
+- 정답이 `Y,N,Y` 또는 `[{key, value}]` 형태로 정규화되는지 확인한다.
+- `1-A / 1-B / 2-A / 2-B` 형식은 항목별 선택 UI로 표시되어야 한다.
 
 ## Chroma 검색 결과가 이상할 때
 

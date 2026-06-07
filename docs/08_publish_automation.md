@@ -66,7 +66,14 @@ Hugging Face Space에는 로컬 PostgreSQL 데이터, Chroma 인덱스, 업로�
 python scripts/export_hf_seed.py
 ```
 
-이 스크립트는 `data/Json/questions.json`을 읽어 `questions_seed.json`을 만들고, 문제 원문 보기에 필요한 참조 이미지만 `static/question_assets/`로 복사합니다. `dump.pdf` 전체나 `data/images/` 전체를 올리지 않기 때문에 용량과 저작권 노출 범위를 줄일 수 있습니다.
+이 스크립트는 `data/Json/questions.json`을 기준 문제 데이터로 사용하고, `data/parsed_json/reparsed_multipage_images_20260601_205501.json`에서 공통 지문과 공통 지문 원문 이미지 정보를 보강합니다.
+
+생성 결과:
+
+- `cert_study_app/demo_data/questions_seed.json`
+- `static/question_assets/`
+
+`dump.pdf` 전체나 `data/images/` 전체를 올리지 않고, 문제풀이와 원문 확인에 필요한 참조 이미지만 복사합니다. 현재 seed에는 321문항, 공통 지문, 원문 이미지, Yes/No 진술형 문제 구조가 포함됩니다.
 
 실제 기출/덤프 성격의 문제를 포함하는 경우 Hugging Face Space는 private로 운영하는 것을 권장합니다.
 
@@ -157,6 +164,28 @@ git push origin main
 이후 Hugging Face 반영은 GitHub Actions에 맡깁니다.
 
 로컬에서 Hugging Face까지 직접 push하는 방식은 GitHub Actions 설정 전 테스트용으로만 사용해도 충분합니다.
+
+## 일자별 변경 확인
+
+Git은 커밋마다 날짜와 변경 파일을 남깁니다. 따라서 일자별 변경 내역은 언제든 확인할 수 있습니다.
+
+오늘 변경 내역:
+
+```bash
+git log --since=midnight --stat
+```
+
+특정 날짜 변경 내역:
+
+```bash
+scripts/git_daily_changes.sh 2026-06-07
+```
+
+더 자세히 보려면 특정 커밋을 확인합니다.
+
+```bash
+git show <commit-hash>
+```
 
 ## 주의사항
 

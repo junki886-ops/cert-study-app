@@ -24,6 +24,15 @@ docker compose up --build
 - Airflow: `http://localhost:8080`
 - PostgreSQL: `localhost:5432`
 
+Streamlit 화면만 빠르게 확인할 때는 Docker 없이 실행할 수도 있습니다.
+
+```bash
+DATABASE_URL=sqlite:////tmp/cert-study-local-check.db \
+  python -m streamlit run streamlit_app.py
+```
+
+이 방식은 임시 SQLite DB를 사용하므로 로컬 화면 확인에 적합합니다. 기존 `data/questions.db` 파일 권한이 꼬였거나 읽기 전용 상태일 때도 새 DB로 문제 seed 동작을 확인할 수 있습니다.
+
 ## Docker를 쓰는 이유
 
 이 프로젝트는 Streamlit, PostgreSQL, Airflow, PDF 처리 라이브러리, Chroma 등 여러 구성 요소를 함께 사용합니다.
@@ -50,6 +59,21 @@ Docker를 쓰는 이유는 다음과 같습니다.
 - `./airflow_db`: Airflow 메타데이터
 
 이런 파일은 실행 중 생성되는 데이터이므로 보통 Git에 올리지 않습니다.
+
+## Hugging Face Space 배포
+
+Hugging Face Space는 GitHub Actions를 통해 현재 프로젝트 스냅샷을 동기화합니다.
+
+Space에는 아래 런타임 데이터는 올리지 않습니다.
+
+- 업로드 PDF 원본
+- 로컬 PostgreSQL/SQLite DB
+- Chroma 인덱스
+- Airflow 로그와 메타데이터
+
+대신 `cert_study_app/demo_data/questions_seed.json`과 `static/question_assets/`를 포함합니다. 앱 시작 시 DB가 비어 있거나 기존 seed가 오래된 경우 seed 기준으로 문제를 추가/갱신합니다.
+
+현재 seed에는 321문항, 공통 지문, 원문 이미지, Yes/No 진술형 문제 구조가 포함됩니다.
 
 ## 환경 변수
 
