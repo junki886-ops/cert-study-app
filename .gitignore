@@ -21,3 +21,4 @@ instance/
 chroma_db/
 airflow_logs/
 airflow_db/
+*.pdf

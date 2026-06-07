@@ -21,9 +21,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Push to Hugging Face Space
+      - name: Sync clean snapshot to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
@@ -32,5 +32,27 @@ jobs:
             exit 1
           fi
 
-          git remote add huggingface "https://Kentlo:${HF_TOKEN}@huggingface.co/spaces/Kentlo/cert-study-app"
-          git push huggingface HEAD:main --force
+          git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions"
+
+          git clone "https://Kentlo:${HF_TOKEN}@huggingface.co/spaces/Kentlo/cert-study-app" hf-space
+
+          rsync -av --delete \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            --exclude ".env" \
+            --exclude ".venv/" \
+            --exclude "__pycache__/" \
+            --exclude "*.pyc" \
+            --exclude "*.pdf" \
+            --exclude "data/" \
+            --exclude "instance/" \
+            --exclude "chroma_db/" \
+            --exclude "airflow_logs/" \
+            --exclude "airflow_db/" \
+            ./ hf-space/
+
+          cd hf-space
+          git add .
+          git commit -m "Sync from GitHub ${GITHUB_SHA}" || echo "No changes to sync."
+          git push origin main

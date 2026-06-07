@@ -8,9 +8,11 @@
 
 1. 로컬에서 GitHub로 push한다.
 2. GitHub Actions가 실행된다.
-3. GitHub Actions가 같은 커밋을 Hugging Face Space로 push한다.
+3. GitHub Actions가 현재 프로젝트 파일을 Hugging Face Space로 동기화한다.
 
 이렇게 하면 평소에는 GitHub에만 push해도 Hugging Face Space가 자동으로 업데이트됩니다.
+
+Hugging Face는 10MiB가 넘는 일반 Git 파일을 거절할 수 있습니다. 그래서 이 프로젝트의 자동화는 GitHub의 전체 Git 히스토리를 그대로 밀어 넣지 않고, 현재 파일 스냅샷만 Hugging Face Space에 동기화합니다.
 
 ## 현재 원격 저장소
 
@@ -35,7 +37,21 @@ git remote -v
 .github/workflows/sync-huggingface.yml
 ```
 
-이 workflow는 `main` 브랜치에 push가 발생하면 Hugging Face Space의 `main` 브랜치로 다시 push합니다.
+이 workflow는 `main` 브랜치에 push가 발생하면 Hugging Face Space의 `main` 브랜치로 현재 파일을 동기화합니다.
+
+동기화에서 제외하는 항목:
+
+- `.github/`
+- `.env`
+- `.venv/`
+- `*.pdf`
+- `data/`
+- `instance/`
+- `chroma_db/`
+- `airflow_logs/`
+- `airflow_db/`
+
+즉, GitHub에는 개발 히스토리를 남기고 Hugging Face에는 실행에 필요한 코드와 문서 중심으로 전달합니다.
 
 수동 실행도 가능합니다.
 
@@ -125,6 +141,7 @@ git push origin main
 - `.env` 파일도 Git에 올리지 않습니다.
 - Hugging Face Space가 Docker SDK를 사용하려면 README 상단 metadata의 `sdk: docker` 설정이 필요합니다.
 - 대용량 업로드 PDF, Chroma 인덱스, Airflow 로그, PostgreSQL 데이터는 Git에 올리지 않습니다.
+- Hugging Face 동기화는 현재 파일 스냅샷 방식으로 동작하므로 GitHub의 과거 커밋 히스토리와 Hugging Face의 커밋 히스토리는 다를 수 있습니다.
 - Hugging Face Space에서는 Docker 빌드 시간이 걸릴 수 있습니다.
 
 ## 문제가 생겼을 때
