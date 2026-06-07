@@ -53,7 +53,8 @@ pinned: false
 5. [배포 계획](docs/05_deployment.md)
 6. [의사결정 기록](docs/06_decision_log.md)
 7. [트러블슈팅](docs/07_troubleshooting.md)
-8. [개발일지](docs/devlog/2026-06-07.md)
+8. [GitHub / Hugging Face 배포 자동화](docs/08_publish_automation.md)
+9. [개발일지](docs/devlog/2026-06-07.md)
 
 ## 실행 방법
 
