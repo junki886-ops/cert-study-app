@@ -64,7 +64,7 @@ def _refresh_seed_questions(db, rows: list[dict]) -> int:
     if os.getenv("CERT_STUDY_REFRESH_SEED", "1") == "0":
         return 0
 
-    updated = 0
+    changed = 0
     for row in rows:
         question_number = row.get("question_number")
         if not question_number:
@@ -77,14 +77,15 @@ def _refresh_seed_questions(db, rows: list[dict]) -> int:
             .first()
         )
         if not question:
-            continue
+            question = Question()
+            db.add(question)
 
         _apply_seed_row(question, row)
-        updated += 1
+        changed += 1
 
-    if updated:
+    if changed:
         db.commit()
-    return updated
+    return changed
 
 
 def seed_demo_questions_if_empty(db) -> int:
