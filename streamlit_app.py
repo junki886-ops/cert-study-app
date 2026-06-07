@@ -71,8 +71,8 @@ def inject_pwa_assets():
           }
 
           ensureLink("manifest", "/app/static/manifest.webmanifest");
-          ensureLink("icon", "/app/static/icons/icon.svg", { type: "image/svg+xml" });
-          ensureLink("apple-touch-icon", "/app/static/icons/icon.svg");
+          ensureLink("icon", "/app/static/icons/icon-192.png", { type: "image/png", sizes: "192x192" });
+          ensureLink("apple-touch-icon", "/app/static/icons/icon-192.png", { sizes: "192x192" });
           ensureMeta("theme-color", "#2563eb");
           ensureMeta("apple-mobile-web-app-capable", "yes");
           ensureMeta("apple-mobile-web-app-title", "Cert Study");

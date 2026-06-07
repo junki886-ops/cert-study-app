@@ -2,7 +2,11 @@ const CACHE_NAME = "cert-study-static-v1";
 const STATIC_ASSETS = [
   "/app/static/manifest.webmanifest",
   "/app/static/icons/icon.svg",
-  "/app/static/icons/icon-maskable.svg"
+  "/app/static/icons/icon-maskable.svg",
+  "/app/static/icons/icon-192.png",
+  "/app/static/icons/icon-512.png",
+  "/app/static/icons/icon-maskable-192.png",
+  "/app/static/icons/icon-maskable-512.png"
 ];
 
 self.addEventListener("install", (event) => {

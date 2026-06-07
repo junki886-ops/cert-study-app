@@ -15,42 +15,14 @@ concurrency:
 
 jobs:
   sync:
-    name: Push main to Hugging Face
+    name: Upload snapshot to Hugging Face
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
 
-      - name: Sync clean snapshot to Hugging Face Space
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      - name: Build clean Space snapshot
         run: |
-          if [ -z "$HF_TOKEN" ]; then
-            echo "HF_TOKEN secret is not set."
-            exit 1
-          fi
-
-          git config --global user.email "actions@github.com"
-          git config --global user.name "github-actions"
-
-          retry() {
-            local attempt=1
-            local max_attempts=5
-            local delay=20
-            until "$@"; do
-              if [ "$attempt" -ge "$max_attempts" ]; then
-                echo "Command failed after ${attempt} attempts: $*"
-                return 1
-              fi
-              echo "Command failed. Retrying in ${delay}s... (${attempt}/${max_attempts})"
-              sleep "$delay"
-              attempt=$((attempt + 1))
-              delay=$((delay * 2))
-            done
-          }
-
           rm -rf /tmp/hf-space
           mkdir -p /tmp/hf-space
 
@@ -69,9 +41,37 @@ jobs:
             --exclude "airflow_db/" \
             ./ /tmp/hf-space/
 
-          cd /tmp/hf-space
-          git init -b main
-          git remote add origin "https://Kentlo:${HF_TOKEN}@huggingface.co/spaces/Kentlo/cert-study-app"
-          git add .
-          git commit -m "Sync from GitHub ${GITHUB_SHA}"
-          retry git push origin main --force
+      - name: Install Hugging Face Hub client
+        run: python -m pip install --upgrade huggingface_hub
+
+      - name: Upload to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "HF_TOKEN secret is not set."
+            exit 1
+          fi
+
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          api.upload_folder(
+              repo_id="Kentlo/cert-study-app",
+              repo_type="space",
+              folder_path="/tmp/hf-space",
+              path_in_repo=".",
+              commit_message=f"Sync from GitHub {os.environ.get('GITHUB_SHA', '')}",
+              delete_patterns=[
+                  ".github/*",
+                  "data/*",
+                  "instance/*",
+                  "chroma_db/*",
+                  "airflow_logs/*",
+                  "airflow_db/*",
+                  "*.pdf",
+              ],
+          )
+          PY
