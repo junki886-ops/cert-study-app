@@ -71,9 +71,18 @@ python scripts/export_hf_seed.py
 생성 결과:
 
 - `cert_study_app/demo_data/questions_seed.json`
+- `cert_study_app/demo_data/questions_seed.report.json`
 - `static/question_assets/`
 
 `dump.pdf` 전체나 `data/images/` 전체를 올리지 않고, 문제풀이와 원문 확인에 필요한 참조 이미지만 복사합니다. 현재 seed에는 321문항, 공통 지문, 원문 이미지, Yes/No 진술형 문제 구조가 포함됩니다.
+
+push 전에 핵심 검사를 실행하면 유형 처리나 seed 리포트 오류를 먼저 잡을 수 있습니다.
+
+```bash
+python scripts/check_quality.py
+```
+
+`main` 브랜치에 push하면 `Quality Check` GitHub Actions가 먼저 실행되고, 같은 push 이벤트에서 Hugging Face 동기화 workflow도 실행됩니다.
 
 실제 기출/덤프 성격의 문제를 포함하는 경우 Hugging Face Space는 private로 운영하는 것을 권장합니다.
 
@@ -158,6 +167,7 @@ git push hf main
 평소에는 아래 방식이 가장 단순합니다.
 
 ```bash
+python scripts/check_quality.py
 git push origin main
 ```
 

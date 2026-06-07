@@ -20,7 +20,12 @@ from cert_study_app.services.concept_note_service import ConceptNoteService
 from cert_study_app.services.demo_seed_service import seed_demo_questions_if_empty
 from cert_study_app.services.ingestion_job_service import IngestionJobService
 from cert_study_app.services.parse_quality_service import default_quality_report_path
-from cert_study_app.services.question_type_metadata_service import automation_summary, status_label, type_metadata
+from cert_study_app.services.question_type_metadata_service import (
+    automation_summary,
+    normalize_question_type,
+    status_label,
+    type_metadata,
+)
 from cert_study_app.services.question_concept_service import classify_question_batch, concept_label
 from cert_study_app.services.quiz_service import QuizService, yes_no_labels
 from cert_study_app.services.study_assistant_service import StudyAssistantService
@@ -112,8 +117,13 @@ def apply_mobile_styles():
     st.markdown(
         """
         <style>
+        :root {
+            --cert-primary: #2563eb;
+            --cert-border: rgba(15, 23, 42, 0.12);
+            --cert-soft: rgba(37, 99, 235, 0.08);
+        }
         .block-container {
-            padding-top: 1rem;
+            padding-top: 0.75rem;
             padding-left: 1rem;
             padding-right: 1rem;
             max-width: 760px;
@@ -123,6 +133,36 @@ def apply_mobile_styles():
         }
         div[data-testid="stButton"] > button {
             min-height: 44px;
+            border-radius: 8px;
+            white-space: normal;
+            line-height: 1.25;
+        }
+        div[data-testid="stRadio"] label,
+        div[data-testid="stCheckbox"] label {
+            min-height: 40px;
+            align-items: flex-start;
+        }
+        div[role="radiogroup"] > label {
+            border: 1px solid var(--cert-border);
+            border-radius: 8px;
+            padding: 0.55rem 0.7rem;
+            margin-bottom: 0.35rem;
+        }
+        div[role="radiogroup"] > label:has(input:checked) {
+            border-color: var(--cert-primary);
+            background: var(--cert-soft);
+        }
+        .cert-quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.5rem;
+            margin: 0.35rem 0 0.75rem;
+        }
+        .cert-section-title {
+            margin: 1.2rem 0 0.35rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: rgba(15, 23, 42, 0.72);
         }
         div[role="radiogroup"] {
             gap: 0.35rem;
@@ -147,6 +187,10 @@ def apply_mobile_styles():
             margin-top: 0.8rem;
         }
         @media (max-width: 640px) {
+            .block-container {
+                padding-left: 0.7rem;
+                padding-right: 0.7rem;
+            }
             h1 {
                 font-size: 1.6rem;
             }
@@ -158,6 +202,15 @@ def apply_mobile_styles():
             }
             div[data-testid="stMetric"] {
                 padding: 0.25rem 0;
+            }
+            div[data-testid="stHorizontalBlock"] {
+                flex-wrap: wrap;
+            }
+            div[data-testid="column"] {
+                min-width: 100%;
+            }
+            div[data-testid="column"] div[data-testid="stMetric"] {
+                border-bottom: 1px solid var(--cert-border);
             }
         }
         </style>
@@ -210,21 +263,21 @@ def render_home(exams):
     total_questions = sum(exam["count"] for exam in exams)
     st.caption(f"등록된 시험 {len(exams)}개 · 전체 문항 {total_questions}개")
 
-    col1, col2 = st.columns(2)
-    if col1.button("문제 풀이", type="primary", use_container_width=True):
+    if st.button("문제 풀이 시작", type="primary", use_container_width=True):
         go_to("문제 풀이")
-    if col2.button("PDF 업로드", use_container_width=True):
-        go_to("PDF 업로드")
 
-    with st.expander("학습 메뉴", expanded=True):
-        if st.button("취약 개념 학습", use_container_width=True):
-            go_to("취약 개념 학습")
-        if st.button("오답/복습", use_container_width=True):
-            go_to("오답/복습")
-        if st.button("개념 정리", use_container_width=True):
-            go_to("개념 정리")
+    st.markdown('<div class="cert-section-title">학습</div>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    if col1.button("오답/복습", use_container_width=True):
+        go_to("오답/복습")
+    if col2.button("개념 정리", use_container_width=True):
+        go_to("개념 정리")
+    if st.button("취약 개념 학습", use_container_width=True):
+        go_to("취약 개념 학습")
 
-    with st.expander("관리 메뉴", expanded=False):
+    with st.expander("업로드/관리", expanded=False):
+        if st.button("PDF 업로드", use_container_width=True):
+            go_to("PDF 업로드")
         if st.button("처리 현황", use_container_width=True):
             go_to("처리 현황")
         if st.button("시험 현황", use_container_width=True):
@@ -539,8 +592,8 @@ def is_multi_answer(question) -> bool:
 
 
 def is_per_row_choice(question) -> bool:
-    question_type = (question.get("question_type") or "").lower()
-    if question_type not in {"table_choice", "hotspot"}:
+    question_type = normalize_question_type(question.get("question_type"))
+    if question_type not in {"table_choice", "hotspot", "matching"}:
         return False
     if visual_answer_areas(question):
         return True
@@ -684,12 +737,10 @@ def yes_no_answer_labels(value: str) -> list[str]:
 
 
 def is_yes_no_hotspot(question) -> bool:
-    question_type = (question.get("question_type") or "").lower()
-    if "in-context" in question_type:
+    question_type = normalize_question_type(question.get("question_type"))
+    if question_type not in {"yes_no", "hotspot", "table_choice"}:
         return False
-    if not any(keyword in question_type for keyword in ["hotspot", "table_choice", "yes_no", "true/false"]):
-        return False
-    if "true/false" in question_type:
+    if question_type == "yes_no":
         return True
     text = " ".join(
         [
@@ -809,7 +860,7 @@ def render_yes_no_matrix(question, key_prefix, rows, caption="진술별 답안")
 
 def render_answer_input(question, key_prefix):
     options = question["options"]
-    question_type = (question.get("question_type") or "").lower()
+    question_type = normalize_question_type(question.get("question_type"))
     statement_rows = [
         str(statement.get("text") or "").strip()
         for statement in visual_statements(question)
@@ -836,7 +887,7 @@ def render_answer_input(question, key_prefix):
 
     if not options:
         answer = str(question.get("answer") or "").upper()
-        if question_type in {"yes_no", "table_choice", "hotspot"} and re.search(r"(예|아니오|아니요|YES|NO)", answer, re.I):
+        if question_type in {"yes_no", "table_choice", "hotspot"} and re.search(r"(예|아니오|아니요|YES|NO|Y|N)", answer, re.I):
             rows = yes_no_lines(question.get("question") or "") or ["진술 1", "진술 2", "진술 3"]
             return render_yes_no_matrix(question, key_prefix, rows)
 

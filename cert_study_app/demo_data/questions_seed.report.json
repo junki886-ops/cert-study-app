@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "seed_path": "cert_study_app/demo_data/questions_seed.json",
+  "question_count": 321,
+  "first_question_number": 1,
+  "last_question_number": 321,
+  "common_passage_count": 36,
+  "type_counts": {
+    "Drag and Drop (Auth)": 1,
+    "Drag and Drop (Roles)": 1,
+    "Drag and Drop (Steps)": 9,
+    "Hotspot (Drag and Drop)": 88,
+    "Hotspot (Select Two)": 2,
+    "Hotspot (Select options in sequence)": 1,
+    "Hotspot (True/False)": 50,
+    "Multiple Choice": 121,
+    "Multiple Choice (Select Three)": 2,
+    "Multiple Choice (Select Two)": 15,
+    "True/False": 2,
+    "True/False (In-Context)": 29
+  },
+  "duplicate_numbers": [],
+  "missing_answers": [],
+  "missing_options": [],
+  "missing_images": [],
+  "ready": true
+}

@@ -13,12 +13,15 @@ from cert_study_app.services.quiz_service import (
     yes_no_labels,
 )
 from cert_study_app.services.text_cleanup_service import clean_question_text
-from cert_study_app.services.question_type_metadata_service import type_metadata
+from cert_study_app.services.question_type_metadata_service import (
+    is_visual_question_type,
+    normalize_question_type,
+    type_metadata,
+)
 from cert_study_app.services.question_concept_service import apply_question_concept
 
 
 AUTO_APPROVE_THRESHOLD = 85
-VISUAL_TYPES = {"hotspot", "ordering", "matching", "table_choice"}
 
 
 def _answer_labels(answer: str) -> set[str]:
@@ -62,7 +65,7 @@ def _clean_options(options: list[str]) -> list[str]:
 
 
 def _looks_like_yes_no_hotspot(question_type: str, stem: str, answer: str, explanation: str, options: list[str]) -> bool:
-    if (question_type or "").lower() not in {"hotspot", "table_choice"}:
+    if normalize_question_type(question_type) not in {"hotspot", "table_choice", "yes_no"}:
         return False
     text = " ".join([stem or "", answer or "", explanation or "", " ".join(str(option) for option in options or [])])
     return bool(
@@ -81,13 +84,14 @@ def _visual_analysis(question: Question) -> dict:
 
 
 def _looks_like_box_dropdown(question_type: str, stem: str) -> bool:
-    if (question_type or "").lower() not in {"hotspot", "table_choice"}:
+    if normalize_question_type(question_type) not in {"hotspot", "table_choice", "matching"}:
         return False
     return bool(re.search(r"(답변\s*영역|드롭다운|적절한\s*옵션|답변하려면)", stem or ""))
 
 
 def _detect_answer_mode(question_type: str, stem: str, answer: str, explanation: str, options: list[str]) -> str:
-    if _looks_like_yes_no_hotspot(question_type, stem, answer, explanation, options):
+    normalized_type = normalize_question_type(question_type)
+    if normalized_type == "yes_no" or _looks_like_yes_no_hotspot(question_type, stem, answer, explanation, options):
         return "yes_no_matrix"
     labels = choice_labels(answer or "")
     if len(labels) > 1:
@@ -101,7 +105,7 @@ def _detect_answer_mode(question_type: str, stem: str, answer: str, explanation:
         )
         if (
             not looks_like_standard_multi
-            and (question_type or "").lower() in {"hotspot", "table_choice"}
+            and normalized_type in {"hotspot", "table_choice", "matching"}
             and re.search(r"(각\s*리소스|각\s*항목|각\s*행|답변\s*영역|드롭다운|적절한\s*옵션|(?:상자|Box)\s*1)", text, re.I)
         ):
             return "per_row_choice"
@@ -151,8 +155,8 @@ def analyze_question(question: Question) -> dict:
     else:
         issues.append("정답을 찾지 못했습니다.")
 
-    question_type = (question.question_type or "").strip()
-    if question_type.lower() in {"unparsed", "unknown", ""} and re.search(r"(드래그|끌어|drag|drop)", stem, re.I):
+    question_type = normalize_question_type(question.question_type)
+    if question_type in {"unparsed", "unknown", ""} and re.search(r"(드래그|끌어|drag|drop)", stem, re.I):
         question_type = "matching"
     answer_mode = _detect_answer_mode(question_type, stem, answer, question.explanation or "", options)
     yn_labels = yes_no_labels(answer) or yes_no_labels(question.explanation or "")
@@ -160,7 +164,7 @@ def analyze_question(question: Question) -> dict:
     has_answer_areas = bool(visual.get("answer_areas"))
     has_statements = bool(visual.get("statements"))
     needs_answer_areas = _looks_like_box_dropdown(question_type, stem)
-    needs_statements = answer_mode == "yes_no_matrix" or (question_type or "").lower() == "yes_no"
+    needs_statements = answer_mode == "yes_no_matrix" or question_type == "yes_no"
     if has_answer_areas:
         answer_mode = "per_row_choice"
     if has_statements:
@@ -205,7 +209,7 @@ def analyze_question(question: Question) -> dict:
     if needs_answer_areas and not has_answer_areas:
         issues.append("상자/드롭다운형 문제로 보이지만 answer_areas 구조가 없습니다. qwen 이미지 분석이 필요합니다.")
 
-    if question_type and question_type.lower() not in {"unparsed", "unknown"}:
+    if question_type and question_type not in {"unparsed", "unknown"}:
         score += 5
     else:
         issues.append("문제 유형을 확정하지 못했습니다.")
@@ -215,11 +219,11 @@ def analyze_question(question: Question) -> dict:
         or (answer_mode == "yes_no_matrix" and bool(yn_labels) and (has_statements or not needs_statements))
         or (needs_answer_areas and has_answer_areas)
     )
-    if (question_type.lower() in VISUAL_TYPES or answer_mode == "yes_no_matrix") and image_ok and not playable_input_ready:
+    if (is_visual_question_type(question_type) or answer_mode == "yes_no_matrix") and image_ok and not playable_input_ready:
         issues.append("풀이 화면에서 사용할 보기/상자/진술 구조가 없습니다. 주관식 입력으로 처리하면 안 됩니다.")
 
     visual_playable = (
-        (question_type.lower() in VISUAL_TYPES or answer_mode == "yes_no_matrix")
+        (is_visual_question_type(question_type) or answer_mode == "yes_no_matrix")
         and image_ok
         and has_answer_text
         and len(stem) >= 20
@@ -232,7 +236,7 @@ def analyze_question(question: Question) -> dict:
         image_ok
         and len(stem) >= 20
         and (
-            question_type.lower() in VISUAL_TYPES
+            is_visual_question_type(question_type)
             or answer_mode in {"yes_no_matrix", "per_row_choice"}
         )
         and not playable_input_ready

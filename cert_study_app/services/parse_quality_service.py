@@ -7,8 +7,8 @@ from pathlib import Path
 from statistics import median
 from typing import Any
 
+from cert_study_app.services.question_type_metadata_service import is_visual_question_type, normalize_question_type
 
-VISUAL_TYPES = {"hotspot", "yes_no", "ordering", "table_choice", "matching"}
 ISSUE_WEIGHTS = {
     "missing_stem": 18,
     "short_stem": 8,
@@ -62,7 +62,7 @@ def build_parse_quality_report(
         stem = _text(item.get("stem") or item.get("question") or item.get("q_text"))
         answer = item.get("answer")
         options = _normal_options(item.get("options"))
-        question_type = _text(item.get("question_type") or "mcq").lower()
+        question_type = normalize_question_type(item.get("question_type") or "mcq")
         raw_fingerprints[_fingerprint(raw_text)].append(index)
         chunk_lengths.append(len(raw_text))
 
@@ -72,7 +72,7 @@ def build_parse_quality_report(
             _add_issue(issues_by_index, index, "short_stem", "문제 본문이 너무 짧습니다.", length=len(stem))
         if not _has_answer(answer):
             _add_issue(issues_by_index, index, "missing_answer", "정답이 비어 있습니다.")
-        if question_type not in VISUAL_TYPES and len(options) < 2:
+        if not is_visual_question_type(question_type) and len(options) < 2:
             _add_issue(issues_by_index, index, "missing_options", "객관식/선택형으로 보이지만 보기가 2개 미만입니다.", option_count=len(options))
         if len(options) >= 2:
             expected_labels = [chr(ord("A") + offset) for offset in range(len(options))]
@@ -99,7 +99,7 @@ def build_parse_quality_report(
             _add_issue(issues_by_index, index, "answer_leaked_to_stem", "본문에 정답 라인이 섞여 있습니다.")
         if re.search(r"(?m)\n\s*\d{1,3}\s*[.)]\s+\S+", stem):
             _add_issue(issues_by_index, index, "embedded_next_question", "청크 안에 다음 문제 시작처럼 보이는 줄이 있습니다.")
-        if question_type in VISUAL_TYPES and item.get("image_path") and not Path(str(item.get("image_path"))).exists():
+        if is_visual_question_type(question_type) and item.get("image_path") and not Path(str(item.get("image_path"))).exists():
             _add_issue(issues_by_index, index, "image_missing", "이미지 기반 문제의 원문 이미지 파일을 찾을 수 없습니다.")
 
     nonzero_numbers = [number for number in numbers if number is not None]

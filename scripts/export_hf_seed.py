@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,7 @@ DEFAULT_PARENT_SOURCE_JSON = ROOT / "data" / "parsed_json" / "reparsed_multipage
 DEFAULT_IMAGE_ROOT = ROOT / "data" / "images"
 DEFAULT_SEED_PATH = ROOT / "cert_study_app" / "demo_data" / "questions_seed.json"
 DEFAULT_ASSET_ROOT = ROOT / "static" / "question_assets"
+DEFAULT_REPORT_PATH = ROOT / "cert_study_app" / "demo_data" / "questions_seed.report.json"
 
 
 def _load_rows(path: Path) -> list[dict[str, Any]]:
@@ -75,6 +77,15 @@ def _copy_image_reference(image_path: Any, asset_root: Path) -> str | None:
     return _copy_image(source_path, asset_root)
 
 
+def _asset_exists(path: Any) -> bool:
+    if not path:
+        return False
+    asset_path = Path(str(path))
+    if not asset_path.is_absolute():
+        asset_path = ROOT / asset_path
+    return asset_path.exists()
+
+
 def _question_number(row: dict[str, Any]) -> Any:
     return row.get("question_number") or row.get("question_id") or row.get("number")
 
@@ -111,6 +122,15 @@ def _parent_context_by_scenario(
     return contexts
 
 
+def _meaningful_parent_stem(value: Any) -> str | None:
+    text = str(value or "").strip()
+    if not text or text == "단일문제":
+        return None
+    if len(text) < 40 and not re.search(r"[\n:]", text):
+        return None
+    return text
+
+
 def _export_row(
     row: dict[str, Any],
     image_root: Path,
@@ -143,6 +163,11 @@ def _export_row(
         if copied_path:
             parent_image_paths.append(copied_path)
 
+    parent_stem = (
+        _meaningful_parent_stem(parent_context.get("parent_stem"))
+        or _meaningful_parent_stem(row.get("parent_stem"))
+    )
+
     return {
         "question_number": question_number,
         "stem": row.get("stem") or row.get("question") or "",
@@ -157,7 +182,7 @@ def _export_row(
         "image_path": image_path,
         "raw_text": row.get("raw_text") or row.get("stem") or row.get("question") or "",
         "group_id": parent_context.get("group_id") or row.get("group_id"),
-        "parent_stem": parent_context.get("parent_stem") or row.get("parent_stem") or row.get("scenario"),
+        "parent_stem": parent_stem,
         "parent_image_paths": parent_image_paths,
         "concept_tags": row.get("concept_tags") or [],
         "parse_status": row.get("parse_status") or "approved",
@@ -177,6 +202,7 @@ def export_seed(
     image_root: Path,
     seed_path: Path,
     asset_root: Path,
+    report_path: Path | None = DEFAULT_REPORT_PATH,
 ) -> int:
     rows = _load_rows(source_json)
     parent_rows = _load_rows(parent_source_json) if parent_source_json.exists() else []
@@ -192,7 +218,72 @@ def export_seed(
     with seed_path.open("w", encoding="utf-8") as file:
         json.dump(exported, file, ensure_ascii=False, indent=2)
         file.write("\n")
+    if report_path:
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        with report_path.open("w", encoding="utf-8") as file:
+            json.dump(build_seed_report(exported, seed_path), file, ensure_ascii=False, indent=2)
+            file.write("\n")
     return len(exported)
+
+
+def build_seed_report(rows: list[dict[str, Any]], seed_path: Path) -> dict[str, Any]:
+    numbers = []
+    duplicate_numbers = []
+    seen_numbers = set()
+    type_counts: dict[str, int] = {}
+    missing_images = []
+    missing_answers = []
+    missing_options = []
+    common_passage_count = 0
+
+    for row in rows:
+        number = row.get("question_number")
+        if number in seen_numbers:
+            duplicate_numbers.append(number)
+        seen_numbers.add(number)
+        numbers.append(number)
+        question_type = str(row.get("question_type") or "unparsed")
+        type_counts[question_type] = type_counts.get(question_type, 0) + 1
+        if row.get("parent_stem"):
+            common_passage_count += 1
+        if not row.get("answer"):
+            missing_answers.append(number)
+        if not row.get("options"):
+            missing_options.append(number)
+        image_paths = [row.get("image_path")] + list(row.get("parent_image_paths") or [])
+        for image_path in image_paths:
+            if image_path and not _asset_exists(image_path):
+                missing_images.append({"question_number": number, "image_path": image_path})
+
+    numeric_numbers = []
+    for number in numbers:
+        try:
+            numeric_numbers.append(int(number))
+        except Exception:
+            continue
+
+    return {
+        "schema_version": 1,
+        "seed_path": _display_path(seed_path),
+        "question_count": len(rows),
+        "first_question_number": min(numeric_numbers) if numeric_numbers else None,
+        "last_question_number": max(numeric_numbers) if numeric_numbers else None,
+        "common_passage_count": common_passage_count,
+        "type_counts": dict(sorted(type_counts.items())),
+        "duplicate_numbers": duplicate_numbers,
+        "missing_answers": missing_answers,
+        "missing_options": missing_options,
+        "missing_images": missing_images,
+        "ready": not duplicate_numbers and not missing_answers and not missing_images,
+    }
+
+
+def _display_path(path: Path) -> str:
+    try:
+        resolved = path.resolve()
+        return resolved.relative_to(ROOT).as_posix()
+    except Exception:
+        return path.as_posix()
 
 
 def main() -> None:
@@ -202,6 +293,7 @@ def main() -> None:
     parser.add_argument("--image-root", type=Path, default=DEFAULT_IMAGE_ROOT)
     parser.add_argument("--seed-path", type=Path, default=DEFAULT_SEED_PATH)
     parser.add_argument("--asset-root", type=Path, default=DEFAULT_ASSET_ROOT)
+    parser.add_argument("--report-path", type=Path, default=DEFAULT_REPORT_PATH)
     args = parser.parse_args()
 
     count = export_seed(
@@ -210,8 +302,10 @@ def main() -> None:
         image_root=args.image_root,
         seed_path=args.seed_path,
         asset_root=args.asset_root,
+        report_path=args.report_path,
     )
     print(f"Exported {count} questions to {args.seed_path}")
+    print(f"Wrote seed report to {args.report_path}")
 
 
 if __name__ == "__main__":

@@ -212,6 +212,33 @@ Yes/No 진술형 문제는 일반 객관식과 다르게 진술별 `예 / 아니
 - 정답이 `Y,N,Y` 또는 `[{key, value}]` 형태로 정규화되는지 확인한다.
 - `1-A / 1-B / 2-A / 2-B` 형식은 항목별 선택 UI로 표시되어야 한다.
 
+### 확인 명령
+
+문제 유형 alias와 정답 정규화 테스트를 먼저 실행한다.
+
+```bash
+python -m pytest tests/test_answer_normalizer.py tests/test_question_type_metadata_service.py
+```
+
+### 해결 방향
+
+- 새 문제 유형 문자열이 추가되면 `question_type_metadata_service.py`의 alias에 먼저 등록한다.
+- 채점이 이상하면 화면 코드보다 `answer_normalizer.py`에서 `chosen`과 `answer`가 같은 기준으로 정규화되는지 확인한다.
+- Yes/No는 일반 객관식 A/B/C가 아니라 `Y,N,Y`처럼 행별 답안으로 비교하는 것이 기준이다.
+
+## 모바일 화면이 복잡하게 보일 때
+
+### 증상
+
+휴대폰에서 메뉴가 너무 많거나, 답안 선택 영역이 작아 보입니다.
+
+### 해결 방향
+
+- 홈 화면은 문제풀이, 오답/복습, 개념 정리 같은 학습 기능을 먼저 보여준다.
+- PDF 업로드, 처리 현황, AI 색인은 `업로드/관리` 영역으로 묶는다.
+- 답안 선택 UI는 최소 44px 이상의 터치 영역을 유지한다.
+- 문제 유형별로 radio, checkbox, selectbox, Yes/No matrix를 구분해서 사용한다.
+
 ## Chroma 검색 결과가 이상할 때
 
 ### 증상

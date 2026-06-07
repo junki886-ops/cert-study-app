@@ -26,6 +26,7 @@ pinned: false
 - 문제, 정답, 해설, 풀이 기록 저장
 - Streamlit 기반 문제풀이 화면
 - 공통 지문, 원문 이미지, Yes/No 진술형 문제풀이 UI
+- 문제 유형 표준화 및 정답 정규화 로직
 - 오답/복습 화면
 - 개념 정리 화면
 - Chroma 기반 유사 문제 검색 구조
@@ -57,12 +58,14 @@ pinned: false
 8. [GitHub / Hugging Face 배포 자동화](docs/08_publish_automation.md)
 9. [모바일 앱처럼 사용하기](docs/09_mobile_pwa.md)
 10. [개발일지](docs/devlog/2026-06-07.md)
+11. [변경 이력](CHANGELOG.md)
 
 ## 실행 방법
 
 Docker가 설치되어 있다면 아래 명령으로 실행합니다.
 
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 
@@ -83,7 +86,7 @@ DATABASE_URL=sqlite:////tmp/cert-study-local-check.db \
 
 Hugging Face Space에는 로컬 DB나 PDF 원본을 올리지 않고, `cert_study_app/demo_data/questions_seed.json`과 `static/question_assets/`의 참조 이미지를 사용합니다.
 
-현재 배포용 seed는 321문항, 공통 지문 포함 문항, 원문 이미지, Yes/No 진술형 문제 UI에 필요한 구조를 포함합니다. seed는 아래 명령으로 다시 만들 수 있습니다.
+현재 배포용 seed는 321문항, 공통 지문 포함 36문항, 원문 이미지, Yes/No 진술형 문제 UI에 필요한 구조를 포함합니다. seed는 아래 명령으로 다시 만들 수 있습니다.
 
 ```bash
 python scripts/export_hf_seed.py
@@ -96,6 +99,28 @@ Git 커밋은 날짜와 함께 남기 때문에 일자별 변경 내용을 확�
 ```bash
 scripts/git_daily_changes.sh 2026-06-07
 ```
+
+## 테스트
+
+문제 유형이 다양하기 때문에 정답 처리 로직은 별도 테스트로 확인합니다.
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest tests
+```
+
+배포 전에 핵심 품질 검사를 한 번에 실행할 수도 있습니다.
+
+```bash
+python scripts/check_quality.py
+```
+
+현재 우선 확인하는 범위:
+
+- Yes/No 진술형 정답 정규화
+- 복수 선택 정답 정렬
+- 순서가 중요한 답안 보존
+- `Hotspot (True/False)`, `Hotspot (Drag and Drop)` 같은 문제 유형 alias 표준화
 
 ## 환경 변수
 
@@ -123,4 +148,4 @@ CERT_STUDY_DB_FALLBACK=1
 - 문제 중복 감지 및 재업로드 처리
 - Oracle Cloud Ubuntu 서버 배포
 - 배포용 환경 변수와 비밀값 관리 정리
-- 테스트와 CI/CD 추가
+- 테스트 범위 확대와 CI/CD 추가

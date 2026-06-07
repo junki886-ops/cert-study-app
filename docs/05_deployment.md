@@ -15,6 +15,7 @@
 ## 로컬 실행
 
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 
@@ -73,7 +74,20 @@ Space에는 아래 런타임 데이터는 올리지 않습니다.
 
 대신 `cert_study_app/demo_data/questions_seed.json`과 `static/question_assets/`를 포함합니다. 앱 시작 시 DB가 비어 있거나 기존 seed가 오래된 경우 seed 기준으로 문제를 추가/갱신합니다.
 
-현재 seed에는 321문항, 공통 지문, 원문 이미지, Yes/No 진술형 문제 구조가 포함됩니다.
+현재 seed에는 321문항, 공통 지문 포함 36문항, 원문 이미지, Yes/No 진술형 문제 구조가 포함됩니다.
+
+seed를 다시 만들면 검증 리포트도 함께 생성됩니다.
+
+```bash
+python scripts/export_hf_seed.py
+```
+
+생성 파일:
+
+- `cert_study_app/demo_data/questions_seed.json`
+- `cert_study_app/demo_data/questions_seed.report.json`
+
+리포트에서는 전체 문항 수, 공통 지문 포함 문항 수, 유형별 개수, 중복 번호, 정답 누락, 이미지 누락 여부를 확인할 수 있습니다.
 
 ## 환경 변수
 
@@ -95,6 +109,19 @@ OLLAMA_BASE_URL=http://host.docker.internal:11434
 ```
 
 운영 배포에서는 비밀번호와 API 정보가 코드에 직접 들어가지 않도록 `.env` 또는 서버 비밀값 관리 방식을 사용해야 합니다.
+
+처음 실행할 때는 예시 파일을 복사해서 시작합니다.
+
+```bash
+cp .env.example .env
+```
+
+운영 환경에서는 최소한 아래 값은 기본값에서 바꾸는 것이 좋습니다.
+
+- `POSTGRES_PASSWORD`
+- `DATABASE_URL`
+- `AIRFLOW_API_PASSWORD`
+- `AIRFLOW_ADMIN_PASSWORD`
 
 ## Oracle Cloud Ubuntu에 배포하려는 이유
 
@@ -120,14 +147,14 @@ OLLAMA_BASE_URL=http://host.docker.internal:11434
 
 ## 배포 전에 정리할 것
 
-- 운영용 비밀번호 분리
-- `.env.example` 정리
+- 운영용 비밀번호를 `.env`로 분리
 - PostgreSQL 데이터 백업 방식
 - Chroma 인덱스 재생성 방식
 - Airflow 관리자 계정 설정
 - 업로드 파일 저장 위치
 - 로그 관리
 - HTTPS 적용 여부
+- `python scripts/check_quality.py` 통과 여부
 
 ## 현재 상태
 

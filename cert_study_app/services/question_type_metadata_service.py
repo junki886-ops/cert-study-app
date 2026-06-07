@@ -8,6 +8,41 @@ from sqlalchemy import func
 from cert_study_app.models import Question
 
 
+TYPE_ALIASES = {
+    "single_choice": "mcq",
+    "single select": "mcq",
+    "single-select": "mcq",
+    "multiple choice": "mcq",
+    "mcq": "mcq",
+    "multi": "multi_select",
+    "multiple_response": "multi_select",
+    "multiple-response": "multi_select",
+    "multiple select": "multi_select",
+    "multi_select": "multi_select",
+    "yes/no": "yes_no",
+    "yes no": "yes_no",
+    "yes_no": "yes_no",
+    "true_false": "yes_no",
+    "true/false": "yes_no",
+    "true/false (in-context)": "yes_no",
+    "hotspot (true/false)": "yes_no",
+    "hotspot true/false": "yes_no",
+    "hotspot": "hotspot",
+    "hotspot (drag and drop)": "matching",
+    "drag and drop": "matching",
+    "drag-and-drop": "matching",
+    "matching": "matching",
+    "ordering": "ordering",
+    "order": "ordering",
+    "sequence": "ordering",
+    "table": "table_choice",
+    "table_choice": "table_choice",
+    "table choice": "table_choice",
+    "case_study": "case_study",
+    "case study": "case_study",
+}
+
+
 TYPE_METADATA = {
     "mcq": {
         "label": "단일 선택",
@@ -87,7 +122,7 @@ STATUS_LABELS = {
 
 
 def type_metadata(question_type: Optional[str], answer_mode: Optional[str] = None) -> dict:
-    key = (question_type or "unparsed").lower()
+    key = normalize_question_type(question_type)
     metadata = dict(TYPE_METADATA.get(key, TYPE_METADATA["unparsed"]))
     metadata["type"] = key
     metadata["answer_mode"] = answer_mode or "single_choice"
@@ -104,6 +139,43 @@ def type_metadata(question_type: Optional[str], answer_mode: Optional[str] = Non
         metadata["ui"] = "checkboxes"
         metadata["answer_mode"] = answer_mode
     return metadata
+
+
+def normalize_question_type(question_type: Optional[str]) -> str:
+    raw = str(question_type or "").strip().lower()
+    if not raw:
+        return "unparsed"
+    compact = raw.replace("-", " ").replace("_", " ")
+    compact = " ".join(compact.split())
+    if raw in TYPE_ALIASES:
+        return TYPE_ALIASES[raw]
+    if compact in TYPE_ALIASES:
+        return TYPE_ALIASES[compact]
+    if "true/false" in raw or "yes/no" in raw or "yes no" in compact:
+        return "yes_no"
+    if "drag" in raw or "matching" in raw:
+        return "matching"
+    if "hotspot" in raw:
+        return "hotspot"
+    if "table" in raw:
+        return "table_choice"
+    if "order" in raw or "sequence" in raw:
+        return "ordering"
+    if "multi" in raw:
+        return "multi_select"
+    if "case" in raw:
+        return "case_study"
+    if "mcq" in raw or "choice" in raw:
+        return "mcq"
+    return raw if raw in TYPE_METADATA else "unparsed"
+
+
+def is_visual_question_type(question_type: Optional[str]) -> bool:
+    return normalize_question_type(question_type) in {"yes_no", "hotspot", "table_choice", "matching", "ordering"}
+
+
+def is_ordered_answer_type(question_type: Optional[str]) -> bool:
+    return normalize_question_type(question_type) in {"ordering", "table_choice", "hotspot", "matching", "yes_no"}
 
 
 def status_label(status: Optional[str]) -> str:

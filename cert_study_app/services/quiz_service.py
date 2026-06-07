@@ -1,234 +1,23 @@
 from cert_study_app.config import DEFAULT_USER
 from cert_study_app.models import Question
 from cert_study_app.repositories.question_repository import QuestionRepository
-from cert_study_app.services.text_cleanup_service import clean_inline_text
 from cert_study_app.services.question_concept_service import concept_label
+from cert_study_app.services.answer_normalizer import (
+    choice_labels,
+    evaluate_answer,
+    extract_answer_from_stem,
+    extract_options_from_stem,
+    normalize_options,
+    option_label,
+    option_labels_from_texts,
+    option_text,
+    structured_answer_values,
+    yes_no_labels,
+)
+from cert_study_app.services.question_type_metadata_service import is_ordered_answer_type, normalize_question_type
 from typing import Optional
 import json
 import re
-
-
-def normalize_options(raw):
-    if not raw:
-        return []
-    try:
-        if isinstance(raw, dict):
-            keyed = []
-            for k, v in sorted(raw.items(), key=lambda kv: kv[0]):
-                value = clean_inline_text(v)
-                if re.match(r"^[A-Za-z1-9][\.\)]\s+", value):
-                    keyed.append(value)
-                else:
-                    keyed.append(f"{k}. {value}")
-            return split_embedded_options(keyed)
-        if isinstance(raw, list):
-            return split_embedded_options(raw)
-    except Exception:
-        pass
-    return []
-
-
-def split_embedded_options(options: list[str]) -> list[str]:
-    split = []
-    expected = "A"
-    for option in options:
-        text = clean_inline_text(option)
-        if not text:
-            continue
-        parts = list(re.finditer(r"(?<![A-Za-z0-9])([A-Z])[\.\)]\s+", text))
-        if len(parts) <= 1:
-            split.append(text)
-            continue
-        for index, match in enumerate(parts):
-            end = parts[index + 1].start() if index + 1 < len(parts) else len(text)
-            part = text[match.start() : end].strip()
-            label = match.group(1).upper()
-            if label >= expected:
-                split.append(part)
-                expected = chr(ord(label) + 1)
-    return split
-
-
-def extract_options_from_stem(stem: str) -> list[str]:
-    lines = [line.strip() for line in (stem or "").splitlines() if line.strip()]
-    options = []
-    current_key = None
-    current_parts = []
-    expected = "A"
-
-    def flush():
-        if current_key and current_parts:
-            text = " ".join(current_parts).strip()
-            if text:
-                options.append(f"{current_key}. {text}")
-
-    for line in lines:
-        if re.match(r"^(answer|정답|explanation|reference)\b", line, re.I):
-            flush()
-            current_key = None
-            current_parts = []
-            break
-
-        marker = None
-        body = ""
-        exact = re.match(r"^([A-Z])[\.\)]?$", line, re.I)
-        inline = re.match(r"^([A-Z])[\.\)]?\s+(.+)$", line, re.I)
-        if exact:
-            marker = exact.group(1).upper()
-        elif inline:
-            marker = inline.group(1).upper()
-            body = inline.group(2).strip()
-
-        if marker and marker >= expected:
-            flush()
-            current_key = marker
-            current_parts = [body] if body else []
-            expected = chr(ord(marker) + 1)
-        elif current_key:
-            current_parts.append(line)
-
-    flush()
-    return options if len(options) >= 2 else []
-
-
-def extract_answer_from_stem(stem: str) -> str:
-    match = re.search(r"(?:Answer|정답)\s*:?\s*([A-Z1-9])", stem or "", re.I)
-    if not match:
-        return ""
-    value = match.group(1).upper()
-    if value.isdigit():
-        return chr(ord("A") + int(value) - 1)
-    return value
-
-
-def option_label(value: str) -> str:
-    value = str(value or "").strip().upper()
-    if value.isdigit():
-        return chr(ord("A") + int(value) - 1)
-    match = re.match(r"^([A-Z])(?:[\s\.,\)]|$)", value)
-    return match.group(1) if match else value
-
-
-def choice_labels(value: str) -> list[str]:
-    text = str(value or "").strip().upper()
-    if not text:
-        return []
-    if re.fullmatch(r"[A-Z]{2,26}", text):
-        return list(text)
-    tokens = re.findall(r"\b[A-Z]\b|\b[1-9]\b", text)
-    return [option_label(token) for token in tokens]
-
-
-def normalize_choice_answer(value: str, ordered: bool = False) -> str:
-    yn = yes_no_labels(value)
-    if yn:
-        return ",".join(yn)
-    labels = choice_labels(value)
-    if not labels:
-        return option_label(value)
-    if ordered:
-        return ",".join(labels)
-    return ",".join(sorted(set(labels)))
-
-
-def yes_no_labels(value: str) -> list[str]:
-    if isinstance(value, (list, dict)):
-        raw_value = value
-    else:
-        raw_value = None
-        try:
-            raw_value = json.loads(value) if isinstance(value, str) else None
-        except Exception:
-            raw_value = None
-
-    if isinstance(raw_value, list):
-        values = [
-            item.get("value") or item.get("answer") or item.get("selected_answer")
-            for item in raw_value
-            if isinstance(item, dict)
-        ]
-        labels = yes_no_labels(",".join(str(item) for item in values if item))
-        if labels:
-            return labels
-    elif isinstance(raw_value, dict):
-        labels = yes_no_labels(",".join(str(item) for item in raw_value.values()))
-        if labels:
-            return labels
-
-    text = str(value or "").strip().lower()
-    if not text:
-        return []
-    if re.fullmatch(r"[yn](?:\s*,\s*[yn])+", text, re.I):
-        return [token.upper() for token in re.findall(r"[yn]", text, re.I)]
-    tokens = re.findall(r"(?<![가-힣])예(?![가-힣])|아니오|아니요|\byes\b|\bno\b", text, re.I)
-    labels = []
-    for token in tokens:
-        lowered = token.lower()
-        labels.append("Y" if token == "예" or lowered == "yes" else "N")
-    return labels if len(labels) >= 2 else []
-
-
-def structured_answer_values(value) -> list[str]:
-    if isinstance(value, (list, dict)):
-        raw_value = value
-    else:
-        try:
-            raw_value = json.loads(value) if isinstance(value, str) else None
-        except Exception:
-            raw_value = None
-
-    if isinstance(raw_value, list):
-        values = [
-            item.get("value") or item.get("answer") or item.get("selected_answer")
-            for item in raw_value
-            if isinstance(item, dict)
-        ]
-    elif isinstance(raw_value, dict):
-        values = list(raw_value.values())
-    else:
-        return []
-    return [str(item).strip() for item in values if str(item).strip()]
-
-
-def option_text(options: list[str], label: str) -> str:
-    label = option_label(label)
-    for index, option in enumerate(options, 1):
-        text = str(option).strip()
-        keys = {str(index), chr(ord("A") + index - 1)}
-        match = re.match(r"^([A-Z1-9])[\.\)]\s+(.+)$", text, re.I)
-        if match:
-            keys.add(option_label(match.group(1)))
-            if match.group(1).isdigit():
-                keys.add(match.group(1))
-        if label in keys:
-            return text
-    return ""
-
-
-def _option_body(option: str) -> str:
-    text = str(option or "").strip()
-    match = re.match(r"^([A-Z1-9])[\.\)]\s+(.+)$", text, re.I)
-    return (match.group(2) if match and match.group(2) else text).strip()
-
-
-def option_labels_from_texts(options: list[str], values, allow_duplicates: bool = False) -> list[str]:
-    if not values:
-        return []
-    if isinstance(values, str):
-        values = [values]
-    labels = []
-    for value in values:
-        target = re.sub(r"\s+", " ", str(value or "").strip()).lower()
-        if not target:
-            continue
-        for index, option in enumerate(options, 1):
-            body = re.sub(r"\s+", " ", _option_body(option)).lower()
-            if body and (target == body or target in body or body in target):
-                label = chr(ord("A") + index - 1)
-                if allow_duplicates or label not in labels:
-                    labels.append(label)
-                break
-    return labels
 
 
 def visual_analysis(question) -> dict:
@@ -246,20 +35,17 @@ def clean_explanation(raw: str) -> str:
 
 def effective_answer(question) -> str:
     answer = question.answer or ""
-    question_type = (question.question_type or "").lower()
+    question_type = normalize_question_type(question.question_type)
     options = normalize_options(question.get_options()) or extract_options_from_stem(question.stem)
     structured_values = structured_answer_values(answer)
     if structured_values:
         structured_yn = yes_no_labels(",".join(structured_values))
         return ",".join(structured_yn or structured_values)
 
-    is_structured_visual = any(
-        keyword in question_type
-        for keyword in ["hotspot", "table_choice", "matching", "ordering", "yes_no", "true/false"]
-    ) and "in-context" not in question_type
+    is_structured_visual = question_type in {"hotspot", "table_choice", "matching", "ordering", "yes_no"}
     if is_structured_visual:
         answer_labels = yes_no_labels(answer)
-        if answer_labels and "true/false" in question_type:
+        if answer_labels and question_type == "yes_no":
             return ",".join(answer_labels)
         analysis = visual_analysis(question)
         statements = analysis.get("statements")
@@ -294,7 +80,7 @@ def effective_answer(question) -> str:
 
 def build_tutor_explanation(question, chosen: str, answer: str) -> str:
     options = normalize_options(question.get_options()) or extract_options_from_stem(question.stem)
-    ordered = (question.question_type or "").lower() in {"ordering", "table_choice", "hotspot"}
+    ordered = is_ordered_answer_type(question.question_type)
     answer_yn = yes_no_labels(answer)
     chosen_yn = yes_no_labels(chosen)
     answer_labels = choice_labels(answer)
@@ -306,7 +92,7 @@ def build_tutor_explanation(question, chosen: str, answer: str) -> str:
     answer_option_lines = [line for line in answer_option_lines if line]
     chosen_option_lines = [option_text(options, label) for label in chosen_labels]
     chosen_option_lines = [line for line in chosen_option_lines if line]
-    correct = normalize_choice_answer(chosen, ordered=ordered) == normalize_choice_answer(answer, ordered=ordered)
+    correct = evaluate_answer(chosen, answer, ordered=ordered).correct
 
     lines = [f"#### 정답", f"**{answer_label}**"]
     for answer_option in answer_option_lines:
@@ -470,8 +256,8 @@ class QuizService:
         answer = effective_answer(question)
         if not answer or answer in {"[]", "{}", "None"}:
             answer = extract_answer_from_stem(question.stem)
-        ordered = (question.question_type or "").lower() in {"ordering", "table_choice", "hotspot"}
-        correct = normalize_choice_answer(chosen, ordered=ordered) == normalize_choice_answer(answer, ordered=ordered)
+        evaluation = evaluate_answer(chosen, answer, ordered=is_ordered_answer_type(question.question_type))
+        correct = evaluation.correct
         self.repo.add_attempt(
             user_id=user_id,
             question_id=question.id,
