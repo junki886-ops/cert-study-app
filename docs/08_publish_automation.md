@@ -53,6 +53,14 @@ git remote -v
 
 즉, GitHub에는 개발 히스토리를 남기고 Hugging Face에는 실행에 필요한 코드와 문서 중심으로 전달합니다.
 
+Hugging Face Space에는 로컬 PostgreSQL 데이터나 업로드 PDF를 올리지 않습니다. 대신 DB가 비어 있을 때 `cert_study_app/demo_data/demo_questions.json`의 데모 문제를 자동으로 seed하여 문제풀이 화면을 확인할 수 있게 합니다.
+
+데모 seed를 끄고 싶다면 실행 환경에 아래 값을 설정합니다.
+
+```env
+CERT_STUDY_SEED_DEMO=0
+```
+
 수동 실행도 가능합니다.
 
 GitHub 저장소 화면에서:

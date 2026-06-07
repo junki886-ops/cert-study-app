@@ -19,41 +19,45 @@
 | Docker / Docker Compose | 개발 및 실행 환경 표준화 |
 | Oracle Cloud Ubuntu | 향후 서비스 배포 대상 서버 |
 
-## 3. 사용자 관점 흐름
+## 3. 첨부 다이어그램 검토
+
+첨부한 다이어그램의 큰 방향은 맞습니다. 사용자가 Streamlit Web UI에 접속하고, PDF 업로드와 문제풀이 기능을 사용하며, PostgreSQL과 Chroma를 함께 사용하는 구조는 현재 프로젝트 방향과 잘 맞습니다.
+
+![시스템 아키텍처](assets/system-architecture.png)
+
+다만 현재 코드 구조 기준으로는 아래처럼 이해하는 것이 더 정확합니다.
+
+- Airflow는 Parser/OCR 뒤에 붙는 별도 저장 단계라기보다, 긴 PDF 처리 작업 전체를 백그라운드에서 실행하고 추적하는 역할입니다.
+- PDF Parser/OCR, Quality Check, PostgreSQL 저장, 문제 분류/검증은 `PDF Ingestion Graph` 안의 단계로 보는 것이 자연스럽습니다.
+- Quiz Service는 PostgreSQL에 저장된 문제와 풀이 기록을 읽고 씁니다.
+- Similar Question Search는 Chroma에서 유사 문제를 찾고, 실제 문제 데이터는 PostgreSQL의 문제 ID와 연결해서 보여주는 구조가 좋습니다.
+- Chroma는 현재 별도 서버형 DB라기보다 `chroma_db` 디렉터리를 사용하는 로컬 벡터 저장소 형태입니다.
+
+정리하면 첨부 다이어그램은 개념적으로 맞지만, 문서에서는 Airflow를 “파이프라인 실행 관리자”로, PostgreSQL을 “기준 데이터 저장소”로, Chroma를 “검색용 보조 색인”으로 표현하는 것이 더 정확합니다.
+
+## 4. 사용자 관점 흐름
 
 사용자는 웹 화면에 접속한 뒤 문제를 풀거나, PDF를 업로드할 수 있습니다.
 
-다이어그램이 너무 길어지지 않도록 사용자 기능 흐름만 따로 분리했습니다.
+사용자 기능 흐름은 아래 이미지처럼 정리할 수 있습니다.
 
-```mermaid
-flowchart LR
-    U[사용자] --> S[Streamlit]
-    S --> Q[문제풀이]
-    S --> W[오답]
-    S --> B[북마크]
-    S --> P[PDF 업로드]
-    Q --> A[정답 확인]
-    A --> R[기록 저장]
-```
+![사용자 기능 흐름](assets/user-flow.png)
 
 현재 구현은 문제풀이, PDF 업로드, 오답/복습, 개념 정리, 처리 현황, 시험 현황, AI 색인 흐름을 중심으로 구성되어 있습니다. 북마크는 향후 개선 기능으로 두고 있습니다.
 
-## 4. PDF 처리 흐름
+## 5. 전체 서비스 흐름
+
+전체 서비스 흐름은 위 이미지처럼 사용자가 Streamlit 화면에 접속하고, PDF 업로드와 문제풀이 기능을 사용하는 형태입니다.
+
+현재 코드 기준으로는 Streamlit 화면이 `QuizService`, `IngestionJobService`, `QuestionVectorStore` 같은 서비스 계층을 호출하고, PDF 처리처럼 시간이 오래 걸리는 작업은 Airflow DAG와 PDF Ingestion Graph를 통해 단계별로 실행됩니다.
+
+## 6. PDF 처리 흐름
 
 PDF 업로드 이후에는 파싱 과정을 통해 문제를 추출하고, 문제/보기/정답/해설 형태로 구조화합니다.
 
 구조화된 문제 데이터는 PostgreSQL에 저장하고, 유사 문제 검색에 필요한 텍스트는 임베딩하여 Chroma에 저장하는 구조를 목표로 합니다.
 
-```mermaid
-flowchart LR
-    PDF[PDF] --> Save[파일 저장]
-    Save --> Parse[파싱]
-    Parse --> Check[품질 검증]
-    Check --> Gate[품질 게이트]
-    Gate --> DB[(PostgreSQL)]
-    Gate --> Emb[임베딩]
-    Emb --> Vec[(Chroma)]
-```
+![PDF 처리 흐름](assets/pdf-processing-flow.png)
 
 실제 코드에서는 `cert_study_app/graphs/pdf_ingestion_graph.py`의 PDF ingestion graph가 이 흐름을 단계별로 관리합니다.
 
@@ -69,7 +73,7 @@ flowchart LR
 8. 최종 검증
 9. 처리 완료
 
-## 5. 데이터 저장 구조
+## 7. 데이터 저장 구조
 
 이 시스템에서는 PostgreSQL과 Chroma를 함께 사용합니다.
 
@@ -77,17 +81,9 @@ PostgreSQL은 문제, 보기, 정답, 해설, 사용자 풀이 기록처럼 구�
 
 Chroma는 문제 본문을 벡터로 저장하여 유사 문제 검색에 사용합니다. 예를 들어 사용자가 특정 문제를 틀렸을 때, 비슷한 유형의 문제를 찾아 복습할 수 있도록 하기 위해 사용합니다.
 
-```mermaid
-flowchart LR
-    App[앱] --> PG[(PostgreSQL)]
-    App --> CH[(Chroma)]
-    PG --> Core[문제/정답/기록]
-    CH --> Search[유사 검색]
-```
-
 PostgreSQL은 기준 데이터 저장소이고, Chroma는 검색을 위한 보조 색인입니다. Chroma가 PostgreSQL을 대체하는 구조는 아닙니다.
 
-## 6. Airflow 사용 이유
+## 8. Airflow 사용 이유
 
 PDF 처리 과정은 한 번에 끝나는 단순 작업이 아니라 여러 단계로 나뉩니다.
 
@@ -109,7 +105,7 @@ PDF 처리 과정은 한 번에 끝나는 단순 작업이 아니라 여러 단�
 - `dags/cert_study_pdf_ingestion_dag.py`
 - `dags/cert_study_visual_analysis_dag.py`
 
-## 7. Docker 사용 이유
+## 9. Docker 사용 이유
 
 Docker는 개발 환경과 배포 환경을 최대한 동일하게 만들기 위해 사용합니다.
 
@@ -129,25 +125,13 @@ Docker Compose를 사용하면 여러 서비스를 하나의 설정 파일로 �
 
 Chroma는 별도 컨테이너라기보다 현재 프로젝트의 `chroma_db` 디렉터리를 통해 앱에서 사용하는 로컬 벡터 저장소 형태로 관리됩니다.
 
-## 8. 배포 구조
+## 10. 배포 구조
 
 향후에는 Oracle Cloud Ubuntu 서버에 Docker 기반으로 배포하는 것을 목표로 합니다.
 
-배포 구조도는 길게 늘어지지 않도록 핵심 구성만 표시했습니다.
+초기에는 개인 사용 목적이므로 복잡한 Kubernetes 구조보다는 Docker Compose 기반 배포를 우선 검토합니다. 운영 요구사항이 커지면 Nginx, HTTPS, 백업, 모니터링 등을 추가할 수 있습니다.
 
-```mermaid
-flowchart LR
-    User[브라우저] --> OCI[Oracle Ubuntu]
-    OCI --> Compose[Docker Compose]
-    Compose --> App[Streamlit]
-    Compose --> PG[(PostgreSQL)]
-    Compose --> AF[Airflow]
-    App --> CH[(Chroma)]
-```
-
-초기에는 개인 사용 목적이므로 복잡한 Kubernetes 구조보다는 Docker Compose 기반 배포가 적합합니다. 이후 사용자가 늘어나거나 운영 요구사항이 커지면 Nginx, HTTPS, 백업, 모니터링 등을 추가할 수 있습니다.
-
-## 9. 현재 구현 상태
+## 11. 현재 구현 상태
 
 현재 프로젝트는 개발 중이며, 다음 기능을 중심으로 구현하고 있습니다.
 
@@ -159,7 +143,7 @@ flowchart LR
 - Airflow 기반 파이프라인 구조
 - Oracle Cloud Ubuntu 배포 준비
 
-## 10. 향후 개선 방향
+## 12. 향후 개선 방향
 
 향후 개선할 기능은 다음과 같습니다.
 

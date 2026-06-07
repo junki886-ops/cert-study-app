@@ -1,0 +1,77 @@
+[
+  {
+    "question_number": 1,
+    "stem": "PDF 문제를 구조화한 뒤 저장하기 전에 품질 검증을 두는 가장 큰 이유는 무엇인가?",
+    "options": [
+      "A. 저장 속도를 늦추기 위해",
+      "B. 잘못 청킹된 문제가 실제 문제풀이 화면에 섞이는 것을 줄이기 위해",
+      "C. PostgreSQL을 사용하지 않기 위해",
+      "D. PDF 파일 크기를 줄이기 위해"
+    ],
+    "answer": "B",
+    "explanation": "PDF 파싱은 문제 번호, 보기, 정답이 잘못 나뉠 수 있습니다. 저장 전에 품질 검증과 품질 게이트를 두면 잘못 구조화된 문제를 걸러낼 수 있어 문제풀이 화면의 신뢰도를 높일 수 있습니다.",
+    "category": "데이터 파이프라인",
+    "subcategory": "품질 검증",
+    "concept_tags": ["quality-gate", "chunking", "parsing"]
+  },
+  {
+    "question_number": 2,
+    "stem": "이 프로젝트에서 PostgreSQL과 Chroma를 함께 사용하는 설명으로 가장 적절한 것은?",
+    "options": [
+      "A. 둘 다 같은 데이터를 같은 방식으로 저장한다",
+      "B. PostgreSQL은 기준 데이터를 저장하고 Chroma는 유사 검색용 벡터 색인으로 사용한다",
+      "C. Chroma만 있으면 정답과 풀이 기록을 모두 안정적으로 관리할 수 있다",
+      "D. PostgreSQL은 이미지 파일만 저장한다"
+    ],
+    "answer": "B",
+    "explanation": "PostgreSQL은 문제, 정답, 해설, 풀이 기록처럼 정확한 관계형 데이터 저장에 적합합니다. Chroma는 문제 본문을 임베딩으로 저장해 의미가 비슷한 문제를 찾는 데 적합합니다.",
+    "category": "데이터베이스",
+    "subcategory": "저장소 역할 분리",
+    "concept_tags": ["postgresql", "chroma", "vector-search"]
+  },
+  {
+    "question_number": 3,
+    "stem": "PDF 처리 작업에 Airflow를 사용하는 이유로 가장 적절한 것은?",
+    "options": [
+      "A. 사용자가 문제를 클릭할 때마다 화면 색상을 바꾸기 위해",
+      "B. 긴 PDF 파싱 작업을 단계별로 실행하고 실패 지점을 추적하기 위해",
+      "C. 모든 데이터를 브라우저 localStorage에 저장하기 위해",
+      "D. Streamlit을 제거하기 위해"
+    ],
+    "answer": "B",
+    "explanation": "PDF 파싱, 품질 검증, 저장, 색인 같은 작업은 시간이 오래 걸리고 실패할 수 있습니다. Airflow를 사용하면 이런 작업을 백그라운드에서 단계별로 실행하고 상태와 로그를 추적할 수 있습니다.",
+    "category": "워크플로",
+    "subcategory": "Airflow",
+    "concept_tags": ["airflow", "batch", "pipeline"]
+  },
+  {
+    "question_number": 4,
+    "stem": "Hugging Face Space에서 문제풀이 데모를 제공하기 위해 가장 안전한 데이터 제공 방식은 무엇인가?",
+    "options": [
+      "A. 개인 PDF와 로컬 DB 파일을 그대로 Git에 커밋한다",
+      "B. 운영 DB 백업 파일을 Space에 포함한다",
+      "C. 저작권 문제가 없는 데모용 샘플 문제를 seed 데이터로 포함한다",
+      "D. 문제 데이터 없이 빈 화면으로 둔다"
+    ],
+    "answer": "C",
+    "explanation": "업로드 PDF, 로컬 DB, 운영 데이터는 Git에 올리지 않는 것이 좋습니다. 대신 앱 동작을 보여주기 위한 자체 제작 샘플 문제를 seed 데이터로 넣으면 포트폴리오 데모를 안전하게 제공할 수 있습니다.",
+    "category": "배포",
+    "subcategory": "데모 데이터",
+    "concept_tags": ["huggingface", "seed-data", "demo"]
+  },
+  {
+    "question_number": 5,
+    "stem": "Chrome 모바일에서 이 앱을 홈 화면에 추가해 앱처럼 쓰기 위해 필요한 웹 표준 설정은 무엇인가?",
+    "options": [
+      "A. PWA manifest와 service worker",
+      "B. PostgreSQL 외래 키 제거",
+      "C. Airflow DAG 이름 변경",
+      "D. PDF 파일을 모두 Git에 포함"
+    ],
+    "answer": "A",
+    "explanation": "모바일 브라우저에서 웹앱을 앱처럼 설치하려면 앱 이름, 아이콘, 시작 URL 등을 담은 manifest와 기본 service worker 설정이 필요합니다. 이 프로젝트는 정적 파일을 통해 PWA 설정을 제공합니다.",
+    "category": "프론트엔드",
+    "subcategory": "PWA",
+    "concept_tags": ["pwa", "manifest", "mobile"]
+  }
+]

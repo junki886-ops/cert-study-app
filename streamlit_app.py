@@ -17,6 +17,7 @@ from cert_study_app.models import Question
 from cert_study_app.services.airflow_service import AirflowService, AirflowTriggerError
 from cert_study_app.services.azure_docs_service import AzureDocsService
 from cert_study_app.services.concept_note_service import ConceptNoteService
+from cert_study_app.services.demo_seed_service import seed_demo_questions_if_empty
 from cert_study_app.services.ingestion_job_service import IngestionJobService
 from cert_study_app.services.parse_quality_service import default_quality_report_path
 from cert_study_app.services.question_type_metadata_service import automation_summary, status_label, type_metadata
@@ -1938,6 +1939,11 @@ def render_concept_notes(source=None):
 def main():
     ensure_runtime_dirs()
     init_db(verbose=False)
+    db = SessionLocal()
+    try:
+        seed_demo_questions_if_empty(db)
+    finally:
+        db.close()
     init_state()
     inject_pwa_assets()
     apply_mobile_styles()
