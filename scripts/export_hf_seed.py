@@ -9,6 +9,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SOURCE_JSON = ROOT / "data" / "Json" / "questions.json"
+DEFAULT_PARENT_SOURCE_JSON = ROOT / "data" / "parsed_json" / "reparsed_multipage_images_20260601_205501.json"
 DEFAULT_IMAGE_ROOT = ROOT / "data" / "images"
 DEFAULT_SEED_PATH = ROOT / "cert_study_app" / "demo_data" / "questions_seed.json"
 DEFAULT_ASSET_ROOT = ROOT / "static" / "question_assets"
@@ -63,19 +64,84 @@ def _copy_image(source_path: Path, asset_root: Path) -> str:
     return target_path.relative_to(ROOT).as_posix()
 
 
-def _export_row(row: dict[str, Any], image_root: Path, asset_root: Path) -> dict[str, Any]:
+def _copy_image_reference(image_path: Any, asset_root: Path) -> str | None:
+    if not image_path:
+        return None
+    source_path = Path(str(image_path))
+    if not source_path.is_absolute():
+        source_path = ROOT / source_path
+    if not source_path.exists():
+        return str(image_path)
+    return _copy_image(source_path, asset_root)
+
+
+def _question_number(row: dict[str, Any]) -> Any:
+    return row.get("question_number") or row.get("question_id") or row.get("number")
+
+
+def _parent_context_by_number(parent_rows: list[dict[str, Any]]) -> dict[int, dict[str, Any]]:
+    contexts = {}
+    for row in parent_rows:
+        number = _question_number(row)
+        try:
+            number = int(number)
+        except Exception:
+            continue
+        if not row.get("parent_stem"):
+            continue
+        contexts[number] = row
+    return contexts
+
+
+def _parent_context_by_scenario(
+    rows: list[dict[str, Any]], parent_contexts: dict[int, dict[str, Any]]
+) -> dict[str, dict[str, Any]]:
+    contexts = {}
+    for row in rows:
+        scenario = row.get("scenario")
+        if not scenario or scenario == "단일문제" or scenario in contexts:
+            continue
+        try:
+            number = int(_question_number(row))
+        except Exception:
+            continue
+        parent_context = parent_contexts.get(number)
+        if parent_context:
+            contexts[str(scenario)] = parent_context
+    return contexts
+
+
+def _export_row(
+    row: dict[str, Any],
+    image_root: Path,
+    asset_root: Path,
+    parent_contexts: dict[int, dict[str, Any]],
+    scenario_contexts: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
     source_pages = row.get("source_pages") or []
     if not isinstance(source_pages, list):
         source_pages = [source_pages]
 
-    image_path = row.get("image_path")
+    image_path = _copy_image_reference(row.get("image_path"), asset_root)
     if not image_path:
         source_image = _first_existing_page_image(source_pages, image_root)
         if source_image:
             image_path = _copy_image(source_image, asset_root)
 
-    question_number = row.get("question_number") or row.get("question_id") or row.get("number")
+    question_number = _question_number(row)
     page = source_pages[0] if source_pages else row.get("page")
+    try:
+        parent_context = parent_contexts.get(int(question_number)) or {}
+    except Exception:
+        parent_context = {}
+    if not parent_context and row.get("scenario"):
+        parent_context = scenario_contexts.get(str(row.get("scenario"))) or {}
+
+    parent_image_paths = []
+    for parent_image_path in parent_context.get("parent_image_paths") or row.get("parent_image_paths") or []:
+        copied_path = _copy_image_reference(parent_image_path, asset_root)
+        if copied_path:
+            parent_image_paths.append(copied_path)
 
     return {
         "question_number": question_number,
@@ -90,8 +156,9 @@ def _export_row(row: dict[str, Any], image_root: Path, asset_root: Path) -> dict
         "page": page,
         "image_path": image_path,
         "raw_text": row.get("raw_text") or row.get("stem") or row.get("question") or "",
-        "parent_stem": row.get("parent_stem") or row.get("scenario"),
-        "parent_image_paths": row.get("parent_image_paths") or [],
+        "group_id": parent_context.get("group_id") or row.get("group_id"),
+        "parent_stem": parent_context.get("parent_stem") or row.get("parent_stem") or row.get("scenario"),
+        "parent_image_paths": parent_image_paths,
         "concept_tags": row.get("concept_tags") or [],
         "parse_status": row.get("parse_status") or "approved",
         "quality_score": row.get("quality_score") or 100,
@@ -101,15 +168,27 @@ def _export_row(row: dict[str, Any], image_root: Path, asset_root: Path) -> dict
         "chunk_index": row.get("chunk_index"),
         "parser_version": row.get("parser_version") or "hf-seed-export-v1",
         "source_pages": source_pages,
-    }
+}
 
 
-def export_seed(source_json: Path, image_root: Path, seed_path: Path, asset_root: Path) -> int:
+def export_seed(
+    source_json: Path,
+    parent_source_json: Path,
+    image_root: Path,
+    seed_path: Path,
+    asset_root: Path,
+) -> int:
     rows = _load_rows(source_json)
+    parent_rows = _load_rows(parent_source_json) if parent_source_json.exists() else []
+    parent_contexts = _parent_context_by_number(parent_rows)
+    scenario_contexts = _parent_context_by_scenario(rows, parent_contexts)
     asset_root.mkdir(parents=True, exist_ok=True)
     seed_path.parent.mkdir(parents=True, exist_ok=True)
 
-    exported = [_export_row(row, image_root, asset_root) for row in rows]
+    exported = [
+        _export_row(row, image_root, asset_root, parent_contexts, scenario_contexts)
+        for row in rows
+    ]
     with seed_path.open("w", encoding="utf-8") as file:
         json.dump(exported, file, ensure_ascii=False, indent=2)
         file.write("\n")
@@ -119,6 +198,7 @@ def export_seed(source_json: Path, image_root: Path, seed_path: Path, asset_root
 def main() -> None:
     parser = argparse.ArgumentParser(description="Export deployable question seed data for Hugging Face Space.")
     parser.add_argument("--source-json", type=Path, default=DEFAULT_SOURCE_JSON)
+    parser.add_argument("--parent-source-json", type=Path, default=DEFAULT_PARENT_SOURCE_JSON)
     parser.add_argument("--image-root", type=Path, default=DEFAULT_IMAGE_ROOT)
     parser.add_argument("--seed-path", type=Path, default=DEFAULT_SEED_PATH)
     parser.add_argument("--asset-root", type=Path, default=DEFAULT_ASSET_ROOT)
@@ -126,6 +206,7 @@ def main() -> None:
 
     count = export_seed(
         source_json=args.source_json,
+        parent_source_json=args.parent_source_json,
         image_root=args.image_root,
         seed_path=args.seed_path,
         asset_root=args.asset_root,
