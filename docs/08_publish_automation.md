@@ -51,9 +51,24 @@ git remote -v
 - `airflow_logs/`
 - `airflow_db/`
 
-즉, GitHub에는 개발 히스토리를 남기고 Hugging Face에는 실행에 필요한 코드와 문서 중심으로 전달합니다.
+즉, GitHub에는 개발 히스토리를 남기고 Hugging Face에는 실행에 필요한 현재 스냅샷을 전달합니다.
 
-Hugging Face Space에는 로컬 PostgreSQL 데이터나 업로드 PDF를 올리지 않습니다. 대신 DB가 비어 있을 때 `cert_study_app/demo_data/demo_questions.json`의 데모 문제를 자동으로 seed하여 문제풀이 화면을 확인할 수 있게 합니다.
+Hugging Face Space에는 로컬 PostgreSQL 데이터, Chroma 인덱스, 업로드 PDF 원본을 올리지 않습니다. 대신 배포용 seed 파일을 만들어 DB가 비어 있을 때 자동으로 문제를 넣습니다.
+
+현재 seed 우선순위는 다음과 같습니다.
+
+1. `cert_study_app/demo_data/questions_seed.json`
+2. `cert_study_app/demo_data/demo_questions.json`
+
+실제 문제를 Hugging Face에서 풀 수 있게 하려면 로컬 원본 데이터에서 배포용 seed를 생성합니다.
+
+```bash
+python scripts/export_hf_seed.py
+```
+
+이 스크립트는 `data/Json/questions.json`을 읽어 `questions_seed.json`을 만들고, 문제 원문 보기에 필요한 참조 이미지만 `static/question_assets/`로 복사합니다. `dump.pdf` 전체나 `data/images/` 전체를 올리지 않기 때문에 용량과 저작권 노출 범위를 줄일 수 있습니다.
+
+실제 기출/덤프 성격의 문제를 포함하는 경우 Hugging Face Space는 private로 운영하는 것을 권장합니다.
 
 데모 seed를 끄고 싶다면 실행 환경에 아래 값을 설정합니다.
 
