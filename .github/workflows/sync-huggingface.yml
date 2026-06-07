@@ -35,7 +35,8 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "github-actions"
 
-          git clone "https://Kentlo:${HF_TOKEN}@huggingface.co/spaces/Kentlo/cert-study-app" hf-space
+          rm -rf /tmp/hf-space
+          git clone "https://Kentlo:${HF_TOKEN}@huggingface.co/spaces/Kentlo/cert-study-app" /tmp/hf-space
 
           rsync -av --delete \
             --exclude ".git/" \
@@ -50,9 +51,9 @@ jobs:
             --exclude "chroma_db/" \
             --exclude "airflow_logs/" \
             --exclude "airflow_db/" \
-            ./ hf-space/
+            ./ /tmp/hf-space/
 
-          cd hf-space
+          cd /tmp/hf-space
           git add .
           git commit -m "Sync from GitHub ${GITHUB_SHA}" || echo "No changes to sync."
           git push origin main
