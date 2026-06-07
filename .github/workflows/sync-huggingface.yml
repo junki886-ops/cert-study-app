@@ -52,7 +52,7 @@ jobs:
           }
 
           rm -rf /tmp/hf-space
-          retry git clone "https://Kentlo:${HF_TOKEN}@huggingface.co/spaces/Kentlo/cert-study-app" /tmp/hf-space
+          mkdir -p /tmp/hf-space
 
           rsync -av --delete \
             --exclude ".git/" \
@@ -70,6 +70,8 @@ jobs:
             ./ /tmp/hf-space/
 
           cd /tmp/hf-space
+          git init -b main
+          git remote add origin "https://Kentlo:${HF_TOKEN}@huggingface.co/spaces/Kentlo/cert-study-app"
           git add .
-          git commit -m "Sync from GitHub ${GITHUB_SHA}" || echo "No changes to sync."
-          retry git push origin main
+          git commit -m "Sync from GitHub ${GITHUB_SHA}"
+          retry git push origin main --force
