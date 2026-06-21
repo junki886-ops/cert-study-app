@@ -13,12 +13,36 @@ from sqlalchemy import func
 
 from cert_study_app.config import DEFAULT_USER, ensure_runtime_dirs
 from cert_study_app.db import SessionLocal, init_db
-from cert_study_app.models import Question
+from cert_study_app.models import Attempt, Question
 from cert_study_app.services.airflow_service import AirflowService, AirflowTriggerError
 from cert_study_app.services.azure_docs_service import AzureDocsService
 from cert_study_app.services.concept_note_service import ConceptNoteService
 from cert_study_app.services.demo_seed_service import seed_demo_questions_if_empty
 from cert_study_app.services.ingestion_job_service import IngestionJobService
+from cert_study_app.services.learning_lab_service import (
+    PRACTICE_TASKS,
+    active_tracks,
+    certification_for_track,
+    evaluate_lab_quiz,
+    evaluate_practice,
+    lessons_for_track,
+    normalize_track_id,
+    quizzes_for_track,
+    roadmap_for_track,
+    track_by_id,
+    track_progress,
+)
+from cert_study_app.services.learning_progress_service import (
+    completed_steps,
+    mark_learning_step,
+    next_day_recommendation,
+    preferred_track,
+    record_activity,
+    save_preferred_track,
+    streak_days,
+    study_units,
+    weekly_summary,
+)
 from cert_study_app.services.parse_quality_service import default_quality_report_path
 from cert_study_app.services.question_type_metadata_service import (
     automation_summary,
@@ -26,13 +50,18 @@ from cert_study_app.services.question_type_metadata_service import (
     status_label,
     type_metadata,
 )
-from cert_study_app.services.question_concept_service import classify_question_batch, concept_label
+from cert_study_app.services.question_concept_service import (
+    CATEGORY_LABELS,
+    SUBCATEGORY_LABELS,
+    classify_question_batch,
+    concept_label,
+)
 from cert_study_app.services.quiz_service import QuizService, yes_no_labels
 from cert_study_app.services.study_assistant_service import StudyAssistantService
 from cert_study_app.services.vector_service import QuestionVectorStore
 
 
-st.set_page_config(page_title="Cert Study", page_icon=":books:", layout="wide")
+st.set_page_config(page_title="Cert Study Lab", page_icon=":books:", layout="wide")
 
 DEFAULT_VISUAL_MODEL = os.getenv("OLLAMA_VISUAL_MODEL", "qwen3-vl:8b-instruct-q4_K_M")
 DEFAULT_MAIN_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:14b")
@@ -111,6 +140,17 @@ def init_state():
     st.session_state.setdefault("similar_type", None)
     st.session_state.setdefault("review_question_id", None)
     st.session_state.setdefault("quiz_order_mode", "순서대로")
+    st.session_state.setdefault("lab_track", normalize_track_id(preferred_track()))
+    st.session_state.setdefault("today_session_done", set())
+    st.session_state.setdefault("lab_lesson_index", 0)
+    st.session_state.setdefault("lab_quiz_index", 0)
+    st.session_state.setdefault("lab_practice_index", 0)
+    st.session_state.setdefault("lab_completed_lessons", set())
+    st.session_state.setdefault("lab_completed_quizzes", set())
+    st.session_state.setdefault("lab_completed_practices", set())
+    st.session_state.setdefault("lab_wrong_notes", [])
+    st.session_state.setdefault("quiz_skill_category", "전체")
+    st.session_state.setdefault("quiz_skill_subcategory", "전체")
 
 
 def apply_mobile_styles():
@@ -258,24 +298,58 @@ def go_to(page: str):
     st.rerun()
 
 
+def track_for_question_source(source):
+    normalized = (source or "").strip().lower()
+    if normalized.startswith("az-104") or "azure" in normalized:
+        return "azure"
+    if "linux" in normalized or "lfcs" in normalized:
+        return "linux"
+    return normalize_track_id(st.session_state.get("lab_track", "linux"))
+
+
 def render_home(exams):
     st.subheader("시작하기")
     total_questions = sum(exam["count"] for exam in exams)
     st.caption(f"등록된 시험 {len(exams)}개 · 전체 문항 {total_questions}개")
 
-    if st.button("문제 풀이 시작", type="primary", use_container_width=True):
-        go_to("문제 풀이")
-
-    st.markdown('<div class="cert-section-title">학습</div>', unsafe_allow_html=True)
+    st.markdown('<div class="cert-section-title">어디서 이어서 공부할까요?</div>', unsafe_allow_html=True)
+    if st.button("이어서 공부", type="primary", use_container_width=True):
+        go_to("이어서 공부")
     col1, col2 = st.columns(2)
-    if col1.button("오답/복습", use_container_width=True):
-        go_to("오답/복습")
-    if col2.button("개념 정리", use_container_width=True):
-        go_to("개념 정리")
-    if st.button("취약 개념 학습", use_container_width=True):
-        go_to("취약 개념 학습")
+    if col1.button("집중 학습", use_container_width=True):
+        go_to("Focus Mode")
+    if col2.button("시험 대비", use_container_width=True):
+        go_to("Exam Mode")
+    if st.button("대시보드", use_container_width=True):
+        go_to("대시보드")
+
+    with st.expander("학습 메뉴", expanded=False):
+        col1, col2 = st.columns(2)
+        if col1.button("로드맵", use_container_width=True):
+            go_to("로드맵")
+        if col2.button("이론 학습", use_container_width=True):
+            go_to("이론 학습")
+        col3, col4 = st.columns(2)
+        if col3.button("확인 퀴즈", use_container_width=True):
+            go_to("확인 퀴즈")
+        if col4.button("자격증 문제", use_container_width=True):
+            go_to("자격증 문제")
+        col5, col6 = st.columns(2)
+        if col5.button("실습하기", use_container_width=True):
+            go_to("실습하기")
+        if col6.button("진도율", use_container_width=True):
+            go_to("진도율")
+
+    with st.expander("복습/개념", expanded=False):
+        col1, col2 = st.columns(2)
+        if col1.button("취약 개념 학습", use_container_width=True):
+            go_to("취약 개념 학습")
+        if col2.button("개념 정리", use_container_width=True):
+            go_to("개념 정리")
 
     with st.expander("업로드/관리", expanded=False):
+        if st.button("콘텐츠 관리", use_container_width=True):
+            go_to("콘텐츠 관리")
         if st.button("PDF 업로드", use_container_width=True):
             go_to("PDF 업로드")
         if st.button("처리 현황", use_container_width=True):
@@ -316,6 +390,515 @@ def render_exam_overview(exams, selected_exam):
         hide_index=True,
         use_container_width=True,
     )
+
+
+def selected_lab_track() -> str:
+    tracks = active_tracks()
+    labels = [f"{track['name']} · {certification_for_track(track['id'])['name']}" for track in tracks]
+    ids = [track["id"] for track in tracks]
+    current = normalize_track_id(st.session_state.get("lab_track", "linux"))
+    index = ids.index(current) if current in ids else 0
+    selected_label = st.selectbox("Track", labels, index=index)
+    track_id = ids[labels.index(selected_label)]
+    if track_id != st.session_state.get("lab_track"):
+        save_preferred_track(track_id)
+    st.session_state.lab_track = track_id
+    return track_id
+
+
+def render_dashboard(exams):
+    st.subheader("대시보드")
+    st.caption("진도와 추천 복습은 여기에서만 확인합니다.")
+    render_today_plan(exams)
+    render_weak_recommendations()
+
+
+def render_today_plan(exams):
+    total_questions = sum(exam["count"] for exam in exams)
+    track_id = selected_lab_track()
+    track = track_by_id(track_id)
+    certification = certification_for_track(track_id)
+    lessons = lessons_for_track(track_id)
+    quizzes = quizzes_for_track(track_id)
+    practices = [task for task in PRACTICE_TASKS if task.track == track_id and task.status == "approved"]
+    persisted_steps = completed_steps(track_id)
+    progress = track_progress(
+        track_id,
+        set(st.session_state.lab_completed_lessons),
+        set(st.session_state.lab_completed_quizzes),
+        set(st.session_state.lab_completed_practices),
+    )
+    week = weekly_summary()
+    streak = streak_days()
+    with st.container(border=True):
+        st.markdown("### 이어서 공부")
+        st.caption(f"{track['name']} 중심 · 목표 자격증: {certification['name']}")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("이론 카드", f"{min(3, len(lessons))}개")
+        col2.metric("확인 퀴즈", f"{min(5, len(quizzes))}문제")
+        if track_id == "tool_docs":
+            third_label = "Docs 복습"
+            third_value = "1개"
+        else:
+            third_label = "오답 복습"
+            third_value = "1개"
+        col3.metric(third_label, third_value)
+        wrong_count = len([item for item in st.session_state.lab_wrong_notes if item.get("track") == track_id])
+        st.caption(f"오답 복습 {wrong_count}개 · 등록된 자격증 문제 {total_questions}개")
+        st.progress(progress["percent"] / 100 if progress["total"] else 0, text=f"{track['name']} 진행률 {progress['completed']}/{progress['total']}")
+        daily_step_count = len(persisted_steps & {"lesson", "quiz", "review"})
+        st.progress(daily_step_count / 3, text=f"기본 흐름 {daily_step_count}/3")
+        metric1, metric2, metric3 = st.columns(3)
+        metric1.metric("연속 학습", f"{streak}일")
+        metric2.metric("오늘 누적", f"{study_units():.1f}단위")
+        metric3.metric("이번 주 누적", f"{week['study_units']:.1f}단위")
+        st.caption(next_day_recommendation(track_id))
+
+
+def render_weak_recommendations():
+    db = SessionLocal()
+    try:
+        rows = (
+            db.query(Question.category, Question.subcategory, func.count(Attempt.id))
+            .join(Question, Attempt.question_id == Question.id)
+            .filter(Attempt.user_id == DEFAULT_USER, Attempt.note_type == "wrong")
+            .group_by(Question.category, Question.subcategory)
+            .order_by(func.count(Attempt.id).desc())
+            .limit(3)
+            .all()
+        )
+        if not rows:
+            return
+        with st.container(border=True):
+            st.markdown("### 오늘 추천 복습")
+            for category, subcategory, count in rows:
+                st.caption(f"{concept_label(category, subcategory)} · 오답 {count}회")
+            if st.button("오답 추천으로 복습", use_container_width=True):
+                go_to("오답노트")
+    finally:
+        db.close()
+
+
+def render_continue_study():
+    st.subheader("이어서 공부")
+    track_id = selected_lab_track()
+    track = track_by_id(track_id)
+    certification = certification_for_track(track_id)
+    lessons = lessons_for_track(track_id)
+    quizzes = quizzes_for_track(track_id)
+    session_done = completed_steps(track_id)
+    session_steps = [
+        ("lesson", "이론 이어보기", f"카드 {min(1, len(lessons))}개부터 시작하고, 원하면 계속 다음 카드로 넘어갑니다.", "이론 이어보기", "이론 학습"),
+        ("quiz", "확인 퀴즈", f"{min(3, len(quizzes))}개로 시작한 뒤 계속 풀 수 있습니다.", "확인 퀴즈 풀기", "확인 퀴즈"),
+        ("review", "오답 복습", "오답 1개부터 보고, 더 복습하면 누적 학습량으로 기록됩니다.", "오답 복습으로 이동", "오답노트"),
+    ]
+
+    st.caption(f"{track['name']} Track · {certification['name']} · 원하는 만큼 이어서 공부합니다.")
+    done_count = len(session_done & {step[0] for step in session_steps})
+    st.progress(done_count / len(session_steps), text=f"기본 흐름 {done_count}/{len(session_steps)} · 오늘 누적 {study_units():.1f}단위")
+
+    for index, (step_id, title, description, action_label, target_page) in enumerate(session_steps, 1):
+        with st.container(border=True):
+            done = step_id in session_done
+            st.markdown(f"### {index}. {'완료 · ' if done else ''}{title}")
+            st.write(description)
+            col1, col2 = st.columns([1, 1])
+            if col1.button(action_label, type="primary" if not done else "secondary", use_container_width=True, key=f"today_go_{step_id}"):
+                go_to(target_page)
+            if col2.button("완료 체크", use_container_width=True, key=f"today_done_{step_id}", disabled=done):
+                st.session_state.today_session_done = mark_learning_step(track_id, step_id)
+                st.rerun()
+
+    if done_count == len(session_steps):
+        st.success("기본 흐름을 지나왔습니다. 더 공부하면 오늘 누적 학습량에 계속 더해집니다.")
+
+
+def render_focus_mode():
+    st.subheader("집중 학습")
+    track_id = selected_lab_track()
+    track = track_by_id(track_id)
+    certification = certification_for_track(track_id)
+    st.caption(f"{track['name']} Track · {certification['name']} · 오늘 하고 싶은 공부만 골라서 길게 이어갑니다.")
+
+    col1, col2 = st.columns(2)
+    if col1.button("이론만 보기", type="primary", use_container_width=True):
+        go_to("이론 학습")
+    if col2.button("퀴즈만 풀기", use_container_width=True):
+        go_to("확인 퀴즈")
+    col3, col4 = st.columns(2)
+    if col3.button("오답만 복습", use_container_width=True):
+        go_to("오답노트")
+    if col4.button("로드맵 보기", use_container_width=True):
+        go_to("로드맵")
+
+    if track_id == "linux":
+        if st.button("Linux 실습 집중", use_container_width=True):
+            go_to("실습하기")
+    elif track_id == "tool_docs":
+        st.info("Tool Docs는 공식 문서 요약 카드와 확인 퀴즈를 반복하는 방식으로 운영합니다.")
+    else:
+        st.info("시험 문제풀이에 몰입하려면 `시험 대비`를 사용하세요.")
+
+
+def render_exam_study_mode():
+    st.subheader("시험 대비")
+    st.caption("이어서 공부 흐름과 분리된 자격증 집중 모드입니다. 문제풀이, 세부개념 반복, 모의시험을 여기에서 봅니다.")
+    col1, col2 = st.columns(2)
+    if col1.button("AZ-104 문제풀이", type="primary", use_container_width=True):
+        st.session_state.exam_source = "AZ-104"
+        go_to("자격증 문제")
+    if col2.button("시험 모드 설정", use_container_width=True):
+        go_to("시험 모드")
+    col3, col4 = st.columns(2)
+    if col3.button("세부개념 반복", use_container_width=True):
+        st.session_state.exam_source = "AZ-104"
+        go_to("자격증 문제")
+    if col4.button("오답 복습", use_container_width=True):
+        go_to("오답노트")
+
+
+def render_roadmap():
+    st.subheader("로드맵")
+    track_id = selected_lab_track()
+    track = track_by_id(track_id)
+    certification = certification_for_track(track_id)
+    st.caption(f"{track['name']} Track · {certification['name']} 대비")
+    steps = roadmap_for_track(track_id)
+    if not steps:
+        st.info("아직 준비 중인 Track입니다.")
+        return
+    for index, step in enumerate(steps, 1):
+        with st.container(border=True):
+            st.markdown(f"**{index}. {step.title}**")
+            st.caption(step.level)
+            st.write(step.description)
+
+
+def render_quiz_skill_filter(db, source):
+    if source not in {None, "AZ-104"}:
+        return None, None
+
+    rows = (
+        db.query(Question.category, Question.subcategory, func.count(Question.id))
+        .filter(Question.source == "AZ-104", Question.category.isnot(None))
+        .group_by(Question.category, Question.subcategory)
+        .order_by(Question.category.asc(), Question.subcategory.asc())
+        .all()
+    )
+    if not rows:
+        st.caption("아직 AZ-104 영역 분류가 없습니다. 처리 현황에서 AZ-104 영역 분류를 먼저 실행해 주세요.")
+        return None, None
+
+    categories = []
+    for category, _subcategory, _count in rows:
+        if category and category not in categories:
+            categories.append(category)
+    category_labels = ["전체"] + [concept_label(category) for category in categories]
+    current_category = st.session_state.get("quiz_skill_category", "전체")
+    current_index = categories.index(current_category) + 1 if current_category in categories else 0
+    selected_category_label = st.selectbox("AZ-104 대분류", category_labels, index=current_index)
+    selected_category = None if selected_category_label == "전체" else categories[category_labels.index(selected_category_label) - 1]
+
+    selected_subcategory = None
+    if selected_category:
+        sub_rows = [(subcategory, count) for category, subcategory, count in rows if category == selected_category and subcategory]
+        subcategory_values = [subcategory for subcategory, _count in sub_rows]
+        subcategory_labels = ["전체"] + [f"{concept_label(selected_category, subcategory)} ({count}문항)" for subcategory, count in sub_rows]
+        current_subcategory = st.session_state.get("quiz_skill_subcategory", "전체")
+        sub_index = subcategory_values.index(current_subcategory) + 1 if current_subcategory in subcategory_values else 0
+        selected_subcategory_label = st.selectbox("세부 개념", subcategory_labels, index=sub_index)
+        selected_subcategory = None if selected_subcategory_label == "전체" else subcategory_values[subcategory_labels.index(selected_subcategory_label) - 1]
+
+    selected_category_state = selected_category or "전체"
+    selected_subcategory_state = selected_subcategory or "전체"
+    if selected_category_state != st.session_state.get("quiz_skill_category"):
+        st.session_state.quiz_skill_category = selected_category_state
+        st.session_state.quiz_skill_subcategory = "전체"
+        st.session_state.question_id = None
+        st.session_state.selected = None
+        st.session_state.last_result = None
+        st.rerun()
+    if selected_subcategory_state != st.session_state.get("quiz_skill_subcategory"):
+        st.session_state.quiz_skill_subcategory = selected_subcategory_state
+        st.session_state.question_id = None
+        st.session_state.selected = None
+        st.session_state.last_result = None
+        st.rerun()
+
+    return selected_category, selected_subcategory
+
+
+def render_theory_learning():
+    st.subheader("이론 학습")
+    track_id = selected_lab_track()
+    track = track_by_id(track_id)
+    certification = certification_for_track(track_id)
+    st.caption(f"{track['name']} Track · {certification['name']} 대비")
+    lessons = lessons_for_track(track_id)
+    if not lessons:
+        st.info("아직 승인된 이론 카드가 없습니다.")
+        return
+
+    index = min(st.session_state.lab_lesson_index, len(lessons) - 1)
+    lesson = lessons[index]
+    with st.container(border=True):
+        st.caption(f"{lesson.track} · {lesson.certification} · {lesson.status}")
+        st.markdown(f"### {lesson.title}")
+        st.markdown("**핵심 이해**")
+        st.write(lesson.summary)
+        if lesson.details:
+            for detail in lesson.details:
+                st.markdown(f"- {detail}")
+        st.markdown("**예시**")
+        st.code(lesson.example)
+        st.markdown("**헷갈릴 포인트**")
+        st.write(lesson.common_mistake)
+        st.caption("키워드: " + ", ".join(lesson.keywords))
+        st.caption(f"Source ID: {lesson.source_id}")
+
+    if st.button("학습 완료", type="primary", use_container_width=True):
+        st.session_state.lab_completed_lessons.add(lesson.id)
+        record_activity(track_id, "lesson", 1)
+        st.success(f"이론 카드를 완료했습니다. 오늘 누적 {study_units():.1f}단위")
+
+    prev_col, next_col = st.columns(2)
+    if prev_col.button("이전 카드", use_container_width=True, disabled=index == 0):
+        st.session_state.lab_lesson_index = max(0, index - 1)
+        st.rerun()
+    if next_col.button("다음 카드", use_container_width=True, disabled=index >= len(lessons) - 1):
+        st.session_state.lab_lesson_index = min(len(lessons) - 1, index + 1)
+        st.rerun()
+
+
+def render_learning_quiz():
+    st.subheader("확인 퀴즈")
+    track_id = selected_lab_track()
+    track = track_by_id(track_id)
+    certification = certification_for_track(track_id)
+    st.caption(f"{track['name']} Track · {certification['name']} 대비")
+    quizzes = quizzes_for_track(track_id)
+    if not quizzes:
+        st.info("아직 준비된 확인 퀴즈가 없습니다.")
+        return
+
+    index = min(st.session_state.lab_quiz_index, len(quizzes) - 1)
+    quiz = quizzes[index]
+    with st.container(border=True):
+        st.caption(f"{quiz.track} · {quiz.question_type} · {quiz.difficulty} · {quiz.status}")
+        st.markdown(f"### 문제 {index + 1}/{len(quizzes)}")
+        st.write(quiz.question)
+        if quiz.question_type == "multiple_choice":
+            answer = st.radio("답", quiz.options, key=f"lab_quiz_answer_{quiz.id}")
+        else:
+            answer = st.text_input("명령어 입력", key=f"lab_quiz_answer_{quiz.id}", placeholder=quiz.answer)
+
+    if st.button("정답 확인", type="primary", use_container_width=True):
+        record_activity(track_id, "quiz", 1)
+        correct = evaluate_lab_quiz(quiz, answer)
+        if correct:
+            st.session_state.lab_completed_quizzes.add(quiz.id)
+            st.success("정답입니다.")
+        else:
+            st.error(f"오답입니다. 정답: {quiz.answer}")
+            wrong_ids = {item["id"] for item in st.session_state.lab_wrong_notes}
+            if quiz.id not in wrong_ids:
+                st.session_state.lab_wrong_notes.append(
+                    {
+                        "id": quiz.id,
+                        "item_type": "quiz",
+                        "track": quiz.track,
+                        "question": quiz.question,
+                        "user_answer": str(answer),
+                        "correct_answer": quiz.answer,
+                        "explanation": quiz.explanation,
+                    }
+                )
+        st.markdown('<div class="answer-explanation">', unsafe_allow_html=True)
+        st.markdown(quiz.explanation)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    prev_col, next_col = st.columns(2)
+    if prev_col.button("이전 퀴즈", use_container_width=True, disabled=index == 0):
+        st.session_state.lab_quiz_index = max(0, index - 1)
+        st.rerun()
+    if next_col.button("다음 퀴즈", use_container_width=True, disabled=index >= len(quizzes) - 1):
+        st.session_state.lab_quiz_index = min(len(quizzes) - 1, index + 1)
+        st.rerun()
+
+
+def render_exam_mode():
+    st.subheader("시험 모드")
+    st.caption("초기 버전은 시험 세션을 시작하기 전 설정 화면입니다.")
+    exam_type = st.selectbox("시험 종류", ["AZ-104 모의시험", "LFCS 스타일 실습 시험", "Linux 기초 시험", "리눅스마스터 필기 스타일"])
+    question_count = st.selectbox("문제 수", [5, 10, 20, 40], index=1)
+    duration = st.selectbox("제한 시간", ["10분", "20분", "40분", "90분"], index=1)
+    with st.container(border=True):
+        st.markdown(f"**{exam_type}**")
+        st.write(f"- 문제 수: {question_count}문제")
+        st.write(f"- 제한 시간: {duration}")
+        st.write("- 결과: 점수, 정답률, 오답 저장 영역으로 확장 예정")
+    if st.button("시험 시작 준비", type="primary", use_container_width=True):
+        st.info("다음 단계에서 기존 문제은행과 연결해 실제 시험 세션을 생성합니다.")
+
+
+def render_lab_practice():
+    st.subheader("실습하기")
+    st.caption("현재는 Docker 터미널이 아니라 fake terminal simulator입니다.")
+    track_id = selected_lab_track()
+    tasks = [task for task in PRACTICE_TASKS if task.track == track_id and task.status == "approved"]
+    if not tasks:
+        st.info("이 Track의 실습은 아직 준비 중입니다. 현재 fake terminal 실습은 Linux / LFCS 중심으로 제공합니다.")
+        return
+    index = min(st.session_state.lab_practice_index, len(tasks) - 1)
+    task = tasks[index]
+
+    with st.container(border=True):
+        st.caption(f"{task.track} · {task.difficulty} · {task.status}")
+        st.markdown(f"### {task.title}")
+        st.write(task.task_description)
+        command = st.text_input("터미널 입력", key=f"practice_command_{task.id}", placeholder=task.expected_command)
+        with st.expander("힌트", expanded=False):
+            st.write(task.hint)
+
+    if st.button("실습 채점", type="primary", use_container_width=True):
+        if evaluate_practice(task, command):
+            st.session_state.lab_completed_practices.add(task.id)
+            record_activity(track_id, "practice", 1)
+            st.success(f"정답입니다. 오늘 누적 {study_units():.1f}단위")
+        else:
+            st.error("아직 조건을 만족하지 못했습니다.")
+        st.markdown('<div class="answer-explanation">', unsafe_allow_html=True)
+        st.markdown(task.explanation)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    prev_col, next_col = st.columns(2)
+    if prev_col.button("이전 실습", use_container_width=True, disabled=index == 0):
+        st.session_state.lab_practice_index = max(0, index - 1)
+        st.rerun()
+    if next_col.button("다음 실습", use_container_width=True, disabled=index >= len(tasks) - 1):
+        st.session_state.lab_practice_index = min(len(tasks) - 1, index + 1)
+        st.rerun()
+
+
+def render_progress():
+    st.subheader("진도율")
+    completed_lessons = set(st.session_state.lab_completed_lessons)
+    completed_quizzes = set(st.session_state.lab_completed_quizzes)
+    completed_practices = set(st.session_state.lab_completed_practices)
+    for track in active_tracks():
+        certification = certification_for_track(track["id"])
+        progress = track_progress(track["id"], completed_lessons, completed_quizzes, completed_practices)
+        with st.container(border=True):
+            st.markdown(f"**{track['name']}**")
+            st.caption(f"{track['description']} · 목표 자격증: {certification['name']}")
+            st.progress(progress["percent"] / 100 if progress["total"] else 0, text=f"{progress['completed']}/{progress['total']} 완료")
+    st.metric("오늘 완료한 학습", len(completed_lessons) + len(completed_quizzes) + len(completed_practices))
+
+    st.markdown("#### AZ-104 문제은행 영역 분포")
+    db = SessionLocal()
+    try:
+        rows = (
+            db.query(Question.category, func.count(Question.id))
+            .filter(Question.source == "AZ-104")
+            .group_by(Question.category)
+            .order_by(func.count(Question.id).desc())
+            .all()
+        )
+        if not rows:
+            st.caption("아직 AZ-104 문제 분류 결과가 없습니다.")
+        else:
+            total = sum(count for _category, count in rows)
+            for category, count in rows:
+                ratio = count / total if total else 0
+                st.progress(ratio, text=f"{concept_label(category)} · {count}문항")
+    finally:
+        db.close()
+
+
+def render_content_management():
+    st.subheader("콘텐츠 관리")
+    st.caption("현재는 기존 관리 기능으로 이동하는 허브입니다.")
+    col1, col2 = st.columns(2)
+    if col1.button("PDF 업로드", use_container_width=True):
+        go_to("PDF 업로드")
+    if col2.button("처리 현황", use_container_width=True):
+        go_to("처리 현황")
+    col3, col4 = st.columns(2)
+    if col3.button("시험 현황", use_container_width=True):
+        go_to("시험 현황")
+    if col4.button("AI 색인", use_container_width=True):
+        go_to("AI 색인")
+    st.markdown("#### 콘텐츠 상태")
+    st.write("생성 콘텐츠 상태값은 `generated`, `reviewed`, `approved`, `rejected`를 기준으로 확장합니다.")
+    with st.expander("AZ-104 분류 검수", expanded=False):
+        render_classification_review("AZ-104")
+
+
+def render_classification_review(source="AZ-104"):
+    db = SessionLocal()
+    try:
+        categories = [
+            "az104_identity_governance",
+            "az104_storage",
+            "az104_compute",
+            "az104_networking",
+            "az104_monitor_recovery",
+        ]
+        category_label_map = {category: CATEGORY_LABELS.get(category, category) for category in categories}
+        selected_category_label = st.selectbox(
+            "검수할 대분류",
+            ["전체"] + list(category_label_map.values()),
+            key="review_category_filter",
+        )
+        selected_category = None
+        if selected_category_label != "전체":
+            selected_category = next(category for category, label in category_label_map.items() if label == selected_category_label)
+
+        query = db.query(Question).filter(Question.source == source)
+        if selected_category:
+            query = query.filter(Question.category == selected_category)
+        questions = query.order_by(Question.question_number.asc(), Question.id.asc()).limit(20).all()
+        if not questions:
+            st.caption("검수할 문제가 없습니다.")
+            return
+
+        st.caption("평소에는 닫아두고, 자동 분류가 어색한 문제만 고치면 됩니다.")
+        category_options = categories + ["uncategorized"]
+        for question in questions:
+            with st.container(border=True):
+                number = question.question_number or question.id
+                st.markdown(f"**문제 {number}번**")
+                st.caption((question.stem or "")[:180])
+
+                current_category = question.category if question.category in category_options else "uncategorized"
+                category_index = category_options.index(current_category)
+                new_category = st.selectbox(
+                    "대분류",
+                    category_options,
+                    index=category_index,
+                    format_func=lambda value: CATEGORY_LABELS.get(value, value),
+                    key=f"class_category_{question.id}",
+                )
+
+                subcategory_options = sorted(SUBCATEGORY_LABELS.keys())
+                current_subcategory = question.subcategory if question.subcategory in subcategory_options else None
+                sub_labels = ["미지정"] + subcategory_options
+                sub_index = sub_labels.index(current_subcategory) if current_subcategory in sub_labels else 0
+                new_subcategory = st.selectbox(
+                    "세부 개념",
+                    sub_labels,
+                    index=sub_index,
+                    format_func=lambda value: "미지정" if value == "미지정" else SUBCATEGORY_LABELS.get(value, value),
+                    key=f"class_subcategory_{question.id}",
+                )
+                if st.button("분류 저장", use_container_width=True, key=f"save_classification_{question.id}"):
+                    question.category = new_category
+                    question.subcategory = None if new_subcategory == "미지정" else new_subcategory
+                    db.commit()
+                    st.success("분류를 저장했습니다.")
+                    st.rerun()
+    finally:
+        db.close()
 
 
 def render_question_image(question):
@@ -1017,13 +1600,23 @@ def render_quiz_controls(service, source, current_question=None):
 def render_quiz(source=None):
     db, service = get_service()
     try:
-        question = service.get_question(st.session_state.question_id, source)
+        category, subcategory = render_quiz_skill_filter(db, source)
+        filtered_source = "AZ-104" if category and source is None else source
+        if category:
+            question = service.get_unit_question(
+                st.session_state.question_id,
+                source=filtered_source,
+                category=category,
+                subcategory=subcategory,
+            )
+        else:
+            question = service.get_question(st.session_state.question_id, source)
         if not question:
             st.info("선택한 시험에 등록된 문제가 없습니다.")
             return
 
         st.session_state.question_id = question["id"]
-        order_mode = render_quiz_controls(service, source, question)
+        order_mode = render_quiz_controls(service, filtered_source, question)
         render_question_header(question)
         render_question_body(question)
         render_question_image(question)
@@ -1040,12 +1633,21 @@ def render_quiz(source=None):
                     chosen,
                     DEFAULT_USER,
                 )
+                record_activity(track_for_question_source(question.get("source")), "cert_question", 1)
                 st.rerun()
 
         prev_col, next_col = st.columns(2)
         with prev_col:
             if st.button("이전", use_container_width=True):
-                previous_question = service.previous_question(question["id"], source)
+                if category:
+                    previous_question = service.previous_unit_question(
+                        question["id"],
+                        source=filtered_source,
+                        category=category,
+                        subcategory=subcategory,
+                    )
+                else:
+                    previous_question = service.previous_question(question["id"], source)
                 if previous_question.get("start"):
                     st.info("첫 번째 문제입니다.")
                 else:
@@ -1056,9 +1658,25 @@ def render_quiz(source=None):
         with next_col:
             if st.button("다음", use_container_width=True):
                 if order_mode == "랜덤":
-                    next_question = service.get_random_question(source, question["id"]) or {"end": True}
+                    if category:
+                        next_question = service.get_random_unit_question(
+                            source=filtered_source,
+                            category=category,
+                            subcategory=subcategory,
+                            exclude_id=question["id"],
+                        ) or {"end": True}
+                    else:
+                        next_question = service.get_random_question(source, question["id"]) or {"end": True}
                 else:
-                    next_question = service.next_question(question["id"], source)
+                    if category:
+                        next_question = service.next_unit_question(
+                            question["id"],
+                            source=filtered_source,
+                            category=category,
+                            subcategory=subcategory,
+                        )
+                    else:
+                        next_question = service.next_question(question["id"], source)
                 if next_question.get("end"):
                     st.success("마지막 문제입니다.")
                 else:
@@ -1137,6 +1755,7 @@ def render_weak_quiz(source=None):
             else:
                 chosen = str(st.session_state.selected).strip()
                 st.session_state.last_result = service.answer(question["id"], chosen, DEFAULT_USER)
+                record_activity(track_for_question_source(question.get("source")), "cert_question", 1)
                 st.rerun()
 
         prev_col, next_col = st.columns(2)
@@ -1275,6 +1894,9 @@ def render_notes(source=None):
                     st.write("내 답:", item["chosen"])
                 if item.get("explanation"):
                     st.write(item["explanation"])
+                if st.button("복습 완료", use_container_width=True, key=f"review_done_{item['question_id']}"):
+                    record_activity(track_for_question_source(item.get("source")), "review", 1)
+                    st.success(f"복습을 기록했습니다. 오늘 누적 {study_units():.1f}단위")
     finally:
         db.close()
 
@@ -1362,8 +1984,8 @@ def render_review(source=None):
 
         with st.container():
             col1, col2 = st.columns([2, 1])
-            concept_overwrite = col1.checkbox("기존 개념 분류도 다시 계산", value=False)
-            if col2.button("개념 분류 실행", use_container_width=True):
+            concept_overwrite = col1.checkbox("기존 AZ-104 영역 분류도 다시 계산", value=False)
+            if col2.button("AZ-104 영역 분류", use_container_width=True):
                 concept_summary = classify_question_batch(
                     db,
                     source=source,
@@ -1371,7 +1993,7 @@ def render_review(source=None):
                     overwrite=concept_overwrite,
                 )
                 st.success(
-                    f"개념 분류 {concept_summary['checked']}개 · "
+                    f"AZ-104 영역 분류 {concept_summary['checked']}개 · "
                     f"분류됨 {concept_summary['classified']}개 · "
                     f"미분류 {concept_summary['uncategorized']}개"
                 )
@@ -2060,7 +2682,7 @@ def main():
     inject_pwa_assets()
     apply_mobile_styles()
 
-    st.title("Cert Study")
+    st.title("Cert Study Lab")
     exams = get_exams()
     page = st.session_state.page
 
@@ -2069,19 +2691,56 @@ def main():
         return
 
     render_back_home()
+    if page == "대시보드":
+        render_dashboard(exams)
+        return
+    if page in {"이어서 공부", "Daily Mode"}:
+        render_continue_study()
+        return
+    if page == "Focus Mode":
+        render_focus_mode()
+        return
+    if page == "Exam Mode":
+        render_exam_study_mode()
+        return
+    if page == "오늘 학습 세션":
+        render_continue_study()
+        return
+    if page == "로드맵":
+        render_roadmap()
+        return
+    if page == "이론 학습":
+        render_theory_learning()
+        return
+    if page == "확인 퀴즈":
+        render_learning_quiz()
+        return
+    if page == "시험 모드":
+        render_exam_mode()
+        return
+    if page == "실습하기":
+        render_lab_practice()
+        return
+    if page == "진도율":
+        render_progress()
+        return
+    if page == "콘텐츠 관리":
+        render_content_management()
+        return
+
     selected_exam, selected_source = render_exam_selector(exams)
 
     if page == "시험 현황":
         render_exam_overview(exams, selected_exam)
     elif page in {"처리 현황", "자동 정리 현황", "문제 검수"}:
         render_review(selected_source)
-    elif page == "문제 풀이":
+    elif page in {"문제 풀이", "자격증 문제"}:
         render_quiz(selected_source)
     elif page in {"취약 개념 학습", "취약 유형 학습"}:
         render_weak_quiz(selected_source)
     elif page in {"같은 단원 학습", "비슷한 유형 학습"}:
         render_similar_quiz()
-    elif page == "오답/복습":
+    elif page in {"오답/복습", "오답노트"}:
         render_notes(selected_source)
     elif page == "개념 정리":
         render_concept_notes(selected_source)

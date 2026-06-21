@@ -1,13 +1,16 @@
-# Cert Study App Architecture
+# Cert Study Lab Architecture
+
+이 파일은 개발 중 빠르게 보는 요약입니다. 자세한 설명은 `docs/02_architecture.md`를 기준 문서로 봅니다.
 
 ## Current Shape
 
-The app is organized around one user-facing Streamlit app and two background-processing paths.
-
 ```text
 Streamlit UI
-  -> QuizService / ConceptNoteService / IngestionJobService
+  -> QuizService / LearningLabService / LearningProgressService
+  -> ConceptNoteService / IngestionJobService / QuestionVectorStore
   -> PostgreSQL app DB
+  -> Chroma vector index
+  -> data/learning_progress.json
 
 Airflow DAGs
   -> PDF ingestion DAG
@@ -15,35 +18,71 @@ Airflow DAGs
   -> PostgreSQL app DB
 
 Ollama
-  -> qwen2.5:14b for text/study assistant
-  -> qwen3.5:9b for visual question parsing
+  -> text/study assistant
+  -> visual question parsing
 ```
 
 ## User-Facing Pages
 
-Keep the menu small:
+Keep the first screen light. The home page is a launcher, not a dashboard.
 
 ```text
 Home
-Problem solving
-Weak concept study
-Wrong/review
-Concept notes
-Processing status
-PDF upload
-Exam overview
-AI index
+Continue Study
+Focus Study
+Exam Study
+Dashboard
+Roadmap
+Theory Learning
+Learning Quiz
+Certification Questions
+Wrong/Review
+Concept Notes
+Processing Status
+Content Management
+PDF Upload
+Exam Overview
+AI Index
 ```
 
-`Processing status` is the single place for:
+## Study Flow
 
-- Airflow parsing jobs
-- question status counts
-- image-analysis backlog
-- concept-classification status
-- manual review for unusual patterns
+`Continue Study` remembers the selected Track and lets the learner keep going instead of stopping at a fixed daily quota.
 
-Avoid adding separate pages for parsing, auto-review, image analysis, or validation unless they become full workflows.
+```text
+Track
+  -> Certification
+  -> Roadmap / Lesson / Quiz / Practice
+  -> Certification Questions
+  -> Wrong Review
+  -> Dashboard
+```
+
+The current active Tracks are:
+
+- `Linux -> LFCS`
+- `Azure -> AZ-104`
+- `Tool Docs -> Docs Study`
+
+Future Tracks such as Git, Python, SQL, Docker, and Kubernetes are represented in the service data but hidden until ready.
+
+## Data Ownership
+
+```text
+PostgreSQL
+  Canonical app data: questions, answers, attempts, concept notes, ingestion jobs.
+
+Chroma
+  Search index: embeddings for similar question and document retrieval.
+
+data/learning_progress.json
+  Local learner state: preferred Track, study steps, activity counts.
+
+cert_study_app/demo_data/questions_seed.json
+  Deployable seed for Hugging Face Space.
+```
+
+Do not commit runtime data such as local DB files, Chroma indexes, Airflow logs, uploaded PDFs, or private `.env` files.
 
 ## Question Statuses
 
@@ -65,11 +104,8 @@ rejected
 ```
 
 The quiz repository treats only `approved` as playable.
-`needs_visual` and `needs_review` should not appear in normal quiz navigation.
 
 ## Metadata Split
-
-Question metadata is intentionally split:
 
 ```text
 question_type
@@ -78,49 +114,14 @@ question_type
 
 category / subcategory / concept_tags
   What the learner is studying.
-  Examples: network / nsg, compute_vm / vm, identity / rbac.
+  Examples: az104_networking / vnet_subnet, az104_compute / vm.
 ```
 
-Weak study should use `subcategory` first because it identifies the actual weak concept more precisely than broad `category`.
-Fallback to `category` only when subcategory is missing.
+Weak study should prefer `subcategory` because it is more precise than broad `category`.
 
-## Background Work
+## Cleanup Priorities
 
-PDF upload should create an `ingestion_jobs` row and trigger Airflow:
-
-```text
-cert_study_pdf_ingestion
-```
-
-Remaining image work should use:
-
-```text
-cert_study_visual_analysis
-```
-
-Streamlit should not run long image-analysis jobs directly. It should trigger Airflow and show status.
-
-## Database
-
-PostgreSQL is now the app DB in Docker and local `.env`:
-
-```text
-postgresql+pg8000://cert_study:cert_study@localhost:5432/cert_study
-```
-
-SQLite remains only as a fallback/default when `DATABASE_URL` is not set.
-
-Migration helper:
-
-```bash
-.venv/bin/python scripts/migrate_sqlite_to_postgres.py --replace
-```
-
-Use this after old SQLite-based background work finishes, or when importing legacy data.
-
-## Known Cleanup Priorities
-
-- Move PDF ingestion and visual analysis fully to PostgreSQL-backed Airflow after rebuilding containers.
-- Add explicit Airflow DAG run status display through the API instead of relying only on local job rows.
-- Replace ad-hoc manual fixes with a repeatable visual validation rule set.
-- Keep generated artifacts such as parsed JSON, question images, Chroma files, and DB files out of source commits unless intentionally versioned.
+- Move learning progress from JSON to PostgreSQL when multi-user support starts.
+- Keep Streamlit page routing names aligned with user-facing labels.
+- Keep long PDF/image processing in Airflow, not inside direct Streamlit requests.
+- Add more tests around Track progress, question category filters, and PWA/static file behavior.

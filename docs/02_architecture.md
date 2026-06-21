@@ -15,6 +15,8 @@
 | Streamlit | 사용자 화면 제공, PDF 업로드, 문제풀이 UI |
 | PostgreSQL | 문제, 보기, 정답, 해설, 사용자 풀이 기록 저장 |
 | Chroma | 문제 임베딩 저장, 유사 문제 검색 |
+| Learning Lab Service | Track, 로드맵, 이론 카드, 확인 퀴즈, 실습 샘플 제공 |
+| Learning Progress Service | 마지막 선택 Track, 이어서 공부 진행률, 누적 학습 단위 저장 |
 | Question Type Metadata | 다양한 문제 유형 이름을 내부 표준 유형으로 정리 |
 | Answer Normalizer | 객관식, 복수 선택, Yes/No, 순서형 답안을 비교 가능한 형태로 정규화 |
 | Airflow | PDF 처리, 파싱, 임베딩, 저장 작업의 파이프라인 관리 |
@@ -39,19 +41,29 @@
 
 ## 4. 사용자 관점 흐름
 
-사용자는 웹 화면에 접속한 뒤 문제를 풀거나, PDF를 업로드할 수 있습니다.
+사용자는 웹 화면에 접속한 뒤 이어서 공부, 집중 학습, 시험 대비, 대시보드, 문제풀이, PDF 업로드 기능을 사용할 수 있습니다.
 
 사용자 기능 흐름은 아래 이미지처럼 정리할 수 있습니다.
 
 ![사용자 기능 흐름](assets/user-flow.png)
 
-현재 구현은 문제풀이, PDF 업로드, 오답/복습, 개념 정리, 처리 현황, 시험 현황, AI 색인 흐름을 중심으로 구성되어 있습니다. 북마크는 향후 개선 기능으로 두고 있습니다.
+현재 구현은 홈을 단순 시작 화면으로 두고, 진도와 추천 복습은 별도 대시보드에서 확인하는 구조입니다. 문제풀이, PDF 업로드, 오답/복습, 개념 정리, 처리 현황, 시험 현황, AI 색인 흐름은 유지하며, 그 위에 Track 기반 이론 학습과 확인 퀴즈를 얹고 있습니다. 북마크는 향후 개선 기능으로 두고 있습니다.
 
 ## 5. 전체 서비스 흐름
 
 전체 서비스 흐름은 위 이미지처럼 사용자가 Streamlit 화면에 접속하고, PDF 업로드와 문제풀이 기능을 사용하는 형태입니다.
 
-현재 코드 기준으로는 Streamlit 화면이 `QuizService`, `IngestionJobService`, `QuestionVectorStore` 같은 서비스 계층을 호출하고, PDF 처리처럼 시간이 오래 걸리는 작업은 Airflow DAG와 PDF Ingestion Graph를 통해 단계별로 실행됩니다.
+현재 코드 기준으로는 Streamlit 화면이 `QuizService`, `LearningLabService`, `LearningProgressService`, `IngestionJobService`, `QuestionVectorStore` 같은 서비스 계층을 호출하고, PDF 처리처럼 시간이 오래 걸리는 작업은 Airflow DAG와 PDF Ingestion Graph를 통해 단계별로 실행됩니다.
+
+학습 화면 쪽은 다음처럼 나눕니다.
+
+| 화면 | 역할 |
+| --- | --- |
+| 홈 | 이어서 공부, 집중 학습, 시험 대비, 대시보드로 들어가는 가벼운 시작 화면 |
+| 이어서 공부 | 마지막으로 선택한 Track을 기준으로 이론, 퀴즈, 오답 복습을 계속 진행 |
+| 집중 학습 | 이론만 보기, 퀴즈만 풀기, 실습 집중처럼 원하는 학습 모드 선택 |
+| 시험 대비 | AZ-104 문제풀이, 세부개념 반복, 시험 모드 진입 |
+| 대시보드 | Track 진행률, 연속 학습일, 오늘/주간 누적 학습 단위, 추천 복습 확인 |
 
 문제풀이 흐름에서는 문제 유형이 여러 이름으로 들어올 수 있기 때문에 `question_type_metadata_service.py`에서 먼저 표준 유형으로 정리합니다. 예를 들어 `Hotspot (True/False)`는 내부적으로 Yes/No 진술형으로, `Hotspot (Drag and Drop)`은 매칭형으로 다룹니다.
 
@@ -90,6 +102,17 @@ PostgreSQL은 문제, 보기, 정답, 해설, 사용자 풀이 기록처럼 구�
 Chroma는 문제 본문을 벡터로 저장하여 유사 문제 검색에 사용합니다. 예를 들어 사용자가 특정 문제를 틀렸을 때, 비슷한 유형의 문제를 찾아 복습할 수 있도록 하기 위해 사용합니다.
 
 PostgreSQL은 기준 데이터 저장소이고, Chroma는 검색을 위한 보조 색인입니다. Chroma가 PostgreSQL을 대체하는 구조는 아닙니다.
+
+학습 진행 데이터는 현재 `data/learning_progress.json`에 저장합니다. 여기에는 마지막 선택 Track, 날짜별 학습 단계, 이론/퀴즈/실습/문제풀이/복습 활동 수가 들어갑니다. 이 파일은 개인 로컬 진행 상태에 가깝기 때문에 Git에 올리는 기준 데이터가 아니라 런타임 데이터로 봅니다.
+
+현재 저장 역할을 정리하면 다음과 같습니다.
+
+| 저장 위치 | 성격 | 예시 |
+| --- | --- | --- |
+| PostgreSQL | 기준 문제/풀이 데이터 | 문제, 정답, 해설, 풀이 기록 |
+| Chroma | 검색용 보조 색인 | 문제 임베딩, 유사 문제 검색 |
+| `data/learning_progress.json` | 개인 학습 진행 상태 | 선호 Track, 누적 학습 단위 |
+| `cert_study_app/demo_data/questions_seed.json` | 배포용 seed | Hugging Face 초기 문제 데이터 |
 
 ## 8. Airflow 사용 이유
 
@@ -151,6 +174,8 @@ Chroma는 별도 컨테이너라기보다 현재 프로젝트의 `chroma_db` 디
 - Docker 기반 실행 환경 구성
 - Airflow 기반 파이프라인 구조
 - Oracle Cloud Ubuntu 배포 준비
+- Track 기반 이어서 공부, 집중 학습, 시험 대비, 대시보드 기본 화면
+- 마지막 선택 Track 저장 및 누적 학습 단위 기록
 
 ## 12. 향후 개선 방향
 
@@ -161,6 +186,7 @@ Chroma는 별도 컨테이너라기보다 현재 프로젝트의 `chroma_db` 디
 - 오답노트 자동 생성
 - 북마크 기능
 - 카테고리별 문제 분류
+- 학습 진행 데이터를 JSON에서 DB 테이블로 이전
 - 문제 유형별 테스트 범위 확대
 - LLM 기반 해설 보조 생성
 - 유사 문제 추천

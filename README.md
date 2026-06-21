@@ -1,5 +1,5 @@
 ---
-title: Cert Study App
+title: Cert Study Lab
 emoji: 📚
 colorFrom: blue
 colorTo: green
@@ -8,11 +8,11 @@ app_port: 8501
 pinned: false
 ---
 
-# Cert Study App
+# Cert Study Lab
 
 자격증 시험 문제 PDF를 업로드하고, 파싱된 문제를 웹에서 풀 수 있도록 만드는 개인 개발 프로젝트입니다.
 
-현재는 PDF 처리 파이프라인, 문제 저장, 문제 풀이 화면, 오답/복습 흐름, 개념 정리, 유사 문제 검색 구조를 함께 실험하고 있습니다. 아직 완성된 서비스라기보다, 자격증 문제풀이 웹을 만들기 위해 기능과 구조를 단계적으로 다듬는 중입니다.
+현재는 PDF 처리 파이프라인, 문제 저장, 문제 풀이 화면, 오답/복습 흐름, 개념 정리, 유사 문제 검색 구조를 함께 실험하고 있습니다. 최근에는 기존 문제풀이 기능 위에 `이어서 공부`, `집중 학습`, `시험 대비`, 로드맵, 이론 학습, 확인 퀴즈, 실습하기, 진도율 화면을 얹어 학습 플랫폼 형태로 확장하고 있습니다. MVP의 상위 Track은 `Azure`와 `Linux`이며, 각 Track 아래에 `AZ-104`, `LFCS` 같은 목표 자격증을 연결합니다. 기본 집중 Track은 `Linux · LFCS`입니다.
 
 ## 프로젝트 목적
 
@@ -29,6 +29,22 @@ pinned: false
 - 문제 유형 표준화 및 정답 정규화 로직
 - 오답/복습 화면
 - 개념 정리 화면
+- 단순 시작 홈과 별도 대시보드 화면
+- 이어서 공부 / 집중 학습 / 시험 대비 모드 분리
+- Azure / Linux 로드맵
+- Azure 하위 AZ-104, Linux 하위 LFCS 계위
+- AZ-104 대분류/세부개념 필터 기반 반복 풀이
+- Git, Python, SQL, Docker, Kubernetes 확장 Track 구조
+- Tool Docs Track: Ollama, LangChain, Streamlit, Hugging Face 공식 문서 학습
+- 체크리스트형 기본 학습 흐름
+- 일별 학습 기록, 연속 학습일, 주간 학습량 표시
+- 마지막으로 선택한 Track 저장 및 재사용
+- 이론, 퀴즈, 실습, 문제풀이, 오답 복습을 `오늘 누적 n단위`로 기록
+- 세부개념 오답 기반 오늘 추천 복습
+- 관리자 화면 안쪽 AZ-104 분류 검수
+- 이론 카드와 확인 퀴즈 샘플
+- Linux fake terminal 실습 샘플
+- 시험 모드와 Track 진도율 기본 화면
 - Chroma 기반 유사 문제 검색 구조
 - Airflow 기반 PDF 처리 작업 관리
 - Docker Compose 기반 로컬 실행 환경
@@ -57,8 +73,9 @@ pinned: false
 7. [트러블슈팅](docs/07_troubleshooting.md)
 8. [GitHub / Hugging Face 배포 자동화](docs/08_publish_automation.md)
 9. [모바일 앱처럼 사용하기](docs/09_mobile_pwa.md)
-10. [개발일지](docs/devlog/2026-06-07.md)
-11. [변경 이력](CHANGELOG.md)
+10. [Cert Study Lab 확장 프롬프트](docs/10_cert_study_lab_prompt.md)
+11. [개발일지](docs/devlog/2026-06-07.md)
+12. [변경 이력](CHANGELOG.md)
 
 ## 실행 방법
 

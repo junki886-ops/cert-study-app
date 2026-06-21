@@ -216,6 +216,18 @@ class QuizService:
             return None
         return question_payload(question, self.repo.count(source))
 
+    def get_random_unit_question(
+        self,
+        source: Optional[str] = None,
+        category: Optional[str] = None,
+        subcategory: Optional[str] = None,
+        exclude_id: Optional[int] = None,
+    ):
+        question = self.repo.random_for_unit(source, category, subcategory, exclude_id)
+        if not question:
+            return None
+        return question_payload(question, self.repo.count(source))
+
     def max_question_number(self, source: Optional[str] = None) -> int:
         return self.repo.max_question_number(source)
 

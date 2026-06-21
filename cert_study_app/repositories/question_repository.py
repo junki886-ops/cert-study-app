@@ -46,6 +46,22 @@ class QuestionRepository:
             query = query.filter(Question.id != exclude_id)
         return query.order_by(func.random()).first()
 
+    def random_for_unit(
+        self,
+        source: Optional[str] = None,
+        category: Optional[str] = None,
+        subcategory: Optional[str] = None,
+        exclude_id: Optional[int] = None,
+    ):
+        query = self._scope(source)
+        if exclude_id:
+            query = query.filter(Question.id != exclude_id)
+        if category:
+            query = query.filter(Question.category == category)
+        if subcategory:
+            query = query.filter(Question.subcategory == subcategory)
+        return query.order_by(func.random()).first()
+
     def next_after(self, current_id: int, source: Optional[str] = None):
         return (
             self._scope(source)

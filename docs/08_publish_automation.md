@@ -179,6 +179,24 @@ git push origin main
 
 Git은 커밋마다 날짜와 변경 파일을 남깁니다. 따라서 일자별 변경 내역은 언제든 확인할 수 있습니다.
 
+현재 버전 관리는 아래처럼 나뉩니다.
+
+| 위치 | 남는 기록 | 용도 |
+| --- | --- | --- |
+| Git commit | 전체 코드 변경 이력, 작성자, 날짜, 커밋 메시지 | 이전 버전 확인과 되돌리기 |
+| GitHub `main` | 원격 백업과 포트폴리오 기록 | 외부에서 프로젝트 이력 확인 |
+| GitHub Actions | 테스트/동기화 실행 결과 | 배포 성공/실패 확인 |
+| Hugging Face Space | 실행용 현재 스냅샷 | 앱 배포와 실행 |
+| `CHANGELOG.md` | 사람이 읽기 쉬운 주요 변경 요약 | 버전별 기능 기록 |
+
+즉, “이전 버전이 남는 곳”은 Git/GitHub 커밋 히스토리입니다. Hugging Face는 GitHub의 전체 개발 히스토리를 그대로 보관하는 저장소라기보다, 실행 가능한 현재 파일 스냅샷을 받는 배포 대상으로 보는 것이 맞습니다.
+
+최근 커밋 목록:
+
+```bash
+git log --oneline --decorate --max-count=10
+```
+
 오늘 변경 내역:
 
 ```bash
@@ -195,6 +213,13 @@ scripts/git_daily_changes.sh 2026-06-07
 
 ```bash
 git show <commit-hash>
+```
+
+특정 시점에 이름표를 붙이고 싶다면 tag를 사용할 수 있습니다.
+
+```bash
+git tag v2.1-study-flow
+git push origin v2.1-study-flow
 ```
 
 ## 주의사항
