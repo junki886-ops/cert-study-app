@@ -1,0 +1,428 @@
+[
+  {
+    "id": "linux-lab-31",
+    "title": "로그 마지막 20줄 확인",
+    "task_description": "`/var/log/syslog` 파일의 마지막 20줄을 확인하세요.",
+    "expected_command": "tail -n 20 /var/log/syslog",
+    "grading_conditions": [
+      "tail",
+      "-n",
+      "20",
+      "/var/log/syslog"
+    ],
+    "hint": "tail에 -n 옵션으로 출력할 줄 수를 지정할 수 있습니다.",
+    "explanation": "`tail -n 20 /var/log/syslog`는 파일의 마지막 20줄을 출력합니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-32",
+    "title": "로그 파일 실시간 추적",
+    "task_description": "`/var/log/syslog` 파일에 추가되는 내용을 실시간으로 추적하세요.",
+    "expected_command": "tail -f /var/log/syslog",
+    "grading_conditions": [
+      "tail",
+      "-f",
+      "/var/log/syslog"
+    ],
+    "hint": "`-f` 옵션은 follow의 약자로 파일 끝을 실시간으로 추적합니다.",
+    "explanation": "`tail -f /var/log/syslog`는 파일에 추가되는 내용을 실시간으로 계속 출력합니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-33",
+    "title": "파일 상위 10줄 확인",
+    "task_description": "`/etc/passwd` 파일의 처음 10줄을 확인하세요.",
+    "expected_command": "head /etc/passwd",
+    "grading_conditions": [
+      "head",
+      "/etc/passwd"
+    ],
+    "hint": "head는 기본으로 처음 10줄을 출력합니다.",
+    "explanation": "`head /etc/passwd`는 파일의 처음 10줄을 출력합니다. `-n`으로 줄 수를 지정할 수도 있습니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-34",
+    "title": "sed로 텍스트 교체",
+    "task_description": "`config.txt`에서 `old_value`를 `new_value`로 모두 교체해 출력하세요.",
+    "expected_command": "sed 's/old_value/new_value/g' config.txt",
+    "grading_conditions": [
+      "sed",
+      "old_value",
+      "new_value",
+      "config.txt"
+    ],
+    "hint": "`s/패턴/교체/g` 형태로 교체 명령을 작성합니다. `g`는 한 줄에서 모두 교체합니다.",
+    "explanation": "`sed 's/old_value/new_value/g' config.txt`는 파일에서 old_value를 모두 new_value로 교체해 출력합니다.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "linux-lab-35",
+    "title": "sed 인플레이스 수정",
+    "task_description": "`nginx.conf`에서 `localhost`를 `127.0.0.1`로 직접 수정하세요.",
+    "expected_command": "sed -i 's/localhost/127.0.0.1/g' nginx.conf",
+    "grading_conditions": [
+      "sed",
+      "-i",
+      "localhost",
+      "127.0.0.1",
+      "nginx.conf"
+    ],
+    "hint": "`-i` 옵션은 표준 출력 대신 파일을 직접 수정합니다.",
+    "explanation": "`sed -i 's/localhost/127.0.0.1/g' nginx.conf`는 nginx.conf 파일을 직접 수정합니다.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "linux-lab-36",
+    "title": "cut으로 사용자 이름 추출",
+    "task_description": "`/etc/passwd`에서 콜론(`:`) 구분자의 첫 번째 필드(사용자 이름)만 추출하세요.",
+    "expected_command": "cut -d':' -f1 /etc/passwd",
+    "grading_conditions": [
+      "cut",
+      "-d",
+      "-f1",
+      "/etc/passwd"
+    ],
+    "hint": "`-d`로 구분자를, `-f`로 출력할 필드를 지정합니다.",
+    "explanation": "`cut -d':' -f1 /etc/passwd`는 콜론 구분자에서 첫 번째 필드(사용자 이름)를 추출합니다.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "linux-lab-37",
+    "title": "sort와 uniq으로 중복 제거",
+    "task_description": "`access.log`에서 중복 줄을 제거하고 알파벳 순으로 정렬해 출력하세요.",
+    "expected_command": "sort access.log | uniq",
+    "grading_conditions": [
+      "sort",
+      "access.log",
+      "uniq"
+    ],
+    "hint": "`uniq`은 연속된 중복만 제거하므로 먼저 `sort`가 필요합니다.",
+    "explanation": "`sort access.log | uniq`은 파일을 정렬한 뒤 중복 줄을 제거합니다.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "linux-lab-38",
+    "title": "wc로 줄 수 세기",
+    "task_description": "`/var/log/auth.log` 파일의 줄 수를 세세요.",
+    "expected_command": "wc -l /var/log/auth.log",
+    "grading_conditions": [
+      "wc",
+      "-l",
+      "/var/log/auth.log"
+    ],
+    "hint": "`wc -l`은 줄 수, `-w`는 단어 수, `-c`는 바이트 수를 셉니다.",
+    "explanation": "`wc -l /var/log/auth.log`는 파일의 줄 수를 출력합니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-39",
+    "title": "awk로 두 번째 필드 출력",
+    "task_description": "`access.log`의 각 줄에서 두 번째 필드를 출력하세요.",
+    "expected_command": "awk '{print $2}' access.log",
+    "grading_conditions": [
+      "awk",
+      "$2",
+      "access.log"
+    ],
+    "hint": "awk에서 `$1`, `$2`는 공백으로 구분된 각 필드를 의미합니다.",
+    "explanation": "`awk '{print $2}' access.log`는 각 줄의 두 번째 필드를 출력합니다.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "linux-lab-40",
+    "title": "심볼릭 링크 생성",
+    "task_description": "`/etc/nginx/nginx.conf`를 가리키는 심볼릭 링크 `~/nginx.conf`를 만드세요.",
+    "expected_command": "ln -s /etc/nginx/nginx.conf ~/nginx.conf",
+    "grading_conditions": [
+      "ln",
+      "-s",
+      "/etc/nginx/nginx.conf",
+      "nginx.conf"
+    ],
+    "hint": "`ln -s 원본 링크이름` 형태로 심볼릭 링크를 만듭니다.",
+    "explanation": "`ln -s /etc/nginx/nginx.conf ~/nginx.conf`는 홈 디렉터리에 nginx.conf 심볼릭 링크를 만듭니다.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "linux-lab-41",
+    "title": "백그라운드 작업 목록 확인",
+    "task_description": "현재 쉘의 백그라운드 작업 목록을 확인하세요.",
+    "expected_command": "jobs",
+    "grading_conditions": [
+      "jobs"
+    ],
+    "hint": "`jobs` 명령으로 현재 쉘의 백그라운드 작업 목록을 볼 수 있습니다.",
+    "explanation": "`jobs`는 현재 쉘에서 `&`로 실행되거나 Ctrl+Z로 정지된 작업 목록을 보여줍니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-42",
+    "title": "nohup 백그라운드 실행",
+    "task_description": "`long_process.sh` 스크립트를 터미널이 닫혀도 계속 실행되도록 백그라운드로 실행하세요.",
+    "expected_command": "nohup ./long_process.sh &",
+    "grading_conditions": [
+      "nohup",
+      "long_process.sh",
+      "&"
+    ],
+    "hint": "`nohup`은 HUP 시그널을 무시해 터미널 종료 후에도 계속 실행되게 합니다.",
+    "explanation": "`nohup ./long_process.sh &`는 터미널이 닫혀도 계속 실행됩니다. 출력은 기본적으로 nohup.out에 저장됩니다.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "linux-lab-43",
+    "title": "권한 보존 파일 백업",
+    "task_description": "`/etc/passwd` 파일을 권한·소유자·타임스탬프를 보존해 `/tmp/passwd.bak`으로 복사하세요.",
+    "expected_command": "cp -a /etc/passwd /tmp/passwd.bak",
+    "grading_conditions": [
+      "cp",
+      "-a",
+      "/etc/passwd",
+      "/tmp/passwd.bak"
+    ],
+    "hint": "일반 `cp`는 속성을 보존하지 않습니다. 백업 시에는 `-a` 옵션을 사용하세요.",
+    "explanation": "`cp -a`는 `-dR --preserve=all`의 단축으로 심볼릭 링크·권한·소유자·타임스탬프를 모두 보존합니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-44",
+    "title": "디렉터리 재귀 삭제 전 확인",
+    "task_description": "`/tmp/testdir` 디렉터리를 삭제 전 각 파일을 확인하면서 제거하세요.",
+    "expected_command": "rm -ri /tmp/testdir",
+    "grading_conditions": [
+      "rm",
+      "-r",
+      "-i",
+      "/tmp/testdir"
+    ],
+    "hint": "`-r`은 재귀 삭제, `-i`는 각 파일마다 확인을 요청합니다.",
+    "explanation": "중요 데이터가 있는 디렉터리를 삭제할 때는 `-i`로 한 파일씩 확인하는 습관이 사고를 방지합니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-45",
+    "title": "MBR 파티션 생성 (fdisk)",
+    "task_description": "`/dev/sdb`에 fdisk를 사용해 20GB 주 파티션을 생성하고 저장하세요. (인터랙티브: n → p → 1 → Enter → +20G → w)",
+    "expected_command": "fdisk /dev/sdb",
+    "grading_conditions": [
+      "fdisk",
+      "/dev/sdb"
+    ],
+    "hint": "fdisk 인터랙티브 모드에서 `n`(새 파티션), `p`(주), `1`(번호), Enter(기본 시작), `+20G`(크기), `w`(저장) 순서로 입력합니다.",
+    "explanation": "fdisk는 MBR 방식으로 최대 2TB 디스크에 적합합니다. 변경 사항은 `w`를 입력해야 실제 디스크에 기록됩니다.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "linux-lab-46",
+    "title": "ext4 파일시스템 생성",
+    "task_description": "`/dev/sdb1` 파티션에 ext4 파일시스템을 생성하세요.",
+    "expected_command": "mkfs.ext4 /dev/sdb1",
+    "grading_conditions": [
+      "mkfs.ext4",
+      "/dev/sdb1"
+    ],
+    "hint": "`mkfs.ext4` 또는 `mkfs -t ext4`를 사용합니다.",
+    "explanation": "파티션 생성 후 파일시스템을 만들어야 실제 데이터를 저장할 수 있습니다. 포맷하면 기존 데이터가 삭제되므로 대상 디바이스를 반드시 확인하세요.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-47",
+    "title": "파일시스템 UUID 확인",
+    "task_description": "`/dev/sdb1`의 UUID를 확인하세요.",
+    "expected_command": "blkid /dev/sdb1",
+    "grading_conditions": [
+      "blkid",
+      "/dev/sdb1"
+    ],
+    "hint": "`blkid`는 블록 디바이스의 UUID와 파일시스템 유형을 출력합니다.",
+    "explanation": "fstab에 장치명 대신 UUID를 사용하면 재부팅 시 디바이스 순서가 바뀌어도 올바른 파티션이 마운트됩니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-48",
+    "title": "그룹 생성 및 사용자 추가",
+    "task_description": "`devteam` 그룹을 만들고 `alice`를 기존 그룹을 유지한 채 추가하세요.",
+    "expected_command": "groupadd devteam && usermod -aG devteam alice",
+    "grading_conditions": [
+      "groupadd devteam",
+      "usermod",
+      "-aG",
+      "devteam",
+      "alice"
+    ],
+    "hint": "그룹 생성은 `groupadd`, 사용자를 보조 그룹에 추가할 때는 `-aG`(append)를 반드시 사용하세요.",
+    "explanation": "`-a` 없이 `-G`만 쓰면 alice의 기존 보조 그룹이 모두 devteam으로 교체됩니다. `-aG`가 안전합니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-49",
+    "title": "첫 로그인 시 비밀번호 변경 강제",
+    "task_description": "새 사용자 `bob`이 첫 로그인 시 반드시 비밀번호를 변경하도록 설정하세요.",
+    "expected_command": "chage -d 0 bob",
+    "grading_conditions": [
+      "chage",
+      "-d 0",
+      "bob"
+    ],
+    "hint": "`chage -d 0`은 마지막 비밀번호 변경일을 에포크로 설정해 즉시 변경을 요구합니다.",
+    "explanation": "다음 로그인 시 PAM이 비밀번호 만료를 감지하고 새 비밀번호 입력을 요구합니다. 신규 계정 발급 시 표준 보안 절차입니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-50",
+    "title": "systemd 서비스 파일 생성 및 활성화",
+    "task_description": "`/usr/local/bin/myapp`을 실행하는 `myapp.service`를 만들고 부팅 시 자동 시작하도록 활성화하세요.",
+    "expected_command": "systemctl daemon-reload && systemctl enable --now myapp",
+    "grading_conditions": [
+      "systemctl daemon-reload",
+      "systemctl enable",
+      "myapp"
+    ],
+    "hint": "유닛 파일을 `/etc/systemd/system/myapp.service`에 작성한 뒤 daemon-reload → enable --now 순서로 실행합니다.",
+    "explanation": "`daemon-reload`는 변경된 유닛 파일을 systemd가 인식하게 합니다. `enable --now`는 부팅 시 자동 시작 등록과 즉시 실행을 한 번에 처리합니다.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "linux-lab-51",
+    "title": "일회성 작업 예약 (at)",
+    "task_description": "2시간 후에 `/usr/local/bin/backup.sh`를 한 번 실행하도록 예약하세요.",
+    "expected_command": "echo '/usr/local/bin/backup.sh' | at now + 2 hours",
+    "grading_conditions": [
+      "at",
+      "now + 2 hours"
+    ],
+    "hint": "`echo '명령' | at now + 2 hours` 형식을 사용합니다. `at` 명령 후 Ctrl+D로도 입력할 수 있습니다.",
+    "explanation": "`at`은 일회성 스케줄링 도구입니다. 반복 실행이 필요하면 cron을 사용하세요. 예약 목록은 `atq`로 확인합니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-52",
+    "title": "Docker 컨테이너 실행 및 확인",
+    "task_description": "nginx 이미지를 백그라운드로 실행하고 호스트 포트 8080을 컨테이너 포트 80에 연결한 뒤, 실행 중인 컨테이너를 확인하세요.",
+    "expected_command": "docker run -d -p 8080:80 nginx && docker ps",
+    "grading_conditions": [
+      "docker run",
+      "-d",
+      "-p 8080:80",
+      "nginx",
+      "docker ps"
+    ],
+    "hint": "`-d`는 백그라운드(detach), `-p 호스트:컨테이너`로 포트를 매핑합니다.",
+    "explanation": "컨테이너가 실행 중이면 `docker ps`에서 확인됩니다. 중지된 컨테이너까지 보려면 `docker ps -a`를 사용합니다.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "linux-lab-53",
+    "title": "[시나리오] 신규 디스크 전체 설정 (파티션→포맷→마운트→fstab)",
+    "task_description": "신규 디스크 `/dev/sdb`에 파티션을 만들고 ext4로 포맷한 뒤 `/data`에 영구 마운트하는 전체 절차를 완성하세요.\n\n단계:\n1. `/dev/sdb`에 단일 주 파티션 생성 (fdisk)\n2. `/dev/sdb1`에 ext4 파일시스템 생성\n3. `/data` 마운트 포인트 생성\n4. `/dev/sdb1`을 `/data`에 마운트\n5. `/etc/fstab`에 UUID 기반으로 등록 후 `mount -a`로 검증\n\n이 단계 중 `blkid /dev/sdb1`의 목적을 서술하세요.",
+    "expected_command": "fdisk /dev/sdb && mkfs.ext4 /dev/sdb1 && mkdir /data && mount /dev/sdb1 /data && blkid /dev/sdb1",
+    "grading_conditions": [
+      "fdisk /dev/sdb",
+      "mkfs.ext4 /dev/sdb1",
+      "mkdir /data",
+      "mount /dev/sdb1 /data",
+      "blkid /dev/sdb1"
+    ],
+    "hint": "순서가 중요합니다: fdisk → mkfs → mkdir → mount → blkid(UUID 확인) → fstab 등록 → mount -a",
+    "explanation": "이 흐름은 LFCS 실기에서 가장 자주 나오는 복합 스토리지 시나리오입니다. fstab에 UUID를 쓰는 이유는 재부팅 시 디바이스 순서가 바뀌어도 올바른 파티션이 마운트되도록 보장하기 위해서입니다.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "linux-lab-54",
+    "title": "[시나리오] LVM 볼륨 확장 (PV→VG 확장→LV 확장→FS 확장)",
+    "task_description": "기존 VG `vg_data`에 새 PV `/dev/sdc`를 추가하고, LV `lv_app`을 10GB 늘린 뒤 ext4 파일시스템까지 확장하세요.\n\n단계:\n1. `/dev/sdc`를 PV로 초기화\n2. `/dev/sdc`를 `vg_data`에 추가\n3. `lv_app`을 10GB 증가\n4. ext4 파일시스템 확장 (무중단)",
+    "expected_command": "pvcreate /dev/sdc && vgextend vg_data /dev/sdc && lvextend -L +10G /dev/vg_data/lv_app && resize2fs /dev/vg_data/lv_app",
+    "grading_conditions": [
+      "pvcreate /dev/sdc",
+      "vgextend vg_data /dev/sdc",
+      "lvextend",
+      "+10G",
+      "/dev/vg_data/lv_app",
+      "resize2fs"
+    ],
+    "hint": "LVM 확장 순서: pvcreate → vgextend → lvextend → resize2fs. `lvextend -r` 옵션으로 resize2fs를 통합할 수도 있습니다.",
+    "explanation": "LVM의 강점은 서비스 중단 없이 볼륨을 확장할 수 있다는 점입니다. `lvextend -r`은 LV 확장과 파일시스템 확장을 한 번에 처리합니다.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "linux-lab-55",
+    "title": "[시나리오] 팀 공유 디렉터리 보안 설정 (그룹+SGID+ACL)",
+    "task_description": "개발팀 공유 디렉터리 `/srv/devteam`을 설정하세요.\n\n요구사항:\n1. `devteam` 그룹 생성\n2. `alice`와 `bob`을 `devteam`에 추가\n3. `/srv/devteam` 소유 그룹을 `devteam`으로 설정\n4. 그룹에 rwx 권한 부여, 기타 사용자는 접근 불가\n5. 새로 생성되는 파일도 자동으로 `devteam` 소유가 되도록 SGID 설정\n6. 오직 `alice`에게만 ACL로 추가 실행 권한 부여",
+    "expected_command": "groupadd devteam && usermod -aG devteam alice && usermod -aG devteam bob && chgrp devteam /srv/devteam && chmod 2770 /srv/devteam && setfacl -m u:alice:rwx /srv/devteam",
+    "grading_conditions": [
+      "groupadd devteam",
+      "usermod -aG devteam alice",
+      "usermod -aG devteam bob",
+      "chgrp devteam",
+      "chmod 2770",
+      "setfacl -m u:alice"
+    ],
+    "hint": "SGID 비트는 chmod 앞에 2를 붙입니다(예: 2770). ACL은 기본 권한과 독립적으로 동작합니다.",
+    "explanation": "2770 = SGID(2) + 소유자rwx(7) + 그룹rwx(7) + 기타없음(0). SGID가 있으면 해당 디렉터리에서 생성된 파일이 자동으로 부모 디렉터리의 그룹을 상속합니다.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "linux-lab-56",
+    "title": "[시나리오] 커스텀 systemd 서비스 등록 및 보안 강화",
+    "task_description": "`/opt/myapp/run.sh` 스크립트를 systemd 서비스로 등록하세요.\n\n요구사항:\n1. `/etc/systemd/system/myapp.service` 파일 작성\n2. 전용 시스템 계정 `myapp`으로 실행 (로그인 불가)\n3. 네트워크 준비 후 시작 (`After=network.target`)\n4. 실패 시 자동 재시작\n5. 부팅 시 자동 시작 설정\n\n작성 후 즉시 시작까지 완료하세요.",
+    "expected_command": "useradd -r -s /sbin/nologin myapp && systemctl daemon-reload && systemctl enable --now myapp",
+    "grading_conditions": [
+      "useradd -r",
+      "-s /sbin/nologin myapp",
+      "systemctl daemon-reload",
+      "systemctl enable",
+      "myapp"
+    ],
+    "hint": "시스템 서비스 계정은 `useradd -r`(시스템 계정)과 `-s /sbin/nologin`(로그인 차단)으로 생성합니다. 유닛 파일 작성 후 daemon-reload 필수.",
+    "explanation": "운영 환경에서 서비스는 전용 최소 권한 계정으로 실행하는 것이 보안 모범 사례입니다. `-r` 플래그는 시스템 계정용 낮은 UID를 부여합니다.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "linux-lab-57",
+    "title": "[시나리오] SSH 보안 강화 (키 인증 전환 + 비밀번호 차단)",
+    "task_description": "서버 SSH를 키 기반 인증으로 전환하고 비밀번호 로그인을 차단하세요.\n\n단계:\n1. 로컬에서 ED25519 키 쌍 생성\n2. 공개 키를 서버 `alice` 계정에 복사 (`ssh-copy-id`)\n3. `/etc/ssh/sshd_config`에서:\n   - `PasswordAuthentication no`\n   - `PermitRootLogin prohibit-password`\n4. sshd 재시작 전 설정 문법 검증\n5. sshd 재시작",
+    "expected_command": "ssh-keygen -t ed25519 && ssh-copy-id alice@server && sshd -t && systemctl restart sshd",
+    "grading_conditions": [
+      "ssh-keygen -t ed25519",
+      "ssh-copy-id",
+      "sshd -t",
+      "systemctl restart sshd"
+    ],
+    "hint": "`sshd -t`는 설정 파일 문법을 검증합니다. 재시작 전에 반드시 실행해 잠금 방지.",
+    "explanation": "비밀번호 인증을 끄기 전 키 인증이 작동하는지 반드시 확인해야 합니다. `sshd -t` 실패 시 재시작하면 서버에 접속 불가 상태가 될 수 있습니다.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "linux-lab-58",
+    "title": "[시나리오] 브루트포스 IP 탐지 후 방화벽 차단",
+    "task_description": "`/var/log/auth.log`를 분석해 SSH 로그인 실패 IP를 찾고 ufw로 차단하세요.\n\n단계:\n1. auth.log에서 'Failed' 포함 줄의 IP(필드 11)를 추출\n2. 횟수 기준 내림차순 정렬\n3. 상위 IP를 ufw deny로 차단\n4. ufw 규칙 확인",
+    "expected_command": "grep 'Failed' /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn | head -5",
+    "grading_conditions": [
+      "grep 'Failed' /var/log/auth.log",
+      "awk",
+      "sort",
+      "uniq -c",
+      "sort -rn"
+    ],
+    "hint": "grep→awk→sort→uniq -c→sort -rn 파이프라인으로 IP별 실패 횟수를 집계합니다.",
+    "explanation": "이 파이프라인은 보안 분석의 기본 패턴입니다. 탐지된 IP는 `ufw deny from 1.2.3.4`로 차단합니다. fail2ban이 이 과정을 자동화합니다.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "linux-lab-59",
+    "title": "[시나리오] Docker 컨테이너 웹 서버 배포 및 로그 확인",
+    "task_description": "nginx 컨테이너를 배포하고 운영 상태를 검증하세요.\n\n단계:\n1. nginx:latest 이미지 pull\n2. 이름 `webserver`, 호스트 8080→컨테이너 80, 백그라운드로 실행\n3. 컨테이너 실행 상태 확인\n4. `curl localhost:8080`으로 응답 확인\n5. 컨테이너 로그 마지막 20줄 확인",
+    "expected_command": "docker pull nginx:latest && docker run -d -p 8080:80 --name webserver nginx && docker ps && curl localhost:8080 && docker logs --tail 20 webserver",
+    "grading_conditions": [
+      "docker pull nginx",
+      "docker run -d -p 8080:80 --name webserver nginx",
+      "docker ps",
+      "curl localhost:8080",
+      "docker logs --tail 20 webserver"
+    ],
+    "hint": "`docker logs --tail N`으로 최근 N줄만 볼 수 있습니다. `--follow`를 추가하면 실시간 스트리밍됩니다.",
+    "explanation": "컨테이너 배포 후 ps로 상태, curl로 응답, logs로 내부 동작을 확인하는 3단계 검증은 운영 환경 표준 절차입니다.",
+    "difficulty": "hard"
+  }
+]

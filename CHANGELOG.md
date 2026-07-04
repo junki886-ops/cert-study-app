@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-07-04 (2)
+
+- Set difficulty (easy/medium/hard) on 49 Linux quizzes that were previously unclassified.
+- Added `level` (입문/중급/고급) to all 50 Azure lessons (was None for all).
+- Linked `related_practices` on 20 Azure lessons to their corresponding practice task IDs.
+- Added cumulative lesson/quiz/practice progress count (N/총개수) to home mode cards.
+- Added overall quiz progress bar (퀴즈 N/총개수 완료) to the top of the `확인 퀴즈` screen.
+- Added overall practice progress bar (실습 N/총개수 완료) to the top of the `실습하기` screen.
+- Added "관련 이론 다시 보기" button on practice failure, routing to the linked lesson (reverse `related_practices` lookup).
+
 ## 2026-07-04
 
 - Fixed AI quiz assistant crashing the page when ChromaDB collection is empty (added `min(k, count)` guard).

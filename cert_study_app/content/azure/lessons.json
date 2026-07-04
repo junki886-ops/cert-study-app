@@ -1,0 +1,1213 @@
+[
+  {
+    "id": "azure-rg",
+    "certification": "AZ-104",
+    "title": "Resource Group — 리소스 그룹",
+    "summary": "Azure 리소스를 논리적으로 묶는 컨테이너입니다. 동일 RG의 리소스는 함께 배포·관리·삭제되며, 위치(region)가 서로 달라도 같은 RG에 속할 수 있습니다.",
+    "example": "az group create --name myRG --location koreacentral\naz group list --output table\naz group delete --name myRG --yes",
+    "common_mistake": "RG를 삭제하면 안에 속한 모든 리소스가 함께 삭제됩니다. RG 위치와 내부 리소스 위치는 별개입니다.",
+    "keywords": [
+      "resource group",
+      "container",
+      "lifecycle",
+      "region",
+      "az group"
+    ],
+    "source_id": "azure-vm-overview",
+    "details": [
+      "RG는 리소스의 수명 주기를 함께 관리하기 위한 단위입니다. 프로젝트별, 환경별(dev/prod), 또는 팀별로 분리하는 것이 일반적입니다.",
+      "RG 자체의 위치는 메타데이터 저장 위치이며, 내부 리소스는 다른 region에 있어도 됩니다.",
+      "시험 패턴: RG 삭제 시 영향 범위, RG에 RBAC·Lock·Tag를 적용하는 시나리오, RG 이동 제한 사항이 출제됩니다."
+    ],
+    "level": "입문",
+    "related_practices": [
+      "azure-lab-1"
+    ]
+  },
+  {
+    "id": "azure-storage",
+    "certification": "AZ-104",
+    "title": "Storage Account — 스토리지 계정",
+    "summary": "Blob, File, Queue, Table 4가지 스토리지 서비스를 제공하는 최상위 네임스페이스입니다. SKU(Standard/Premium)와 중복성(LRS/GRS 등)을 생성 시 결정합니다.",
+    "example": "az storage account create \\\n  --name mystorageacct \\\n  --resource-group myRG \\\n  --sku Standard_LRS \\\n  --kind StorageV2",
+    "common_mistake": "Storage Account 이름은 전 세계에서 유일해야 하며 소문자·숫자만 사용 가능합니다(3~24자). SKU는 생성 후 변경할 수 없습니다.",
+    "keywords": [
+      "storage account",
+      "Blob",
+      "Files",
+      "LRS",
+      "GRS",
+      "SKU",
+      "StorageV2"
+    ],
+    "source_id": "azure-storage-account",
+    "details": [
+      "StorageV2(범용 v2)가 현재 권장 형식으로 모든 스토리지 서비스와 최신 기능을 지원합니다.",
+      "중복성: LRS(단일 datacenter 3복제), ZRS(3 AZ), GRS(다른 region으로 비동기 복제), GZRS(ZRS+GRS).",
+      "시험 패턴: 중복성 수준별 특징, 스토리지 계정 종류(Blob전용/StorageV2 등), 보안 설정(HTTPS 강제, 방화벽) 문제가 출제됩니다."
+    ],
+    "level": "입문",
+    "related_practices": [
+      "azure-lab-2"
+    ]
+  },
+  {
+    "id": "azure-vnet",
+    "certification": "AZ-104",
+    "title": "Virtual Network — 가상 네트워크",
+    "summary": "Azure에서 리소스가 통신하는 격리된 사설 네트워크입니다. 서브넷으로 나뉘며, 온프레미스 연결(VPN Gateway, ExpressRoute)과 피어링을 통해 확장합니다.",
+    "example": "az network vnet create \\\n  --name myVNet \\\n  --address-prefix 10.0.0.0/16 \\\n  --subnet-name default \\\n  --subnet-prefix 10.0.0.0/24",
+    "common_mistake": "VNet 주소 공간이 겹치면 피어링이 불가능합니다. 설계 초기에 IP 범위를 서로 겹치지 않게 잡아야 합니다.",
+    "keywords": [
+      "VNet",
+      "subnet",
+      "address space",
+      "CIDR",
+      "peering",
+      "NSG"
+    ],
+    "source_id": "azure-vnet-overview",
+    "details": [
+      "VNet 내 모든 리소스는 기본적으로 서로 통신 가능합니다. 외부 인터넷 통신은 Public IP 또는 NAT Gateway를 통합니다.",
+      "서브넷은 VNet 주소 공간의 일부. Azure가 각 서브넷에서 5개 IP를 예약합니다(첫 4개 + 마지막).",
+      "시험 패턴: VNet/서브넷 주소 범위 계산, NSG와 서브넷 연결, 피어링 조건(주소 비중첩) 문제가 자주 출제됩니다."
+    ],
+    "level": "입문",
+    "related_practices": [
+      "azure-lab-3"
+    ]
+  },
+  {
+    "id": "azure-rbac",
+    "certification": "AZ-104",
+    "title": "Azure RBAC — 역할 기반 접근 제어",
+    "summary": "누가(Who), 어떤 리소스에(Scope), 무엇을 할 수 있는지(Role)를 정의합니다. 역할 할당은 구독·RG·리소스 레벨에서 상속됩니다.",
+    "example": "az role assignment create \\\n  --assignee alice@example.com \\\n  --role 'Contributor' \\\n  --scope /subscriptions/SUB_ID/resourceGroups/myRG",
+    "common_mistake": "RBAC는 관리 평면(Azure Portal/API) 접근 제어입니다. VM 내부 OS 접근이나 Storage 데이터 접근은 별도 설정이 필요합니다.",
+    "keywords": [
+      "RBAC",
+      "role assignment",
+      "Owner",
+      "Contributor",
+      "Reader",
+      "scope",
+      "principal"
+    ],
+    "source_id": "azure-rbac-overview",
+    "details": [
+      "내장 역할 3가지: Owner(모든 권한+역할 할당), Contributor(리소스 CRUD, 역할 할당 불가), Reader(읽기만).",
+      "역할 할당 범위: 관리 그룹 > 구독 > RG > 리소스. 상위 범위 역할은 하위로 상속됩니다.",
+      "시험 패턴: 최소 권한 원칙에 따른 역할 선택, 범위별 역할 상속 결과, Owner vs Contributor 차이 문제가 자주 출제됩니다."
+    ],
+    "level": "입문",
+    "related_practices": [
+      "azure-lab-5"
+    ]
+  },
+  {
+    "id": "azure-policy",
+    "certification": "AZ-104",
+    "title": "Azure Policy — 정책",
+    "summary": "리소스가 조직의 규정을 준수하도록 강제합니다. 특정 region만 허용, 태그 강제, SKU 제한 등을 정책 정의로 만들어 구독·RG에 할당합니다.",
+    "example": "# 허용 location 제한 정책 할당 예\naz policy assignment create \\\n  --name 'allowed-locations' \\\n  --policy 'e56962a6-4747-49cd-b67b-bf8b01975c4f' \\\n  --params '{\"listOfAllowedLocations\":{\"value\":[\"koreacentral\"]}}'",
+    "common_mistake": "Policy는 이미 존재하는 비준수 리소스를 자동으로 수정하지 않습니다. 수정이 필요하면 remediation task를 별도로 실행해야 합니다.",
+    "keywords": [
+      "Azure Policy",
+      "policy definition",
+      "initiative",
+      "compliance",
+      "deny",
+      "audit",
+      "remediation"
+    ],
+    "source_id": "azure-policy-overview",
+    "details": [
+      "효과(effect) 유형: Deny(거부), Audit(감사만), AuditIfNotExists, DeployIfNotExists(자동 보완 배포), Disabled.",
+      "Initiative(이니셔티브)는 여러 Policy를 묶은 집합. NIST, CIS 등 규정 준수 프레임워크가 이니셔티브로 제공됩니다.",
+      "시험 패턴: Policy와 RBAC 차이(RBAC는 행위 제어, Policy는 리소스 속성 제어), 효과 유형별 동작, 이니셔티브 vs 단독 정책 문제가 출제됩니다."
+    ],
+    "level": "입문"
+  },
+  {
+    "id": "azure-vm",
+    "certification": "AZ-104",
+    "title": "Virtual Machine — 가상 머신",
+    "summary": "Azure에서 제공하는 IaaS 컴퓨팅입니다. VM 크기(SKU), OS 이미지, 가용성 구성, 디스크 유형을 선택해 배포합니다.",
+    "example": "az vm create \\\n  --name myVM \\\n  --resource-group myRG \\\n  --image Ubuntu2204 \\\n  --size Standard_B2s \\\n  --admin-username azureuser \\\n  --generate-ssh-keys",
+    "common_mistake": "VM을 '중지(Stop)'해도 할당 해제(deallocated)가 아니면 컴퓨팅 요금이 계속 청구됩니다. 비용 절감을 위해 '중지(할당 해제)'를 사용해야 합니다.",
+    "keywords": [
+      "VM",
+      "SKU",
+      "availability set",
+      "managed disk",
+      "deallocate",
+      "NSG",
+      "public IP"
+    ],
+    "source_id": "azure-vm-overview",
+    "details": [
+      "VM 크기 시리즈: B(버스트, 저비용), D(범용), E(메모리 최적화), F(컴퓨팅 최적화), N(GPU). 숫자는 vCPU 수를 의미합니다.",
+      "VM 생성 시 자동으로 NIC, OS 디스크, Public IP(선택)가 함께 생성됩니다.",
+      "시험 패턴: 중지 vs 할당 해제 요금 차이, VM 크기 변경 시 재시작 필요 여부, 가용성 SLA 99.9/99.95/99.99% 구성 방법이 자주 출제됩니다."
+    ],
+    "level": "입문"
+  },
+  {
+    "id": "azure-vmss",
+    "certification": "AZ-104",
+    "title": "Virtual Machine Scale Sets — 가상 머신 확장 집합",
+    "summary": "동일한 VM을 자동으로 확장·축소하는 그룹입니다. 부하에 따라 인스턴스 수를 자동 조정(Autoscale)하고, 부하 분산 장치와 통합합니다.",
+    "example": "az vmss create \\\n  --name myVMSS \\\n  --resource-group myRG \\\n  --image Ubuntu2204 \\\n  --instance-count 2 \\\n  --vm-sku Standard_B2s",
+    "common_mistake": "VMSS의 개별 인스턴스는 업그레이드 정책(자동/수동/롤링)에 따라 다르게 업데이트됩니다. 자동 정책은 인스턴스를 순차적으로 재시작합니다.",
+    "keywords": [
+      "VMSS",
+      "scale set",
+      "autoscale",
+      "instance count",
+      "upgrade policy",
+      "load balancer"
+    ],
+    "source_id": "azure-vmss-overview",
+    "details": [
+      "Orchestration 모드: Uniform(동일 VM, 자동 확장 최적화) vs Flexible(혼합 VM 크기 가능, Availability Zone 지원 강화).",
+      "Autoscale 규칙: CPU%, 메모리, 큐 길이 등 메트릭 기반으로 scale-out/in 임계값을 설정합니다.",
+      "시험 패턴: VMSS vs Availability Set 차이(AS는 자동 확장 없음), 업그레이드 정책 선택, 부하 분산기 통합 방법이 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-nsg",
+    "certification": "AZ-104",
+    "title": "Network Security Group — 네트워크 보안 그룹",
+    "summary": "인바운드/아웃바운드 트래픽을 포트·프로토콜·원본IP로 허용/거부하는 규칙 집합입니다. 서브넷 또는 NIC에 연결합니다.",
+    "example": "az network nsg rule create \\\n  --nsg-name myNSG \\\n  --name allow-ssh \\\n  --priority 100 \\\n  --access Allow \\\n  --protocol Tcp \\\n  --destination-port-ranges 22",
+    "common_mistake": "우선순위 숫자가 낮을수록 먼저 적용됩니다(100이 200보다 높은 우선순위). 규칙 충돌 시 낮은 번호 규칙이 이깁니다.",
+    "keywords": [
+      "NSG",
+      "inbound",
+      "outbound",
+      "priority",
+      "allow",
+      "deny",
+      "subnet",
+      "NIC"
+    ],
+    "source_id": "azure-nsg-overview",
+    "details": [
+      "NSG에는 기본 규칙이 있습니다: AllowVNetInbound(65000), AllowAzureLoadBalancerInbound(65001), DenyAllInbound(65500).",
+      "NSG를 서브넷과 NIC 양쪽에 연결하면 트래픽이 두 NSG를 모두 통과합니다. 인바운드는 서브넷NSG→NIC NSG 순서.",
+      "시험 패턴: 특정 포트 허용/차단 규칙 설계, 우선순위 충돌 결과, 서브넷 vs NIC 연결 차이 문제가 자주 출제됩니다."
+    ],
+    "level": "입문",
+    "related_practices": [
+      "azure-lab-4"
+    ]
+  },
+  {
+    "id": "azure-app-gateway",
+    "certification": "AZ-104",
+    "title": "Application Gateway — 애플리케이션 게이트웨이",
+    "summary": "HTTP/HTTPS 레이어(L7) 부하 분산 장치입니다. URL 기반 라우팅, SSL 종료, WAF(웹 방화벽)를 지원합니다.",
+    "example": "# 구성 요소: Frontend IP → Listener → Rule → Backend Pool → HTTP Settings\n# URL 기반 라우팅 예:\n# /images/* → image-pool\n# /api/* → api-pool",
+    "common_mistake": "Application Gateway는 L7, Azure Load Balancer는 L4입니다. URL 경로나 호스트 헤더 기반 라우팅이 필요하면 App Gateway를 씁니다.",
+    "keywords": [
+      "Application Gateway",
+      "L7",
+      "WAF",
+      "SSL termination",
+      "URL routing",
+      "backend pool"
+    ],
+    "source_id": "azure-app-gateway-overview",
+    "details": [
+      "구성 흐름: Frontend IP → Listener(포트/프로토콜) → Routing Rule → Backend Pool(VM/VMSS/IP) → HTTP Settings.",
+      "WAF SKU는 OWASP 규칙셋으로 SQL injection, XSS 등 웹 공격을 탐지·차단합니다.",
+      "시험 패턴: App Gateway vs Load Balancer 선택 기준, URL 경로 기반 라우팅 구성, SSL 오프로딩 개념이 자주 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-dns",
+    "certification": "AZ-104",
+    "title": "Azure DNS — 도메인 이름 서비스",
+    "summary": "Azure에서 DNS 영역을 호스팅합니다. Public DNS Zone은 인터넷용, Private DNS Zone은 VNet 내부 이름 해석에 사용합니다.",
+    "example": "az network dns zone create --name example.com --resource-group myRG\naz network dns record-set a add-record \\\n  --zone-name example.com \\\n  --record-set-name www \\\n  --ipv4-address 1.2.3.4",
+    "common_mistake": "Azure DNS는 도메인 등록 서비스가 아닙니다. 도메인은 별도 등록 기관에서 구매 후 네임서버를 Azure로 위임해야 합니다.",
+    "keywords": [
+      "Azure DNS",
+      "Public Zone",
+      "Private Zone",
+      "A record",
+      "CNAME",
+      "NS delegation"
+    ],
+    "source_id": "azure-dns-overview",
+    "details": [
+      "Public DNS Zone 생성 후 Azure가 제공하는 NS 레코드 4개를 도메인 등록 기관에서 설정해 위임합니다.",
+      "Private DNS Zone은 VNet에 연결(link)하면 해당 VNet의 VM이 사설 도메인 이름을 해석할 수 있습니다.",
+      "시험 패턴: Public vs Private Zone 사용 시나리오, 네임서버 위임 절차, Azure 서비스에 DNS별칭(CNAME/alias) 연결 방법이 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-blob-tier",
+    "certification": "AZ-104",
+    "title": "Blob Access Tier — Blob 접근 계층",
+    "summary": "데이터 접근 빈도에 따라 Hot·Cool·Cold·Archive 계층을 선택해 스토리지 비용을 최적화합니다. 저장 비용과 접근 비용은 반비례합니다.",
+    "example": "az storage blob set-tier \\\n  --account-name myaccount \\\n  --container-name mycontainer \\\n  --name myblob.log \\\n  --tier Cool",
+    "common_mistake": "Archive 계층의 Blob은 즉시 읽을 수 없습니다. 읽으려면 Hot 또는 Cool로 rehydration(몇 시간~15시간)이 필요합니다.",
+    "keywords": [
+      "blob tier",
+      "Hot",
+      "Cool",
+      "Cold",
+      "Archive",
+      "rehydration",
+      "lifecycle"
+    ],
+    "source_id": "azure-blob-access-tiers",
+    "details": [
+      "계층별 특징: Hot(자주 접근, 높은 저장 비용 낮은 접근 비용), Cool(30일 이상 보관), Cold(90일 이상), Archive(180일 이상, 접근 비용 최고).",
+      "Archive에서 꺼낼 때 우선순위: Standard(최대 15시간), High Priority(1시간 이내, 비쌈).",
+      "시험 패턴: 계층별 최소 보관 기간(Cool=30일, Cold=90일, Archive=180일), 조기 삭제 시 요금 부과, rehydration 시간 문제가 출제됩니다."
+    ],
+    "level": "입문",
+    "related_practices": [
+      "azure-lab-7"
+    ]
+  },
+  {
+    "id": "azure-log-analytics",
+    "certification": "AZ-104",
+    "title": "Log Analytics Workspace — 로그 분석 작업 영역",
+    "summary": "Azure Monitor의 데이터 저장소입니다. VM·서비스의 로그와 메트릭을 수집하고 KQL(Kusto Query Language)로 분석합니다.",
+    "example": "# KQL 예: 최근 1시간 오류 로그\nEvent\n| where TimeGenerated > ago(1h)\n| where EventLevelName == 'Error'\n| summarize count() by Source",
+    "common_mistake": "Log Analytics는 저장소이고 Azure Monitor가 수집 에이전트·경보를 포함한 플랫폼입니다. 둘은 함께 동작하며 별개입니다.",
+    "keywords": [
+      "Log Analytics",
+      "KQL",
+      "workspace",
+      "diagnostic settings",
+      "MMA",
+      "AMA"
+    ],
+    "source_id": "azure-log-analytics-overview",
+    "details": [
+      "데이터 수집: VM에 Azure Monitor Agent(AMA) 설치 또는 Diagnostic Settings로 Azure 서비스 로그를 Workspace로 전송합니다.",
+      "KQL 핵심: `| where`, `| project`(컬럼 선택), `| summarize`(집계), `| order by`, `| take`(상위 N개).",
+      "시험 패턴: Diagnostic Settings 설정 절차, VM에 에이전트 연결, KQL 기본 구문으로 로그를 쿼리하는 시나리오가 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-recovery-vault",
+    "certification": "AZ-104",
+    "title": "Recovery Services Vault — 복구 서비스 자격 증명 모음",
+    "summary": "Azure Backup과 Site Recovery 데이터를 저장하는 컨테이너입니다. VM, SQL, Files 등의 백업 정책을 정의하고 복원 지점을 관리합니다.",
+    "example": "az backup vault create \\\n  --name myVault \\\n  --resource-group myRG \\\n  --location koreacentral\naz backup protection enable-for-vm \\\n  --vault-name myVault \\\n  --vm myVM \\\n  --policy-name DefaultPolicy",
+    "common_mistake": "Recovery Services Vault는 백업 대상 리소스와 같은 region에 있어야 합니다. 다른 region의 VM은 백업할 수 없습니다.",
+    "keywords": [
+      "Recovery Services Vault",
+      "Azure Backup",
+      "backup policy",
+      "restore point",
+      "soft delete"
+    ],
+    "source_id": "azure-recovery-services-vault",
+    "details": [
+      "백업 정책: 스케줄(일별/주별), 보존 기간(일/주/월/년)을 정의합니다. VM은 기본 정책(일 1회, 30일 보존)으로 빠르게 시작 가능합니다.",
+      "Soft Delete: 백업 데이터를 삭제 후 14일간 복원 가능 상태로 유지합니다. 랜섬웨어 공격으로부터 보호합니다.",
+      "시험 패턴: 백업 정책 구성, 복원 유형(원래 위치/새 위치), 지역 간 복원(CRR) 기능, Soft Delete 활성화 방법이 출제됩니다."
+    ],
+    "level": "중급",
+    "related_practices": [
+      "azure-lab-8"
+    ]
+  },
+  {
+    "id": "azure-entra-id",
+    "certification": "AZ-104",
+    "title": "Microsoft Entra ID — ID 관리",
+    "summary": "Azure의 클라우드 기반 ID 및 접근 관리(IAM) 서비스입니다(구 Azure Active Directory). 사용자·그룹·애플리케이션 ID를 관리하고 MFA, 조건부 접근을 제공합니다.",
+    "example": "az ad user create \\\n  --display-name 'Alice Kim' \\\n  --user-principal-name alice@mydomain.com \\\n  --password 'TempPass123!'\naz ad group create --display-name 'Developers' --mail-nickname 'devs'",
+    "common_mistake": "Entra ID와 온프레미스 Active Directory는 다른 제품입니다. Entra ID는 클라우드 LDAP/Kerberos가 아니며, 도메인 조인은 Entra Domain Services를 사용합니다.",
+    "keywords": [
+      "Entra ID",
+      "AAD",
+      "tenant",
+      "user",
+      "group",
+      "MFA",
+      "SSO",
+      "B2B",
+      "B2C"
+    ],
+    "source_id": "azure-rbac-overview",
+    "details": [
+      "테넌트(Tenant)는 Entra ID의 인스턴스이며 조직 단위입니다. 구독은 반드시 하나의 테넌트에 연결됩니다.",
+      "사용자 유형: Member(내부 사용자) vs Guest(B2B 초대 사용자). 그룹 유형: Security(RBAC 할당용) vs Microsoft 365.",
+      "시험 패턴: 사용자/그룹 생성·관리, 게스트 사용자 초대(B2B), MFA 등록, SSPR 설정, Entra ID vs 온프레미스 AD 차이가 출제됩니다."
+    ],
+    "level": "입문"
+  },
+  {
+    "id": "azure-management-group",
+    "certification": "AZ-104",
+    "title": "Management Group — 관리 그룹",
+    "summary": "여러 구독을 계층적으로 묶는 컨테이너입니다. 최상위 루트 관리 그룹에서 RBAC와 Policy를 할당하면 하위 구독으로 상속됩니다.",
+    "example": "# 계층 구조 예:\n# Root Management Group\n#   └─ Production MG\n#       ├─ Sub-A\n#       └─ Sub-B\naz account management-group create --name 'Production'",
+    "common_mistake": "관리 그룹은 최대 6단계(루트 포함)까지 중첩 가능합니다. 구독은 한 번에 하나의 관리 그룹에만 속할 수 있습니다.",
+    "keywords": [
+      "management group",
+      "hierarchy",
+      "policy inheritance",
+      "RBAC",
+      "root",
+      "subscription"
+    ],
+    "source_id": "azure-rbac-overview",
+    "details": [
+      "루트 관리 그룹에 할당한 Policy·RBAC는 테넌트의 모든 구독에 상속됩니다. 전사 규정 적용에 사용됩니다.",
+      "관리 그룹 이동: 구독이나 하위 관리 그룹을 다른 관리 그룹으로 이동할 수 있습니다.",
+      "시험 패턴: 관리 그룹 계층 설계, Policy/RBAC 상속 흐름, 관리 그룹 vs 구독 vs RG 범위 차이 문제가 출제됩니다."
+    ],
+    "level": "입문"
+  },
+  {
+    "id": "azure-subscription",
+    "certification": "AZ-104",
+    "title": "Subscription — 구독",
+    "summary": "Azure 리소스를 배포하고 비용을 청구하는 기본 단위입니다. 구독마다 리소스 한도(quota)가 있으며 하나의 Entra ID 테넌트에 연결됩니다.",
+    "example": "az account list --output table\naz account set --subscription 'My Subscription'\naz account show",
+    "common_mistake": "구독과 테넌트는 1:1이 아닙니다. 하나의 테넌트에 여러 구독이 속할 수 있고, 구독을 다른 테넌트로 이전할 수도 있습니다.",
+    "keywords": [
+      "subscription",
+      "tenant",
+      "quota",
+      "billing",
+      "az account"
+    ],
+    "source_id": "azure-rbac-overview",
+    "details": [
+      "구독 유형: Pay-As-You-Go, Enterprise Agreement(EA), CSP(파트너 제공) 등. 비용 청구 계정과 연결됩니다.",
+      "리소스 한도(Quota)는 구독 단위로 관리됩니다. 예: 특정 region의 vCPU 최대 수. 한도 증가는 Microsoft에 요청합니다.",
+      "시험 패턴: 구독 이동(테넌트 간), 구독 레벨 RBAC, Cost Management에서 구독별 비용 분석 시나리오가 출제됩니다."
+    ],
+    "level": "입문"
+  },
+  {
+    "id": "azure-resource-lock",
+    "certification": "AZ-104",
+    "title": "Resource Lock — 리소스 잠금",
+    "summary": "실수로 리소스를 수정·삭제하지 못하도록 보호합니다. ReadOnly(수정·삭제 차단)와 CanNotDelete(삭제만 차단) 두 가지가 있습니다.",
+    "example": "az lock create \\\n  --name 'prod-lock' \\\n  --resource-group myRG \\\n  --lock-type CanNotDelete\naz lock list --resource-group myRG",
+    "common_mistake": "Lock은 RBAC보다 우선합니다. Owner라도 Lock이 걸린 리소스는 잠금을 먼저 해제해야 수정·삭제할 수 있습니다.",
+    "keywords": [
+      "resource lock",
+      "CanNotDelete",
+      "ReadOnly",
+      "RBAC override"
+    ],
+    "source_id": "azure-vm-overview",
+    "details": [
+      "ReadOnly Lock: 읽기는 가능하지만 쓰기·삭제 모두 차단. VM에 걸면 재시작도 차단될 수 있습니다.",
+      "Lock은 RG에 설정하면 하위 모든 리소스에 상속됩니다. 개별 리소스에만 걸 수도 있습니다.",
+      "시험 패턴: Lock과 RBAC 상호작용, CanNotDelete vs ReadOnly 시나리오, 잠금 해제 없이 삭제 시도 결과가 출제됩니다."
+    ],
+    "level": "입문",
+    "related_practices": [
+      "azure-lab-6"
+    ]
+  },
+  {
+    "id": "azure-tags",
+    "certification": "AZ-104",
+    "title": "Tags — 태그",
+    "summary": "리소스에 키-값 메타데이터를 붙여 분류·비용 추적·자동화에 활용합니다. RG의 태그는 내부 리소스에 자동 상속되지 않습니다.",
+    "example": "az resource tag \\\n  --tags Environment=Production CostCenter=IT \\\n  --ids /subscriptions/SUB/resourceGroups/myRG\n# Policy로 태그 강제:\n# 'Require a tag on resources'",
+    "common_mistake": "태그는 RG에서 내부 리소스로 자동 상속되지 않습니다. 상속이 필요하면 Azure Policy로 태그 상속 규칙을 적용해야 합니다.",
+    "keywords": [
+      "tags",
+      "key-value",
+      "cost center",
+      "environment",
+      "policy",
+      "inheritance"
+    ],
+    "source_id": "azure-vm-overview",
+    "details": [
+      "리소스당 최대 50개의 태그. 이름 최대 512자, 값 최대 256자(스토리지 계정은 이름 128자).",
+      "비용 분석에서 태그로 필터링하면 부서별·프로젝트별 비용을 추적할 수 있습니다.",
+      "시험 패턴: 태그 상속 제한, Policy를 통한 태그 강제 적용, 비용 분석에서 태그 활용 시나리오가 출제됩니다."
+    ],
+    "level": "입문"
+  },
+  {
+    "id": "azure-custom-role",
+    "certification": "AZ-104",
+    "title": "Custom Role — 사용자 지정 역할",
+    "summary": "내장 역할이 너무 광범위하거나 부족할 때 특정 Actions만 허용하는 역할을 직접 만듭니다. JSON으로 Actions·NotActions·DataActions를 정의합니다.",
+    "example": "{\n  \"Name\": \"VM Operator\",\n  \"Actions\": [\n    \"Microsoft.Compute/virtualMachines/start/action\",\n    \"Microsoft.Compute/virtualMachines/restart/action\",\n    \"Microsoft.Compute/virtualMachines/read\"\n  ],\n  \"AssignableScopes\": [\"/subscriptions/SUB_ID\"]\n}",
+    "common_mistake": "Custom Role은 테넌트 내에서 만들지만, AssignableScopes에 지정한 구독/RG 범위에서만 할당할 수 있습니다.",
+    "keywords": [
+      "custom role",
+      "Actions",
+      "NotActions",
+      "DataActions",
+      "AssignableScopes",
+      "JSON"
+    ],
+    "source_id": "azure-rbac-overview",
+    "details": [
+      "Actions: 관리 평면 작업 허용. NotActions: Actions에서 제외할 작업. DataActions: 데이터 평면 작업(Blob 읽기 등).",
+      "기존 내장 역할을 복사해 수정하는 방식이 편리합니다: `az role definition list --name 'Contributor'`로 시작.",
+      "시험 패턴: 최소 권한 원칙에 따른 Custom Role Actions 설계, DataActions vs Actions 차이, AssignableScopes 설정이 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-sas",
+    "certification": "AZ-104",
+    "title": "Shared Access Signature — SAS",
+    "summary": "스토리지 계정 전체를 노출하지 않고 특정 리소스에 제한된 권한과 시간 범위의 접근을 허용하는 서명된 URL입니다.",
+    "example": "az storage blob generate-sas \\\n  --account-name myaccount \\\n  --container-name data \\\n  --name report.pdf \\\n  --permissions r \\\n  --expiry 2024-12-31",
+    "common_mistake": "SAS URL이 노출되면 만료 전까지 누구나 접근 가능합니다. 민감한 데이터는 짧은 만료 시간을 설정하고, SAS를 저장한 Stored Access Policy를 사용해 즉시 취소할 수 있습니다.",
+    "keywords": [
+      "SAS",
+      "Service SAS",
+      "Account SAS",
+      "User Delegation SAS",
+      "expiry",
+      "stored access policy"
+    ],
+    "source_id": "azure-storage-account",
+    "details": [
+      "SAS 유형: Account SAS(전체 스토리지 서비스), Service SAS(특정 서비스), User Delegation SAS(Entra ID 자격 증명 기반, 가장 안전).",
+      "Stored Access Policy: 서비스 SAS를 정책에 연결하면 URL을 재발급하지 않고 정책 삭제만으로 접근을 즉시 취소할 수 있습니다.",
+      "시험 패턴: SAS 유형 선택, 권한·만료 설정, Stored Access Policy를 통한 취소 방법, 키 기반 vs Entra ID 기반 SAS 차이가 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-storage-redundancy",
+    "certification": "AZ-104",
+    "title": "Storage Redundancy — 스토리지 중복성",
+    "summary": "데이터를 복제해 가용성과 내구성을 보장합니다. 복제 범위(단일 데이터센터→AZ→다른 region)에 따라 LRS·ZRS·GRS·GZRS 중 선택합니다.",
+    "example": "# 생성 시 SKU로 결정\naz storage account create --sku Standard_GRS ...\n# 변경 (일부만 가능)\naz storage account update --sku Standard_RAGRS --name myaccount",
+    "common_mistake": "GRS는 보조 지역에 데이터를 복제하지만 기본적으로 읽기 불가입니다. 보조 지역 읽기를 허용하려면 RA-GRS(Read-Access GRS)로 설정해야 합니다.",
+    "keywords": [
+      "LRS",
+      "ZRS",
+      "GRS",
+      "GZRS",
+      "RA-GRS",
+      "redundancy",
+      "replication"
+    ],
+    "source_id": "azure-storage-account",
+    "details": [
+      "LRS: 단일 datacenter 내 3복제. ZRS: 동일 region 3개 AZ에 복제. GRS: 다른 region에 비동기 복제(LRS×2). GZRS: ZRS+GRS.",
+      "내구성(nines): LRS=11 9s, ZRS=12 9s, GRS=16 9s. 비용은 LRS<ZRS<GRS<GZRS 순입니다.",
+      "시험 패턴: 요구사항(AZ 장애 보호, region 장애 보호)에 따른 중복성 선택, RA-GRS에서 보조 지역 접근 방법이 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-lifecycle",
+    "certification": "AZ-104",
+    "title": "Storage Lifecycle Management — 스토리지 수명 주기",
+    "summary": "Blob을 일정 기간 후 자동으로 계층 전환(Hot→Cool→Archive)하거나 삭제하는 정책을 정의합니다. 비용 자동 최적화에 활용합니다.",
+    "example": "# 규칙 예: 30일 후 Cool, 90일 후 Archive, 365일 후 삭제\n{\n  \"rules\": [{\n    \"action\": {\"baseBlob\": {\n      \"tierToCool\": {\"daysAfterModificationGreaterThan\": 30},\n      \"tierToArchive\": {\"daysAfterModificationGreaterThan\": 90},\n      \"delete\": {\"daysAfterModificationGreaterThan\": 365}\n    }}\n  }]\n}",
+    "common_mistake": "수명 주기 정책은 Blob 레벨에서만 동작합니다. 이미 Archive 계층인 Blob은 정책이 다시 Archive로 전환하지 않습니다.",
+    "keywords": [
+      "lifecycle policy",
+      "tier transition",
+      "Hot",
+      "Cool",
+      "Archive",
+      "delete",
+      "daysAfterModification"
+    ],
+    "source_id": "azure-blob-access-tiers",
+    "details": [
+      "조건 기준: 마지막 수정 날짜, 마지막 접근 날짜(접근 추적 활성화 필요), blob 생성 날짜 중 선택합니다.",
+      "필터로 특정 컨테이너, 접두사, blob 유형(blockBlob/appendBlob)에만 정책을 적용할 수 있습니다.",
+      "시험 패턴: 특정 비용 최적화 시나리오에서 lifecycle 정책 규칙 작성, 조건별 계층 전환 순서, 삭제 포함 전체 흐름이 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-files",
+    "certification": "AZ-104",
+    "title": "Azure Files — 파일 공유",
+    "summary": "SMB/NFS 프로토콜로 마운트하는 완전 관리형 클라우드 파일 공유입니다. VM·온프레미스·컨테이너에서 네트워크 드라이브처럼 사용합니다.",
+    "example": "# Windows에서 마운트\nnet use Z: \\\\myaccount.file.core.windows.net\\myshare /user:myaccount [key]\n# Linux에서 마운트\nmount -t cifs //myaccount.file.core.windows.net/myshare /mnt -o user=myaccount,password=[key]",
+    "common_mistake": "Azure Files SMB는 포트 445를 사용합니다. 일부 ISP와 기업 방화벽이 445를 차단해 마운트가 실패하는 경우가 있습니다.",
+    "keywords": [
+      "Azure Files",
+      "SMB",
+      "NFS",
+      "file share",
+      "port 445",
+      "Azure File Sync"
+    ],
+    "source_id": "azure-storage-account",
+    "details": [
+      "성능 계층: Standard(HDD 기반), Premium(SSD 기반). Premium은 낮은 지연시간이 필요한 워크로드에 사용합니다.",
+      "Azure File Sync: 온프레미스 파일 서버와 Azure Files를 동기화하고, 자주 쓰지 않는 파일을 Cloud Tiering으로 Azure에 올립니다.",
+      "시험 패턴: Blob vs Files 선택 기준(파일 시스템 마운트 필요 여부), Azure File Sync 아키텍처, 포트 445 문제 해결이 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-managed-disk",
+    "certification": "AZ-104",
+    "title": "Managed Disk — 관리 디스크",
+    "summary": "VM에 연결하는 블록 스토리지입니다. OS 디스크와 데이터 디스크로 나뉘며, 성능 요구에 따라 Standard HDD·Standard SSD·Premium SSD·Ultra Disk를 선택합니다.",
+    "example": "az disk create \\\n  --name myDataDisk \\\n  --resource-group myRG \\\n  --size-gb 128 \\\n  --sku Premium_LRS\naz vm disk attach --vm-name myVM --name myDataDisk",
+    "common_mistake": "관리 디스크 크기는 늘릴 수만 있고 줄일 수 없습니다. 크기를 줄이려면 새 작은 디스크를 만들고 데이터를 이전해야 합니다.",
+    "keywords": [
+      "managed disk",
+      "OS disk",
+      "data disk",
+      "Premium SSD",
+      "Ultra Disk",
+      "snapshot",
+      "disk encryption"
+    ],
+    "source_id": "azure-storage-account",
+    "details": [
+      "SKU 선택: Standard HDD(비용 최저, 백업용), Standard SSD(일반 워크로드), Premium SSD(I/O 집약 앱), Ultra Disk(DB, 최저 지연).",
+      "스냅샷: 특정 시점의 디스크 상태를 캡처. 다른 region에 복사해 재해 복구에 활용할 수 있습니다.",
+      "시험 패턴: 워크로드별 디스크 SKU 선택, 디스크 확장 후 OS에서 파티션 확장 필요 여부, 스냅샷 vs 백업 차이가 출제됩니다."
+    ],
+    "level": "입문"
+  },
+  {
+    "id": "azure-availability-set",
+    "certification": "AZ-104",
+    "title": "Availability Set — 가용성 집합",
+    "summary": "동일 데이터센터 내에서 VM을 다른 물리 랙(장애 도메인)과 업데이트 그룹(업데이트 도메인)에 배치해 단일 장애점을 없앱니다.",
+    "example": "az vm availability-set create \\\n  --name myAS \\\n  --resource-group myRG \\\n  --platform-fault-domain-count 2 \\\n  --platform-update-domain-count 5",
+    "common_mistake": "Availability Set은 단일 데이터센터 내 보호입니다. 데이터센터 전체 장애나 AZ 장애에 대응하려면 Availability Zones를 사용해야 합니다.",
+    "keywords": [
+      "availability set",
+      "fault domain",
+      "update domain",
+      "UD",
+      "FD",
+      "SLA 99.95%"
+    ],
+    "source_id": "azure-vm-overview",
+    "details": [
+      "장애 도메인(FD): 공유 전원·네트워크 스위치 기준 물리 랙 분리. 기본 최대 3개.",
+      "업데이트 도메인(UD): 계획된 유지 관리 시 동시에 재시작하지 않는 그룹. 기본 5개(최대 20개).",
+      "시험 패턴: AS vs AZ 보호 수준 차이, SLA(AS=99.95%, 단일VM-Premium=99.9%, AZ=99.99%), AS에 VM 추가 시기 제한이 출제됩니다."
+    ],
+    "level": "입문"
+  },
+  {
+    "id": "azure-autoscale",
+    "certification": "AZ-104",
+    "title": "Autoscale — 자동 크기 조정",
+    "summary": "메트릭(CPU, 메모리, 큐 길이 등)이나 일정에 따라 VM Scale Set 또는 App Service의 인스턴스 수를 자동으로 늘리고 줄입니다.",
+    "example": "# Autoscale 규칙 예:\n# CPU > 70% 5분 유지 → +1 인스턴스 추가\n# CPU < 30% 5분 유지 → -1 인스턴스 제거\n# 최소 2, 최대 10 인스턴스",
+    "common_mistake": "Scale-out(추가)과 Scale-in(제거) 규칙을 모두 설정해야 합니다. Scale-out만 설정하면 인스턴스가 줄어들지 않아 비용이 계속 증가합니다.",
+    "keywords": [
+      "autoscale",
+      "scale-out",
+      "scale-in",
+      "metric",
+      "cooldown",
+      "min/max instances"
+    ],
+    "source_id": "azure-vmss-overview",
+    "details": [
+      "냉각 기간(Cooldown): Scale 동작 후 다음 동작까지 기다리는 시간. 너무 짧으면 진동(flapping) 현상이 발생합니다.",
+      "일정 기반 Autoscale: 특정 요일·시간대에 인스턴스 수를 고정하거나 늘릴 수 있습니다.",
+      "시험 패턴: Scale-in/out 규칙 설계, 냉각 기간 개념, 메트릭 기반 vs 일정 기반 선택, VMSS와 App Service의 Autoscale 차이가 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-vnet-peering",
+    "certification": "AZ-104",
+    "title": "VNet Peering — 가상 네트워크 피어링",
+    "summary": "두 VNet을 Microsoft 백본 네트워크로 직접 연결합니다. 동일 region(Local Peering)과 다른 region(Global Peering) 모두 가능합니다.",
+    "example": "az network vnet peering create \\\n  --name VNet1-to-VNet2 \\\n  --vnet-name VNet1 \\\n  --remote-vnet VNet2 \\\n  --resource-group myRG\n# 반대 방향도 생성해야 함",
+    "common_mistake": "피어링은 비전이적(non-transitive)입니다. A↔B, B↔C로 피어링해도 A에서 C로 직접 통신할 수 없습니다. A↔C를 별도로 설정해야 합니다.",
+    "keywords": [
+      "VNet peering",
+      "non-transitive",
+      "local peering",
+      "global peering",
+      "transit"
+    ],
+    "source_id": "azure-vnet-overview",
+    "details": [
+      "피어링 조건: 두 VNet의 주소 공간이 겹치지 않아야 합니다. 피어링은 양방향 설정이 각각 필요합니다.",
+      "게이트웨이 전송(Gateway Transit): 피어링된 VNet이 허브의 VPN Gateway를 공유해 온프레미스 연결에 활용합니다.",
+      "시험 패턴: 비전이성으로 인한 연결 불가 시나리오, 주소 공간 중첩 오류, Gateway Transit 설정 방법이 자주 출제됩니다."
+    ],
+    "level": "중급",
+    "related_practices": [
+      "azure-lab-10"
+    ]
+  },
+  {
+    "id": "azure-route-table",
+    "certification": "AZ-104",
+    "title": "Route Table — 경로 테이블",
+    "summary": "서브넷의 트래픽 경로를 사용자 정의합니다(UDR: User-Defined Route). 기본 시스템 경로를 재정의해 트래픽을 NVA, VPN GW, VNet Gateway 등으로 보냅니다.",
+    "example": "az network route-table create --name myRT --resource-group myRG\naz network route-table route create \\\n  --route-table-name myRT \\\n  --name force-to-firewall \\\n  --address-prefix 0.0.0.0/0 \\\n  --next-hop-type VirtualAppliance \\\n  --next-hop-ip-address 10.0.1.4",
+    "common_mistake": "경로 테이블은 서브넷에 연결해야 효과가 납니다. Route Table을 만들기만 하고 서브넷에 연결(association)하지 않으면 적용되지 않습니다.",
+    "keywords": [
+      "route table",
+      "UDR",
+      "next hop",
+      "NVA",
+      "VirtualAppliance",
+      "subnet association"
+    ],
+    "source_id": "azure-vnet-overview",
+    "details": [
+      "Next hop 유형: VirtualAppliance(방화벽 NVA), VirtualNetworkGateway(VPN), Internet, VnetLocal, None(트래픽 드롭).",
+      "강제 터널링(Force Tunneling): 0.0.0.0/0을 VPN Gateway로 보내 인터넷 트래픽도 온프레미스 경유하게 합니다.",
+      "시험 패턴: 특정 트래픽을 NVA로 우회하는 UDR 설계, 강제 터널링 구성, 시스템 경로 vs 사용자 경로 우선순위가 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-private-endpoint",
+    "certification": "AZ-104",
+    "title": "Private Endpoint — 프라이빗 엔드포인트",
+    "summary": "Azure PaaS 서비스(Storage, SQL, Key Vault 등)에 VNet 내 사설 IP로 접근합니다. 인터넷을 통하지 않아 데이터 노출 위험을 줄입니다.",
+    "example": "az network private-endpoint create \\\n  --name myPE \\\n  --resource-group myRG \\\n  --vnet-name myVNet \\\n  --subnet default \\\n  --private-connection-resource-id /subscriptions/.../storageAccounts/myaccount \\\n  --group-ids blob",
+    "common_mistake": "Private Endpoint 생성 후 DNS 설정을 추가해야 합니다. Private DNS Zone과 연결하지 않으면 공용 DNS가 Public IP를 반환해 인터넷 경로로 접속됩니다.",
+    "keywords": [
+      "private endpoint",
+      "private link",
+      "private IP",
+      "DNS zone",
+      "Service Endpoint 차이"
+    ],
+    "source_id": "azure-private-endpoint",
+    "details": [
+      "Private Endpoint vs Service Endpoint: Private Endpoint는 VNet에 사설 IP를 부여(더 안전), Service Endpoint는 Public IP 유지하되 VNet에서만 허용.",
+      "Private DNS Zone 자동 통합: Private Endpoint 생성 시 DNS Zone Group을 통해 자동으로 DNS 레코드가 생성됩니다.",
+      "시험 패턴: Private Endpoint vs Service Endpoint 차이, DNS 설정 없을 때 발생하는 문제, 온프레미스에서 Private Endpoint 접근 방법이 출제됩니다."
+    ],
+    "level": "중급",
+    "related_practices": [
+      "azure-lab-11"
+    ]
+  },
+  {
+    "id": "azure-load-balancer-probe",
+    "certification": "AZ-104",
+    "title": "Load Balancer — 부하 분산 장치",
+    "summary": "L4(TCP/UDP) 수준에서 인바운드 트래픽을 백엔드 VM 풀로 분산합니다. Public LB는 인터넷 트래픽, Internal LB는 VNet 내부 트래픽을 처리합니다.",
+    "example": "az network lb create \\\n  --name myLB \\\n  --resource-group myRG \\\n  --frontend-ip-name frontendIP \\\n  --backend-pool-name backendPool\n# 상태 프로브 추가\naz network lb probe create --lb-name myLB --name myProbe --protocol Http --port 80 --path /health",
+    "common_mistake": "상태 프로브(Health Probe)가 실패하면 해당 인스턴스로 트래픽을 보내지 않습니다. 프로브 경로(/health)가 올바르지 않으면 정상 VM도 제외됩니다.",
+    "keywords": [
+      "load balancer",
+      "health probe",
+      "backend pool",
+      "frontend IP",
+      "SKU Basic/Standard"
+    ],
+    "source_id": "azure-load-balancer",
+    "details": [
+      "SKU: Basic(무료, AZ 미지원, 공개 미리 보기) vs Standard(유료, AZ 지원, HTTPS 프로브, SLA 99.99%). 새 구축은 Standard 권장.",
+      "부하 분산 규칙: 포트·프로토콜·세션 지속성(Client IP/Protocol)을 설정. Floating IP로 SQL AlwaysOn 등을 지원합니다.",
+      "시험 패턴: 프로브 실패 시 동작, Public vs Internal LB 선택, Basic vs Standard SKU 차이, 세션 지속성 옵션이 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-private-dns",
+    "certification": "AZ-104",
+    "title": "Private DNS Zone — 사설 DNS 영역",
+    "summary": "VNet 내부에서만 해석되는 사설 도메인을 호스팅합니다. Private Endpoint, 내부 서비스 검색, 온프레미스 DNS 통합에 사용합니다.",
+    "example": "az network private-dns zone create \\\n  --name 'privatelink.blob.core.windows.net' \\\n  --resource-group myRG\naz network private-dns link vnet create \\\n  --zone-name 'privatelink.blob.core.windows.net' \\\n  --virtual-network myVNet \\\n  --registration-enabled false",
+    "common_mistake": "Private DNS Zone 생성만으로는 적용되지 않습니다. VNet에 링크(link)를 연결해야 해당 VNet의 VM이 사설 DNS를 쿼리합니다.",
+    "keywords": [
+      "private DNS zone",
+      "VNet link",
+      "registration",
+      "privatelink",
+      "custom DNS"
+    ],
+    "source_id": "azure-dns-overview",
+    "details": [
+      "자동 등록(Auto-registration): VNet 링크에서 활성화하면 해당 VNet의 VM이 자동으로 A 레코드로 등록됩니다.",
+      "Private Endpoint DNS: `privatelink.blob.core.windows.net` 같은 특수 영역을 사용해 PaaS 서비스의 사설 IP를 해석합니다.",
+      "시험 패턴: Private Endpoint와 Private DNS Zone 연동 순서, 자동 등록 vs 수동 레코드, VNet 링크 없을 때 DNS 해석 실패 시나리오가 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-monitor-metrics",
+    "certification": "AZ-104",
+    "title": "Azure Monitor Metrics — 모니터 메트릭",
+    "summary": "Azure 리소스가 자동으로 수집하는 수치 데이터(CPU%, 네트워크 In/Out, 디스크 IOPS 등)를 실시간으로 확인하고 경보를 설정합니다.",
+    "example": "az monitor metrics list \\\n  --resource /subscriptions/.../virtualMachines/myVM \\\n  --metric 'Percentage CPU' \\\n  --interval PT1M",
+    "common_mistake": "기본 플랫폼 메트릭은 93일 보관됩니다. 더 오래 보관하거나 커스텀 메트릭을 저장하려면 Log Analytics Workspace로 전송해야 합니다.",
+    "keywords": [
+      "metrics",
+      "Azure Monitor",
+      "CPU",
+      "latency",
+      "alert",
+      "93 days retention"
+    ],
+    "source_id": "azure-monitor-overview",
+    "details": [
+      "플랫폼 메트릭은 별도 설정 없이 자동 수집됩니다. 게스트 OS 내부 메트릭(메모리 등)은 Azure Monitor Agent가 필요합니다.",
+      "메트릭 탐색기(Metrics Explorer)에서 여러 메트릭을 비교하고 차트를 대시보드에 고정할 수 있습니다.",
+      "시험 패턴: 메트릭 기반 경보 설정, 플랫폼 메트릭 vs 게스트 메트릭 수집 방법, 보관 기간 한계와 Log Analytics 연동이 출제됩니다."
+    ],
+    "level": "중급",
+    "related_practices": [
+      "azure-lab-15"
+    ]
+  },
+  {
+    "id": "azure-activity-log",
+    "certification": "AZ-104",
+    "title": "Activity Log — 활동 로그",
+    "summary": "구독 레벨에서 발생하는 관리 작업(리소스 생성·삭제·변경)을 기록합니다. 누가, 언제, 무엇을 했는지 감사(Audit)에 활용합니다.",
+    "example": "az monitor activity-log list \\\n  --resource-group myRG \\\n  --start-time 2024-01-01 \\\n  --end-time 2024-01-31\n# Portal: Monitor → Activity Log",
+    "common_mistake": "Activity Log는 기본 90일 보관됩니다. 장기 보관을 위해 Storage Account에 아카이브하거나 Log Analytics로 전송해야 합니다.",
+    "keywords": [
+      "activity log",
+      "audit",
+      "management plane",
+      "90 days",
+      "diagnostic settings"
+    ],
+    "source_id": "azure-monitor-overview",
+    "details": [
+      "기록 내용: 누가(caller), 언제(eventTimestamp), 무엇을(operation), 성공/실패(status). 데이터 평면 작업(Blob 읽기 등)은 기록되지 않습니다.",
+      "진단 설정(Diagnostic Settings)으로 Activity Log를 Log Analytics, Storage Account, Event Hub로 전송할 수 있습니다.",
+      "시험 패턴: 리소스 삭제 책임자 추적, 90일 이상 보관 방법, Activity Log vs Diagnostic Log(리소스 레벨) 차이가 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-alert",
+    "certification": "AZ-104",
+    "title": "Alert Rule — 경보 규칙",
+    "summary": "메트릭·로그·활동 로그 조건이 충족되면 이메일·SMS·webhook·ITSM 등으로 알립니다. Action Group에 알림 대상을 정의합니다.",
+    "example": "az monitor alert create \\\n  --name highCPU \\\n  --resource /subscriptions/.../myVM \\\n  --condition 'avg Percentage CPU > 80' \\\n  --action email alice@example.com",
+    "common_mistake": "경보는 Action Group 없이는 발생해도 아무도 알 수 없습니다. 반드시 Action Group에 알림 채널을 설정해야 합니다.",
+    "keywords": [
+      "alert rule",
+      "action group",
+      "metric alert",
+      "log alert",
+      "severity",
+      "signal"
+    ],
+    "source_id": "azure-monitor-overview",
+    "details": [
+      "신호 유형: 메트릭(수치 임계값), 로그(KQL 쿼리 결과), 활동 로그(특정 작업 발생), 서비스 상태.",
+      "Action Group: 이메일, SMS, 전화, Azure Function, Logic App, webhook, ITSM 통합을 정의합니다. 여러 경보에서 공유 가능합니다.",
+      "시험 패턴: 메트릭 경보 구성 절차, Action Group 생성 및 연결, 경보 심각도(0~4) 레벨, 정적 vs 동적 임계값이 출제됩니다."
+    ],
+    "level": "중급",
+    "related_practices": [
+      "azure-lab-15"
+    ]
+  },
+  {
+    "id": "azure-backup-policy",
+    "certification": "AZ-104",
+    "title": "Backup Policy — 백업 정책",
+    "summary": "백업 스케줄(일별/주별)과 보존 기간(일/주/월/년)을 정의합니다. Recovery Services Vault에서 워크로드별로 정책을 만들어 리소스에 적용합니다.",
+    "example": "az backup policy create \\\n  --vault-name myVault \\\n  --resource-group myRG \\\n  --name myPolicy \\\n  --policy @policy.json\n# policy.json에 스케줄과 보존 기간 정의",
+    "common_mistake": "백업 정책을 변경해도 기존 복원 지점 보존 기간은 소급 적용되지 않습니다. 변경 이후 생성되는 복원 지점에만 새 정책이 적용됩니다.",
+    "keywords": [
+      "backup policy",
+      "schedule",
+      "retention",
+      "RPO",
+      "Recovery Services Vault"
+    ],
+    "source_id": "azure-recovery-services-vault",
+    "details": [
+      "Enhanced Policy(향상된 정책): 시간당 백업, AZ 중복 복원 지점, Trusted Launch VM 지원 등 더 많은 옵션을 제공합니다.",
+      "보존 계층: 일별(최대 180일), 주별(최대 520주), 월별(최대 120개월), 연별(최대 10년).",
+      "시험 패턴: RPO(복구 시점 목표)에 따른 백업 스케줄 선택, 장기 보존 설정, GRS 백업으로 지역 간 복원 방법이 출제됩니다."
+    ],
+    "level": "중급",
+    "related_practices": [
+      "azure-lab-8"
+    ]
+  },
+  {
+    "id": "azure-restore",
+    "certification": "AZ-104",
+    "title": "Restore — 복원",
+    "summary": "Recovery Services Vault의 복원 지점에서 VM, 디스크, 파일을 원래 위치 또는 새 위치로 복원합니다.",
+    "example": "az backup restore restore-disks \\\n  --vault-name myVault \\\n  --resource-group myRG \\\n  --container-name myVM \\\n  --item-name myVM \\\n  --rp-name 'RecoveryPointName' \\\n  --storage-account myStorageAcct",
+    "common_mistake": "VM 전체 복원(Restore VM)과 디스크만 복원(Restore Disks)은 다른 옵션입니다. 디스크 복원 후에는 VM을 별도로 재구성해야 합니다.",
+    "keywords": [
+      "restore",
+      "recovery point",
+      "original location",
+      "alternate location",
+      "cross-region restore"
+    ],
+    "source_id": "azure-recovery-services-vault",
+    "details": [
+      "복원 옵션: 원래 위치(기존 VM 덮어쓰기), 새 위치(새 VM 생성), 디스크만 복원(Storage Account에 VHD 저장), 파일 복원(파일 단위).",
+      "지역 간 복원(CRR): GRS Vault에서 보조 region의 복원 지점으로 DR 복원. CRR 기능을 Vault에서 명시적으로 활성화해야 합니다.",
+      "시험 패턴: 복원 유형 선택(VM vs 파일), 지역 간 복원 요건, Soft Delete 상태에서 복원 가능 여부가 출제됩니다."
+    ],
+    "level": "중급",
+    "related_practices": [
+      "azure-lab-8"
+    ]
+  },
+  {
+    "id": "azure-app-service-plan",
+    "certification": "AZ-104",
+    "title": "App Service Plan — 앱 서비스 플랜",
+    "summary": "App Service 앱이 실행되는 컴퓨팅 리소스(CPU, 메모리, 스토리지)를 정의합니다. 동일 플랜의 앱은 같은 VM 인스턴스를 공유합니다.",
+    "example": "az appservice plan create \\\n  --name myPlan \\\n  --resource-group myRG \\\n  --sku P1v3 \\\n  --is-linux\naz webapp create --name myApp --plan myPlan --runtime 'NODE:18-lts'",
+    "common_mistake": "Free/Shared 플랜은 Autoscale과 커스텀 도메인 SSL을 지원하지 않습니다. 프로덕션에는 Standard(S1) 이상을 사용해야 합니다.",
+    "keywords": [
+      "App Service Plan",
+      "SKU",
+      "Free",
+      "Basic",
+      "Standard",
+      "Premium",
+      "Isolated",
+      "autoscale"
+    ],
+    "source_id": "azure-app-service-overview",
+    "details": [
+      "SKU 계층: Free/Shared(공유 인프라, SLA 없음), Basic(전용 VM), Standard(Autoscale, SSL), Premium(고성능), Isolated(VNet 전용 환경).",
+      "같은 플랜에 여러 앱을 넣으면 컴퓨팅을 공유합니다. 앱이 많아지면 플랜을 스케일업(크기 변경)하거나 분리합니다.",
+      "시험 패턴: 플랜 SKU별 지원 기능(Autoscale, Deployment Slots, VNet 통합 조건), 플랜 변경 시 앱 영향이 출제됩니다."
+    ],
+    "level": "고급",
+    "related_practices": [
+      "azure-lab-13"
+    ]
+  },
+  {
+    "id": "azure-container-registry",
+    "certification": "AZ-104",
+    "title": "Azure Container Registry — 컨테이너 레지스트리",
+    "summary": "Docker 컨테이너 이미지와 Helm 차트를 저장하고 관리하는 사설 레지스트리입니다. AKS, Container Instances, App Service와 통합됩니다.",
+    "example": "az acr create \\\n  --name myRegistry \\\n  --resource-group myRG \\\n  --sku Standard\naz acr build --registry myRegistry --image myapp:v1 .\ndocker pull myregistry.azurecr.io/myapp:v1",
+    "common_mistake": "ACR에서 이미지를 pull하려면 인증이 필요합니다. AKS에서 사용 시 Managed Identity 또는 Service Principal로 pull 권한을 부여해야 합니다.",
+    "keywords": [
+      "ACR",
+      "container registry",
+      "docker",
+      "image",
+      "geo-replication",
+      "SKU Basic/Standard/Premium"
+    ],
+    "source_id": "azure-app-service-overview",
+    "details": [
+      "SKU: Basic(개발용), Standard(일반, geo-replication 미지원), Premium(geo-replication, Private Link 지원).",
+      "ACR Tasks: 이미지 빌드·테스트·패치를 Azure에서 직접 실행. Docker 없이 클라우드에서 이미지를 빌드합니다.",
+      "시험 패턴: ACR SKU별 기능 차이, AKS에서 ACR 이미지 pull 권한 설정(Managed Identity 연결), geo-replication 설정이 출제됩니다."
+    ],
+    "level": "고급"
+  },
+  {
+    "id": "azure-key-vault",
+    "certification": "AZ-104",
+    "title": "Key Vault — 키 자격 증명 모음",
+    "summary": "비밀(Secret), 키(Key), 인증서(Certificate)를 중앙에서 안전하게 저장·관리합니다. 앱 코드에서 자격 증명을 제거하는 핵심 보안 서비스입니다.",
+    "example": "az keyvault create --name myKV --resource-group myRG --location koreacentral\naz keyvault secret set --vault-name myKV --name 'db-password' --value 'MyP@ss'\naz keyvault secret show --vault-name myKV --name 'db-password'",
+    "common_mistake": "Key Vault에 접근하려면 Access Policy 또는 RBAC로 권한을 부여해야 합니다. Managed Identity를 통해 앱이 자격 증명 없이 Key Vault에 접근하는 것이 모범 사례입니다.",
+    "keywords": [
+      "Key Vault",
+      "secret",
+      "key",
+      "certificate",
+      "soft delete",
+      "RBAC",
+      "access policy"
+    ],
+    "source_id": "azure-key-vault-overview",
+    "details": [
+      "접근 제어: 구식 Access Policy 방식과 최신 Azure RBAC 방식 두 가지. 새 구축은 RBAC 방식 권장.",
+      "Soft Delete와 Purge Protection: 실수로 삭제된 비밀을 7~90일 내 복원 가능. Purge Protection 활성화 시 삭제된 항목 영구 제거 불가.",
+      "시험 패턴: Managed Identity로 앱에서 비밀 접근, Soft Delete/Purge Protection 개념, HSM(하드웨어 보안 모듈) 지원 SKU 차이가 출제됩니다."
+    ],
+    "level": "중급",
+    "related_practices": [
+      "azure-lab-9"
+    ]
+  },
+  {
+    "id": "azure-cost-management",
+    "certification": "AZ-104",
+    "title": "Cost Management — 비용 관리",
+    "summary": "Azure 서비스 사용 비용을 분석하고 예산을 설정해 초과 시 알림을 받습니다. 태그·구독·RG별로 비용을 세분화할 수 있습니다.",
+    "example": "az consumption budget create \\\n  --budget-name monthlyBudget \\\n  --amount 1000 \\\n  --time-grain Monthly \\\n  --start-date 2024-01-01 \\\n  --end-date 2024-12-31",
+    "common_mistake": "예산 경보는 지출이 임계값에 도달했을 때 알려주는 것이지, 자동으로 리소스를 중지하거나 비용을 차단하지 않습니다.",
+    "keywords": [
+      "Cost Management",
+      "budget",
+      "alert",
+      "cost analysis",
+      "tags",
+      "billing"
+    ],
+    "source_id": "azure-monitor-overview",
+    "details": [
+      "비용 분석(Cost Analysis): 기간·서비스·location·태그 등으로 필터링해 비용 내역을 파이/누적 차트로 시각화합니다.",
+      "예산 경보: 실제 비용 또는 예측 비용이 설정 비율(예: 80%, 100%)에 도달하면 Action Group으로 알림을 보냅니다.",
+      "시험 패턴: 예산 경보 설정 절차, 태그를 통한 비용 분류, Cost Management vs Azure Advisor 역할 차이가 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-bastion",
+    "certification": "AZ-104",
+    "title": "Azure Bastion — 안전한 원격 접속",
+    "summary": "공용 IP 없이 Azure Portal에서 직접 VM에 RDP/SSH로 접속합니다. TLS 443 포트만 사용해 VM의 관리 포트를 인터넷에 노출하지 않습니다.",
+    "example": "az network bastion create \\\n  --name myBastion \\\n  --public-ip-address myBastionIP \\\n  --resource-group myRG \\\n  --vnet-name myVNet \\\n  --location koreacentral",
+    "common_mistake": "Bastion은 VNet에 `AzureBastionSubnet`이라는 이름의 서브넷(/27 이상)이 반드시 필요합니다. 이름이 정확히 일치해야 합니다.",
+    "keywords": [
+      "Azure Bastion",
+      "RDP",
+      "SSH",
+      "AzureBastionSubnet",
+      "port 443",
+      "no public IP"
+    ],
+    "source_id": "azure-bastion-overview",
+    "details": [
+      "Bastion SKU: Basic(RDP/SSH 기본), Standard(파일 전송, 멀티탭, 기본 호스트 포트 외 포트, VM Auth 등 추가 기능).",
+      "VM에 Public IP와 NSG에 RDP/SSH 허용 규칙이 없어도 Bastion으로 접속 가능합니다. 공격 표면이 크게 줄어듭니다.",
+      "시험 패턴: Bastion 서브넷 이름·크기 요구사항, Public IP 없는 VM 접속 방법, JIT(Just-In-Time) VM Access와 차이가 출제됩니다."
+    ],
+    "level": "중급",
+    "related_practices": [
+      "azure-lab-12"
+    ]
+  },
+  {
+    "id": "azure-nat-gateway",
+    "certification": "AZ-104",
+    "title": "NAT Gateway — 아웃바운드 인터넷 연결",
+    "summary": "서브넷의 모든 VM이 동일한 고정 공용 IP로 인터넷에 나가도록 합니다. 아웃바운드 연결 안정성을 높이고 SNAT 포트 고갈 문제를 해결합니다.",
+    "example": "az network public-ip create --name myNatIP --resource-group myRG --sku Standard\naz network nat gateway create \\\n  --name myNatGW \\\n  --resource-group myRG \\\n  --public-ip-addresses myNatIP\naz network vnet subnet update --nat-gateway myNatGW ...",
+    "common_mistake": "NAT Gateway는 아웃바운드 전용입니다. 인바운드 트래픽을 받으려면 여전히 Public IP 또는 Load Balancer가 필요합니다.",
+    "keywords": [
+      "NAT Gateway",
+      "outbound",
+      "SNAT",
+      "public IP",
+      "port exhaustion",
+      "static IP"
+    ],
+    "source_id": "azure-nat-gateway",
+    "details": [
+      "SNAT(Source NAT): VM의 사설 IP를 NAT Gateway의 공용 IP로 변환. 여러 VM이 같은 공용 IP를 공유합니다.",
+      "Load Balancer 아웃바운드 규칙 vs NAT Gateway: NAT Gateway가 더 많은 SNAT 포트(64,512 × IP 수)를 제공해 고부하에 적합합니다.",
+      "시험 패턴: NAT Gateway 서브넷 연결 방법, 고정 아웃바운드 IP 요구 시나리오, Load Balancer와 동시 사용 우선순위가 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-app-service",
+    "certification": "AZ-104",
+    "title": "App Service — 웹 앱 호스팅",
+    "summary": "코드 또는 컨테이너를 배포하는 완전 관리형 PaaS 웹 호스팅 서비스입니다. .NET, Node.js, Python, Java, PHP 등 다양한 런타임을 지원합니다.",
+    "example": "az webapp create \\\n  --name myWebApp \\\n  --resource-group myRG \\\n  --plan myPlan \\\n  --runtime 'PYTHON:3.11'\naz webapp deployment source config-zip \\\n  --name myWebApp --src app.zip",
+    "common_mistake": "App Service의 앱 설정(Application Settings)은 환경 변수로 앱에 주입됩니다. 코드에 하드코딩된 설정보다 앱 설정에 넣는 것이 보안에 좋습니다.",
+    "keywords": [
+      "App Service",
+      "web app",
+      "deployment slot",
+      "custom domain",
+      "SSL",
+      "VNet integration"
+    ],
+    "source_id": "azure-app-service-overview",
+    "details": [
+      "배포 방법: ZIP 배포, Git(로컬/GitHub Actions), Docker 이미지, Azure DevOps. CI/CD 연동이 용이합니다.",
+      "VNet 통합: Standard 이상 플랜에서 App Service를 VNet에 연결해 사설 리소스(DB, 캐시)에 접근할 수 있습니다.",
+      "시험 패턴: 커스텀 도메인·SSL 바인딩, 배포 슬롯 스왑, VNet 통합 설정, App Settings vs Connection Strings 차이가 출제됩니다."
+    ],
+    "level": "고급",
+    "related_practices": [
+      "azure-lab-13"
+    ]
+  },
+  {
+    "id": "azure-deployment-slot",
+    "certification": "AZ-104",
+    "title": "Deployment Slot — 배포 슬롯",
+    "summary": "앱의 스테이징 버전을 별도 슬롯에 배포하고 테스트 후 프로덕션 슬롯과 즉시 교체(Swap)합니다. Standard 이상 플랜에서 지원합니다.",
+    "example": "az webapp deployment slot create \\\n  --name myWebApp \\\n  --resource-group myRG \\\n  --slot staging\n# 테스트 후 swap\naz webapp deployment slot swap \\\n  --name myWebApp --slot staging",
+    "common_mistake": "Swap 시 슬롯 고유 설정(Slot Settings로 표시된 항목)은 교체되지 않고 각 슬롯에 고정됩니다. 예: 스테이징 DB 연결 문자열은 프로덕션으로 따라가지 않습니다.",
+    "keywords": [
+      "deployment slot",
+      "staging",
+      "swap",
+      "slot settings",
+      "traffic routing",
+      "warm-up"
+    ],
+    "source_id": "azure-app-service-overview",
+    "details": [
+      "Swap 동작: 슬롯이 워밍업된 후 라우터 수준에서 트래픽이 즉시 전환됩니다. 다운타임 없이 새 버전 배포가 가능합니다.",
+      "트래픽 라우팅: % 기반으로 일부 트래픽만 스테이징 슬롯으로 보내 A/B 테스트를 할 수 있습니다.",
+      "시험 패턴: Slot Settings(슬롯 고정 설정) 개념, Swap 시 설정 교체 규칙, Auto Swap 기능, 슬롯 수 제한(Standard=5) 이 출제됩니다."
+    ],
+    "level": "고급",
+    "related_practices": [
+      "azure-lab-14"
+    ]
+  },
+  {
+    "id": "azure-aci",
+    "certification": "AZ-104",
+    "title": "Azure Container Instances — 컨테이너 인스턴스",
+    "summary": "VM이나 클러스터 관리 없이 컨테이너를 초 단위로 빠르게 실행합니다. 단순 작업, 배치 처리, 이벤트 기반 처리에 적합합니다.",
+    "example": "az container create \\\n  --name myapp \\\n  --resource-group myRG \\\n  --image nginx:latest \\\n  --cpu 1 --memory 1.5 \\\n  --ports 80 \\\n  --dns-name-label myapp-dns",
+    "common_mistake": "ACI는 단기 실행 컨테이너에 적합합니다. 지속적인 고가용성 웹 앱이나 복잡한 마이크로서비스에는 AKS(Kubernetes)가 더 적합합니다.",
+    "keywords": [
+      "ACI",
+      "container",
+      "serverless",
+      "container group",
+      "CPU/memory",
+      "VNet"
+    ],
+    "source_id": "azure-container-instances",
+    "details": [
+      "Container Group: 동일 호스트에서 리소스를 공유하는 컨테이너 모음. Kubernetes Pod 개념과 유사합니다.",
+      "VNet 배포: ACI를 VNet에 배포하면 사설 IP를 부여받아 다른 Azure 리소스와 사설망에서 통신합니다.",
+      "시험 패턴: ACI vs AKS 선택 기준, 컨테이너 그룹 내 사이드카 패턴, 재시작 정책(Always/OnFailure/Never) 시나리오가 출제됩니다."
+    ],
+    "level": "고급"
+  },
+  {
+    "id": "azure-keyvault-secret",
+    "certification": "AZ-104",
+    "title": "Key Vault Secret — 비밀 관리",
+    "summary": "Key Vault에서 API 키, 비밀번호, 연결 문자열을 버전 관리와 함께 저장합니다. 앱에서 Managed Identity로 코드에 자격 증명 없이 비밀을 가져옵니다.",
+    "example": "az keyvault secret set --vault-name myKV --name 'APIKey' --value 'secret123'\naz keyvault secret show --vault-name myKV --name 'APIKey' --query 'value'\n# 앱에서: 환경변수 또는 Key Vault 참조로 주입",
+    "common_mistake": "비밀을 삭제하면 모든 버전이 삭제됩니다. Soft Delete가 활성화된 경우 복원 기간(90일 기본) 내에 복구 가능합니다.",
+    "keywords": [
+      "secret",
+      "version",
+      "managed identity",
+      "Key Vault reference",
+      "rotation",
+      "soft delete"
+    ],
+    "source_id": "azure-key-vault-overview",
+    "details": [
+      "비밀 버전: 값을 업데이트할 때마다 새 버전이 생성됩니다. 앱은 버전 없이 참조하면 현재 활성 버전을 받습니다.",
+      "Key Vault 참조: App Service 앱 설정에서 `@Microsoft.KeyVault(SecretUri=...)` 형식으로 비밀을 직접 주입합니다.",
+      "시험 패턴: App Service에서 Key Vault 참조로 비밀 주입, 비밀 순환(rotation) 설정, Managed Identity와 Key Vault 연동 절차가 출제됩니다."
+    ],
+    "level": "고급",
+    "related_practices": [
+      "azure-lab-9"
+    ]
+  },
+  {
+    "id": "azure-managed-identity",
+    "certification": "AZ-104",
+    "title": "Managed Identity — 관리형 ID",
+    "summary": "Azure 리소스(VM, App Service 등)에 Entra ID ID를 부여해 자격 증명 없이 다른 Azure 서비스에 인증합니다. 코드에 비밀을 저장할 필요가 없습니다.",
+    "example": "# VM에 System-Assigned MI 활성화\naz vm identity assign --name myVM --resource-group myRG\n# MI에 역할 할당\naz role assignment create \\\n  --assignee $(az vm show --name myVM --query identity.principalId -o tsv) \\\n  --role 'Key Vault Secrets User' \\\n  --scope /subscriptions/.../vaults/myKV",
+    "common_mistake": "System-Assigned MI는 리소스 삭제 시 함께 삭제됩니다. 여러 리소스에서 공유하는 ID가 필요하면 User-Assigned MI를 씁니다.",
+    "keywords": [
+      "managed identity",
+      "system-assigned",
+      "user-assigned",
+      "principal ID",
+      "service principal"
+    ],
+    "source_id": "azure-rbac-overview",
+    "details": [
+      "유형: System-Assigned(리소스에 종속, 1:1), User-Assigned(독립적으로 생성, 여러 리소스에 연결 가능).",
+      "동작 원리: 리소스가 Entra ID에서 토큰을 자동 획득 → 해당 토큰으로 Key Vault, Storage 등에 인증합니다.",
+      "시험 패턴: System vs User-Assigned 선택 시나리오, MI에 RBAC 역할 부여 절차, App Service에서 MI를 통한 Key Vault 접근이 출제됩니다."
+    ],
+    "level": "고급"
+  },
+  {
+    "id": "azure-network-watcher",
+    "certification": "AZ-104",
+    "title": "Network Watcher — 네트워크 진단",
+    "summary": "Azure 네트워크 연결 문제를 진단하는 도구 모음입니다. IP 흐름 확인, 연결 문제 해결, NSG 진단, 패킷 캡처 등을 제공합니다.",
+    "example": "# NSG가 패킷을 허용하는지 확인\naz network watcher test-ip-flow \\\n  --vm myVM \\\n  --direction Inbound \\\n  --protocol TCP \\\n  --local 10.0.0.4:80 \\\n  --remote 0.0.0.0:*",
+    "common_mistake": "Network Watcher는 region별로 활성화해야 합니다. VNet을 생성하면 대부분 자동 활성화되지만, 비활성화된 region에서는 진단 기능이 동작하지 않습니다.",
+    "keywords": [
+      "Network Watcher",
+      "IP flow verify",
+      "connection troubleshoot",
+      "NSG flow log",
+      "packet capture"
+    ],
+    "source_id": "azure-vnet-overview",
+    "details": [
+      "IP 흐름 확인: 특정 VM에서 출발지/목적지 IP·포트로 NSG가 허용/거부를 결정하는 규칙을 찾아줍니다.",
+      "NSG Flow Log: 서브넷·NIC를 통과하는 트래픽의 허용/거부 흐름을 Storage Account에 기록합니다. Traffic Analytics와 연동해 시각화.",
+      "시험 패턴: IP 흐름 확인으로 NSG 규칙 진단, Connection Troubleshoot으로 VM 간 연결 검증, NSG Flow Log 설정이 출제됩니다."
+    ],
+    "level": "중급"
+  },
+  {
+    "id": "azure-move-resource",
+    "certification": "AZ-104",
+    "title": "리소스 이동 — Resource Move",
+    "summary": "리소스를 다른 Resource Group이나 다른 Subscription으로 이동합니다. 이동 중 리소스는 잠기며, 모든 리소스가 이동을 지원하지는 않습니다.",
+    "example": "az resource move \\\n  --destination-group targetRG \\\n  --ids /subscriptions/SUB/resourceGroups/sourceRG/providers/Microsoft.Compute/virtualMachines/myVM",
+    "common_mistake": "이동 후 리소스 ID(ARM ID)가 변경됩니다. 이 ID를 하드코딩한 스크립트·모니터링·Role Assignment는 업데이트가 필요합니다.",
+    "keywords": [
+      "resource move",
+      "RG move",
+      "subscription move",
+      "ARM ID change",
+      "limitations"
+    ],
+    "source_id": "azure-vm-overview",
+    "details": [
+      "이동 전 유효성 검사: `az resource invoke-action --action validate-move`로 이동 가능 여부를 미리 확인합니다.",
+      "이동이 불가한 경우: 특정 리소스 유형, 구독 간 이동 시 서비스별 제한, Key Vault(구독 이동 시 일부 제한) 등.",
+      "시험 패턴: 이동 후 리소스 ID 변경 영향, 이동 불가 리소스 예시, 구독 간 이동 시 추가 조건(Entra ID 테넌트 일치 등)이 출제됩니다."
+    ],
+    "level": "고급"
+  },
+  {
+    "id": "azure-template-deployment",
+    "certification": "AZ-104",
+    "title": "ARM/Bicep — 인프라 코드 배포",
+    "summary": "ARM Template(JSON) 또는 Bicep(DSL)으로 Azure 리소스를 선언적으로 정의하고 반복 가능하게 배포합니다. IaC(Infrastructure as Code)의 표준 방식입니다.",
+    "example": "# Bicep 배포\naz deployment group create \\\n  --resource-group myRG \\\n  --template-file main.bicep \\\n  --parameters environment=prod\n# 구독 레벨 배포\naz deployment sub create --template-file rg.bicep --location koreacentral",
+    "common_mistake": "ARM 배포는 기본적으로 Incremental 모드(기존 리소스 유지, 새 리소스 추가)입니다. Complete 모드는 템플릿에 없는 RG 내 리소스를 삭제하므로 주의가 필요합니다.",
+    "keywords": [
+      "ARM template",
+      "Bicep",
+      "IaC",
+      "incremental",
+      "complete",
+      "deployment scope"
+    ],
+    "source_id": "azure-vm-overview",
+    "details": [
+      "배포 범위: Resource Group(대부분), Subscription(RG 생성 포함), Management Group(Policy/RBAC), Tenant 레벨 중 선택합니다.",
+      "Bicep은 ARM JSON보다 간결한 문법으로 같은 결과를 냅니다. `bicep build`로 ARM JSON으로 컴파일 가능합니다.",
+      "시험 패턴: Incremental vs Complete 모드 차이, 배포 범위별 명령(`deployment group/sub/mg create`), What-If 검증 사용법이 출제됩니다."
+    ],
+    "level": "고급"
+  }
+]

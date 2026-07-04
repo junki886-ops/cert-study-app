@@ -1,0 +1,1058 @@
+[
+  {
+    "id": "azure-q28",
+    "lesson_id": "azure-subscription",
+    "question_type": "multiple_choice",
+    "question": "Azure에서 과금과 리소스 배포의 주요 경계 단위는?",
+    "options": [
+      "Subscription",
+      "Resource Group",
+      "Management Group",
+      "Tenant"
+    ],
+    "answer": "Subscription",
+    "explanation": "Subscription은 Azure 과금, 리소스 할당량, RBAC/Policy 적용의 주요 경계입니다. Resource Group은 Subscription 아래, Management Group은 여러 Subscription을 묶는 상위 계층입니다.",
+    "difficulty": "easy",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q29",
+    "lesson_id": "azure-tags",
+    "question_type": "multiple_choice",
+    "question": "Azure Tags의 주된 용도로 가장 맞는 것은?",
+    "options": [
+      "리소스에 key/value 메타데이터를 붙여 비용과 소유자를 분류한다",
+      "리소스 접근 권한을 직접 제어한다",
+      "VM 인스턴스를 자동으로 재시작한다",
+      "NSG 인바운드 규칙을 정의한다"
+    ],
+    "answer": "리소스에 key/value 메타데이터를 붙여 비용과 소유자를 분류한다",
+    "explanation": "Tags는 비용 분석, 소유자 식별, 환경 구분을 위한 메타데이터입니다. 리소스 접근 권한 제어는 RBAC가 담당합니다.",
+    "difficulty": "easy",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q30",
+    "lesson_id": "azure-custom-role",
+    "question_type": "multiple_choice",
+    "question": "Azure Custom Role의 `AssignableScopes`를 잘못 설정하면 생기는 문제는?",
+    "options": [
+      "필요한 범위에 역할을 할당할 수 없게 된다",
+      "역할에 정의된 actions이 모두 무시된다",
+      "VM이 자동으로 중지된다",
+      "Blob 접근이 차단된다"
+    ],
+    "answer": "필요한 범위에 역할을 할당할 수 없게 된다",
+    "explanation": "`AssignableScopes`는 이 역할을 할당할 수 있는 범위를 제한합니다. 너무 좁게 설정하면 필요한 subscription이나 resource group에 할당할 수 없습니다.",
+    "difficulty": "medium",
+    "source_id": "azure-rbac-overview"
+  },
+  {
+    "id": "azure-q31",
+    "lesson_id": "azure-lifecycle",
+    "question_type": "multiple_choice",
+    "question": "Azure Storage Lifecycle 관리의 주된 목적은?",
+    "options": [
+      "Blob 접근 빈도에 따라 자동으로 tier를 이동하거나 삭제해 비용을 최적화한다",
+      "VM을 자동으로 백업한다",
+      "NSG 규칙을 주기적으로 갱신한다",
+      "DNS 레코드를 자동 업데이트한다"
+    ],
+    "answer": "Blob 접근 빈도에 따라 자동으로 tier를 이동하거나 삭제해 비용을 최적화한다",
+    "explanation": "Lifecycle 정책은 마지막 수정·접근 이후 경과 일수를 기준으로 Blob을 자동으로 Cool/Archive로 이동하거나 삭제합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-blob-access-tiers"
+  },
+  {
+    "id": "azure-q32",
+    "lesson_id": "azure-files",
+    "question_type": "multiple_choice",
+    "question": "Azure Files와 Blob Storage의 주요 차이로 가장 맞는 것은?",
+    "options": [
+      "Azure Files는 SMB/NFS 파일 공유, Blob은 REST API 기반 개체 저장이다",
+      "두 서비스는 동일한 방식으로 마운트된다",
+      "Blob이 파일 공유에 적합하고 Azure Files가 개체 저장에 적합하다",
+      "Azure Files는 관계형 데이터베이스 서비스다"
+    ],
+    "answer": "Azure Files는 SMB/NFS 파일 공유, Blob은 REST API 기반 개체 저장이다",
+    "explanation": "Azure Files는 네트워크 드라이브처럼 마운트해 사용하고, Blob Storage는 REST API로 비정형 데이터(이미지, 로그, 백업)를 저장합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-storage-account"
+  },
+  {
+    "id": "azure-q33",
+    "lesson_id": "azure-managed-disk",
+    "question_type": "multiple_choice",
+    "question": "Azure VM에서 재시작하면 데이터가 사라질 수 있는 디스크 유형은?",
+    "options": [
+      "Temporary disk",
+      "OS disk",
+      "Premium SSD data disk",
+      "Ultra disk"
+    ],
+    "answer": "Temporary disk",
+    "explanation": "임시 디스크(temporary disk)는 VM 재시작 시 데이터가 유지되지 않습니다. OS disk와 data disk는 영구 저장소로 재시작에도 데이터가 보존됩니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vm-overview"
+  },
+  {
+    "id": "azure-q34",
+    "lesson_id": "azure-autoscale",
+    "question_type": "multiple_choice",
+    "question": "Autoscale이 연결되어 인스턴스 수를 자동으로 조정할 수 있는 리소스는?",
+    "options": [
+      "Virtual Machine Scale Sets (VMSS)",
+      "Recovery Services Vault",
+      "Private DNS Zone",
+      "Activity Log"
+    ],
+    "answer": "Virtual Machine Scale Sets (VMSS)",
+    "explanation": "Autoscale은 VMSS나 App Service Plan 같은 확장 가능한 리소스와 연결됩니다. CPU/메모리 메트릭 조건에 따라 인스턴스 수를 자동으로 늘리거나 줄입니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vmss-overview"
+  },
+  {
+    "id": "azure-q35",
+    "lesson_id": "azure-route-table",
+    "question_type": "multiple_choice",
+    "question": "UDR(User Defined Route, 사용자 정의 경로)의 주된 역할은?",
+    "options": [
+      "Subnet 트래픽의 next hop을 기본 Azure 라우팅 대신 NVA나 다른 경로로 제어한다",
+      "VM의 크기를 자동으로 조정한다",
+      "Blob 데이터를 지역 간 복제한다",
+      "DNS 이름을 IP로 해석한다"
+    ],
+    "answer": "Subnet 트래픽의 next hop을 기본 Azure 라우팅 대신 NVA나 다른 경로로 제어한다",
+    "explanation": "UDR은 기본 Azure 라우팅을 재정의해 방화벽(NVA)이나 특정 장치를 통해 트래픽을 보낼 때 사용합니다. NSG와 역할이 다릅니다.",
+    "difficulty": "medium",
+    "source_id": "azure-vnet-overview"
+  },
+  {
+    "id": "azure-q36",
+    "lesson_id": "azure-private-endpoint",
+    "question_type": "multiple_choice",
+    "question": "Private Endpoint 연결 문제에서 DNS를 함께 확인해야 하는 이유는?",
+    "options": [
+      "Private Endpoint가 private IP를 쓰므로 DNS가 올바른 IP로 해석해야 연결되기 때문이다",
+      "DNS가 Blob 접근 tier를 결정하기 때문이다",
+      "DNS가 NSG 규칙을 적용하기 때문이다",
+      "DNS가 VM 크기를 제어하기 때문이다"
+    ],
+    "answer": "Private Endpoint가 private IP를 쓰므로 DNS가 올바른 IP로 해석해야 연결되기 때문이다",
+    "explanation": "Private Endpoint는 VNet 내부 private IP를 사용합니다. DNS가 해당 서비스를 public IP 대신 올바른 private IP로 해석하지 못하면 연결이 실패합니다.",
+    "difficulty": "medium",
+    "source_id": "azure-private-endpoint"
+  },
+  {
+    "id": "azure-q37",
+    "lesson_id": "azure-monitor-metrics",
+    "question_type": "multiple_choice",
+    "question": "Azure Monitor Metrics와 Logs의 차이로 가장 맞는 것은?",
+    "options": [
+      "Metrics는 수치형 시계열 데이터, Logs는 KQL로 조회하는 구조화 로그 데이터다",
+      "두 서비스 모두 KQL로만 조회한다",
+      "Metrics는 텍스트 로그, Logs는 숫자 값만 저장한다",
+      "Metrics는 백업, Logs는 복구에 사용한다"
+    ],
+    "answer": "Metrics는 수치형 시계열 데이터, Logs는 KQL로 조회하는 구조화 로그 데이터다",
+    "explanation": "Metrics는 CPU%, 네트워크 바이트처럼 숫자 기반 시계열 데이터이고, Logs는 Log Analytics workspace에서 KQL로 조회하는 구조화된 로그 데이터입니다.",
+    "difficulty": "medium",
+    "source_id": "azure-monitor-overview"
+  },
+  {
+    "id": "azure-q38",
+    "lesson_id": "azure-activity-log",
+    "question_type": "multiple_choice",
+    "question": "Azure Activity Log에서 확인하기 가장 적합한 정보는?",
+    "options": [
+      "누가 어떤 리소스를 언제 수정하거나 삭제했는지 관리 이벤트",
+      "VM 내부 애플리케이션 오류 스택 트레이스",
+      "Blob 데이터 접근 내역",
+      "네트워크 패킷의 페이로드"
+    ],
+    "answer": "누가 어떤 리소스를 언제 수정하거나 삭제했는지 관리 이벤트",
+    "explanation": "Activity Log는 subscription 수준의 관리 작업(누가 무엇을 언제 했는지)을 기록합니다. 애플리케이션 내부 오류 로그는 Diagnostic Settings나 Application Insights에서 봅니다.",
+    "difficulty": "easy",
+    "source_id": "azure-monitor-overview"
+  },
+  {
+    "id": "azure-q39",
+    "lesson_id": "azure-restore",
+    "question_type": "multiple_choice",
+    "question": "Recovery Services Vault에서 복구 가능한 시점을 결정하는 것은?",
+    "options": [
+      "Backup Policy의 백업 빈도와 보존 기간",
+      "VM의 크기(size)",
+      "NSG 규칙 수",
+      "VNet 주소 공간"
+    ],
+    "answer": "Backup Policy의 백업 빈도와 보존 기간",
+    "explanation": "복구 지점(recovery point)은 backup policy에서 정의한 일정과 보존 기간에 따라 생성됩니다. 보존 기간이 지난 복구 지점은 자동 삭제됩니다.",
+    "difficulty": "easy",
+    "source_id": "azure-recovery-services-vault"
+  },
+  {
+    "id": "azure-q40",
+    "lesson_id": "azure-app-service-plan",
+    "question_type": "multiple_choice",
+    "question": "App Service Plan이 Web App과의 관계에서 정의하는 것은?",
+    "options": [
+      "Web App이 사용할 컴퓨팅 리소스와 가격 티어",
+      "Web App의 도메인 이름",
+      "Web App의 데이터베이스 스키마",
+      "Web App의 사용자 인증 방식"
+    ],
+    "answer": "Web App이 사용할 컴퓨팅 리소스와 가격 티어",
+    "explanation": "App Service Plan은 CPU, 메모리, 인스턴스 수, 가격 티어를 정의합니다. 여러 Web App이 하나의 Plan을 공유할 수 있으며, 스케일 설정은 Plan 수준에서 합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vm-overview"
+  },
+  {
+    "id": "azure-q41",
+    "lesson_id": "azure-container-registry",
+    "question_type": "multiple_choice",
+    "question": "Azure Container Registry(ACR)의 주된 역할은?",
+    "options": [
+      "컨테이너 이미지를 저장하고 관리하는 프라이빗 레지스트리",
+      "컨테이너를 직접 실행하는 서버리스 서비스",
+      "VM을 컨테이너로 변환하는 도구",
+      "Kubernetes 클러스터를 관리하는 서비스"
+    ],
+    "answer": "컨테이너 이미지를 저장하고 관리하는 프라이빗 레지스트리",
+    "explanation": "ACR은 Docker Hub 같은 이미지 저장소입니다. 이미지 실행은 ACI, AKS, App Service가 담당하고 ACR은 이미지 저장/배포에 특화됩니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vm-overview"
+  },
+  {
+    "id": "azure-q42",
+    "lesson_id": "azure-cost-management",
+    "question_type": "multiple_choice",
+    "question": "Azure Tags가 비용 관리에서 도움을 주는 방식은?",
+    "options": [
+      "리소스를 환경·팀·프로젝트별로 분류해 Cost Management에서 필터링을 쉽게 해준다",
+      "불필요한 리소스를 자동으로 삭제해 비용을 줄인다",
+      "VM을 자동으로 스케일다운해 절약한다",
+      "Blob tier를 자동으로 낮춰 절약한다"
+    ],
+    "answer": "리소스를 환경·팀·프로젝트별로 분류해 Cost Management에서 필터링을 쉽게 해준다",
+    "explanation": "Tags 자체는 비용을 줄이지 않지만, Cost Management에서 tag별로 필터링하면 부서/프로젝트별 지출을 파악할 수 있습니다.",
+    "difficulty": "easy",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q43",
+    "lesson_id": "azure-app-service",
+    "question_type": "multiple_choice",
+    "question": "Azure App Service의 특징으로 가장 맞는 것은?",
+    "options": [
+      "VM을 직접 관리하지 않고 웹앱과 API를 배포하는 PaaS 서비스",
+      "OS와 미들웨어를 직접 관리하는 IaaS 서비스",
+      "컨테이너 이미지를 저장하는 레지스트리",
+      "관계형 데이터베이스 호스팅 서비스"
+    ],
+    "answer": "VM을 직접 관리하지 않고 웹앱과 API를 배포하는 PaaS 서비스",
+    "explanation": "App Service는 인프라 관리 없이 코드를 배포하는 PaaS입니다. OS 패치, 서버 관리는 Azure가 담당합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-app-service-overview"
+  },
+  {
+    "id": "azure-q44",
+    "lesson_id": "azure-aci",
+    "question_type": "multiple_choice",
+    "question": "Azure Container Instances(ACI)가 AKS와 비교해 가진 주요 특징은?",
+    "options": [
+      "클러스터 관리 없이 컨테이너를 즉시 실행할 수 있는 서버리스 방식이다",
+      "대규모 마이크로서비스 오케스트레이션에 최적화됐다",
+      "VM Scale Set과 동일한 서비스다",
+      "컨테이너 이미지를 저장하는 레지스트리다"
+    ],
+    "answer": "클러스터 관리 없이 컨테이너를 즉시 실행할 수 있는 서버리스 방식이다",
+    "explanation": "ACI는 클러스터 운영 없이 간단한 컨테이너를 빠르게 실행하는 서버리스 방식입니다. 복잡한 마이크로서비스 오케스트레이션은 AKS가 적합합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-container-instances"
+  },
+  {
+    "id": "azure-q45",
+    "lesson_id": "azure-keyvault-secret",
+    "question_type": "multiple_choice",
+    "question": "Key Vault Secret의 주된 사용 목적은?",
+    "options": [
+      "DB password, API 키 같은 민감한 값을 코드나 설정 파일 대신 안전하게 저장한다",
+      "VM 디스크를 암호화한다",
+      "RBAC 역할 정의를 저장한다",
+      "NSG 보안 규칙을 정의한다"
+    ],
+    "answer": "DB password, API 키 같은 민감한 값을 코드나 설정 파일 대신 안전하게 저장한다",
+    "explanation": "Key Vault Secret은 비밀값을 코드나 Git에 넣지 않고 중앙에서 안전하게 관리합니다. Managed Identity와 결합하면 코드에 비밀값이 전혀 없어도 됩니다.",
+    "difficulty": "easy",
+    "source_id": "azure-key-vault-overview"
+  },
+  {
+    "id": "azure-q46",
+    "lesson_id": "azure-network-watcher",
+    "question_type": "multiple_choice",
+    "question": "Azure Network Watcher의 주된 역할은?",
+    "options": [
+      "네트워크 연결 진단, 흐름 로그, 패킷 캡처 같은 네트워크 모니터링 도구를 제공한다",
+      "VM을 자동으로 시작하고 중지한다",
+      "Blob 수명주기를 자동 관리한다",
+      "NSG 규칙을 자동으로 생성한다"
+    ],
+    "answer": "네트워크 연결 진단, 흐름 로그, 패킷 캡처 같은 네트워크 모니터링 도구를 제공한다",
+    "explanation": "Network Watcher는 Connection troubleshoot, NSG flow log, IP flow verify, packet capture 같은 진단 도구를 제공합니다. NSG 규칙만으로 파악하기 어려운 실제 트래픽 경로를 확인할 수 있습니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vnet-overview"
+  },
+  {
+    "id": "azure-q47",
+    "lesson_id": "azure-move-resource",
+    "question_type": "multiple_choice",
+    "question": "Azure 리소스 이동(Move)에서 주의해야 할 사항으로 가장 맞는 것은?",
+    "options": [
+      "모든 리소스 유형이 이동을 지원하지 않으며 종속 리소스도 함께 고려해야 한다",
+      "이동 중에도 서비스가 항상 정상 동작한다",
+      "이동하면 자동으로 새 subscription 과금으로 전환된다",
+      "Resource Lock이 있어도 항상 이동 가능하다"
+    ],
+    "answer": "모든 리소스 유형이 이동을 지원하지 않으며 종속 리소스도 함께 고려해야 한다",
+    "explanation": "일부 리소스 유형은 이동을 지원하지 않습니다. NIC, 디스크 같은 종속 리소스를 함께 이동해야 하는 경우가 많으며, 이동 중에는 일시적으로 잠금 상태가 됩니다.",
+    "difficulty": "medium",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q48",
+    "lesson_id": "azure-vmss",
+    "question_type": "multiple_choice",
+    "question": "VMSS와 Availability Set의 가장 큰 차이점은?",
+    "options": [
+      "VMSS는 부하에 따라 VM 수를 자동 조정한다",
+      "Availability Set은 SLA가 더 높다",
+      "VMSS는 단일 VM만 지원한다",
+      "Availability Set이 더 저렴하다"
+    ],
+    "answer": "VMSS는 부하에 따라 VM 수를 자동 조정한다",
+    "explanation": "VMSS는 Autoscale로 인스턴스 수를 동적으로 조절합니다. Availability Set은 HA를 위한 배치 구성이며 자동 확장 기능이 없습니다.",
+    "source_id": "azure-vmss-overview"
+  },
+  {
+    "id": "azure-q49",
+    "lesson_id": "azure-dns",
+    "question_type": "multiple_choice",
+    "question": "Azure DNS에서 Public Zone 생성 후 반드시 해야 하는 추가 작업은?",
+    "options": [
+      "도메인 등록 기관에서 NS 레코드를 Azure로 위임",
+      "VNet에 DNS Zone 링크 연결",
+      "Private Endpoint 생성",
+      "SSL 인증서 바인딩"
+    ],
+    "answer": "도메인 등록 기관에서 NS 레코드를 Azure로 위임",
+    "explanation": "Azure DNS는 호스팅 서비스이므로 도메인 등록 기관에서 Azure가 제공한 NS 레코드 4개를 설정해 위임해야 실제로 동작합니다.",
+    "source_id": "azure-dns-overview"
+  },
+  {
+    "id": "azure-q50",
+    "lesson_id": "azure-recovery-vault",
+    "question_type": "multiple_choice",
+    "question": "Recovery Services Vault의 Soft Delete 기능이 하는 역할은?",
+    "options": [
+      "삭제된 백업 데이터를 일정 기간 복원 가능하게 유지한다",
+      "VM을 자동으로 백업한다",
+      "백업 정책을 자동 적용한다",
+      "다른 지역에 데이터를 복제한다"
+    ],
+    "answer": "삭제된 백업 데이터를 일정 기간 복원 가능하게 유지한다",
+    "explanation": "Soft Delete는 백업 항목 삭제 후 최대 14일간 데이터를 보호 상태로 유지해 실수나 랜섬웨어로 인한 삭제에서 복원할 수 있게 합니다.",
+    "source_id": "azure-recovery-services-vault"
+  },
+  {
+    "id": "azure-q51",
+    "lesson_id": "azure-rg",
+    "question_type": "command",
+    "question": "`Korea Central` 지역에 `myRG` 리소스 그룹을 생성하는 Azure CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az group create --name myRG --location koreacentral",
+    "explanation": "`az group create --name <이름> --location <지역>`. 지역 이름은 공백 없이 소문자로 씁니다 (koreacentral, eastus 등).",
+    "difficulty": "easy",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q52",
+    "lesson_id": "azure-storage",
+    "question_type": "multiple_choice",
+    "question": "Azure Storage 계정의 기본 중복성 SKU로 동일 데이터센터 내 3개 복제본을 유지하는 것은?",
+    "options": ["LRS", "ZRS", "GRS", "GZRS"],
+    "answer": "LRS",
+    "explanation": "LRS(Locally Redundant Storage)는 단일 데이터센터 내 3개 복제본으로 가장 저렴하지만 데이터센터 전체 장애에 취약합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-storage-account"
+  },
+  {
+    "id": "azure-q53",
+    "lesson_id": "azure-vnet",
+    "question_type": "multiple_choice",
+    "question": "Azure VNet에서 서브넷마다 예약되어 사용할 수 없는 IP 주소 수는?",
+    "options": ["5개", "3개", "2개", "1개"],
+    "answer": "5개",
+    "explanation": "Azure는 서브넷마다 네트워크 주소, 게이트웨이, DHCP 2개, 브로드캐스트 등 5개 IP를 예약합니다. /28 서브넷이면 16-5=11개만 사용 가능합니다.",
+    "difficulty": "medium",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q54",
+    "lesson_id": "azure-rbac",
+    "question_type": "multiple_choice",
+    "question": "Owner, Contributor, Reader 중 역할 할당(RBAC 부여) 권한을 가진 것은?",
+    "options": ["Owner만", "Owner와 Contributor", "세 역할 모두", "Reader만"],
+    "answer": "Owner만",
+    "explanation": "Owner만 역할 할당 권한을 가집니다. Contributor는 리소스 생성/수정/삭제는 되지만 다른 사람에게 역할을 줄 수 없고, Reader는 조회만 가능합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-rbac-overview"
+  },
+  {
+    "id": "azure-q55",
+    "lesson_id": "azure-policy",
+    "question_type": "multiple_choice",
+    "question": "Azure Policy effect 중 규정에 맞지 않는 리소스 배포 자체를 차단하는 것은?",
+    "options": ["Deny", "Audit", "Append", "Modify"],
+    "answer": "Deny",
+    "explanation": "Deny는 비준수 리소스 생성을 막습니다. Audit는 허용하되 로그만 남기고, Append는 필드를 추가하며, Modify는 태그 같은 속성을 수정합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-policy-overview"
+  },
+  {
+    "id": "azure-q56",
+    "lesson_id": "azure-vm",
+    "question_type": "command",
+    "question": "`myRG` 리소스 그룹에 Ubuntu 22.04 LTS 이미지로 `myVM`을 생성하는 최소한의 Azure CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az vm create --resource-group myRG --name myVM --image Ubuntu2204",
+    "explanation": "`az vm create --resource-group <RG> --name <이름> --image <이미지>`. 이미지 이름은 `az vm image list` 로 확인합니다.",
+    "difficulty": "medium",
+    "source_id": "azure-vm-overview"
+  },
+  {
+    "id": "azure-q57",
+    "lesson_id": "azure-vmss",
+    "question_type": "multiple_choice",
+    "question": "VMSS에서 인스턴스를 최소 2개 최대 10개로 유지하고 CPU 75% 초과 시 늘리는 규칙은 어디에 정의하는가?",
+    "options": ["Autoscale 설정", "NSG 규칙", "Backup Policy", "Alert Rule"],
+    "answer": "Autoscale 설정",
+    "explanation": "VMSS의 인스턴스 수 자동 조정은 Autoscale 설정에서 메트릭 조건(CPU %), 최소/최대 인스턴스, 증감 단위를 정의합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vmss-overview"
+  },
+  {
+    "id": "azure-q58",
+    "lesson_id": "azure-nsg",
+    "question_type": "command",
+    "question": "NSG `myNSG`에 우선순위 200으로 TCP 443 인바운드를 허용하는 규칙 `allow-https`를 추가하는 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az network nsg rule create --nsg-name myNSG --resource-group myRG --name allow-https --priority 200 --access Allow --protocol Tcp --destination-port-ranges 443",
+    "explanation": "`az network nsg rule create`에 `--nsg-name`, `--priority`, `--access Allow`, `--protocol Tcp`, `--destination-port-ranges`를 지정합니다.",
+    "difficulty": "medium",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q59",
+    "lesson_id": "azure-app-gateway",
+    "question_type": "multiple_choice",
+    "question": "Application Gateway와 Azure Load Balancer의 주요 차이는?",
+    "options": [
+      "App Gateway는 L7(HTTP/HTTPS) 라우팅, Load Balancer는 L4(TCP/UDP) 분산이다",
+      "두 서비스 모두 L4만 지원한다",
+      "Load Balancer가 URL 경로 기반 라우팅을 지원한다",
+      "App Gateway는 VM을 직접 관리한다"
+    ],
+    "answer": "App Gateway는 L7(HTTP/HTTPS) 라우팅, Load Balancer는 L4(TCP/UDP) 분산이다",
+    "explanation": "App Gateway는 URL 경로, 호스트 헤더 기반 L7 라우팅과 WAF를 제공합니다. Load Balancer는 TCP/UDP 레벨 L4 분산으로 더 단순하고 빠릅니다.",
+    "difficulty": "medium",
+    "source_id": "azure-vnet-overview"
+  },
+  {
+    "id": "azure-q60",
+    "lesson_id": "azure-dns",
+    "question_type": "multiple_choice",
+    "question": "Azure Private DNS Zone과 Public DNS Zone의 차이는?",
+    "options": [
+      "Private Zone은 VNet 내부에서만 해석되고, Public Zone은 인터넷에서 조회된다",
+      "Private Zone은 더 빠른 TTL을 가진다",
+      "Public Zone은 VNet에 링크해야만 동작한다",
+      "두 Zone 모두 동일하게 동작한다"
+    ],
+    "answer": "Private Zone은 VNet 내부에서만 해석되고, Public Zone은 인터넷에서 조회된다",
+    "explanation": "Private DNS Zone은 VNet 링크를 통해 해당 VNet 내부 리소스에만 DNS 이름을 제공합니다. Public Zone은 인터넷 전체에서 조회 가능합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-dns-overview"
+  },
+  {
+    "id": "azure-q61",
+    "lesson_id": "azure-blob-tier",
+    "question_type": "multiple_choice",
+    "question": "Archive tier에 있는 Blob에 즉시 접근하려면 먼저 해야 하는 작업은?",
+    "options": [
+      "rehydration(리하이드레이션)으로 Hot 또는 Cool로 이동",
+      "스토리지 계정을 재생성",
+      "Blob을 삭제 후 다시 업로드",
+      "SAS 토큰을 새로 발급"
+    ],
+    "answer": "rehydration(리하이드레이션)으로 Hot 또는 Cool로 이동",
+    "explanation": "Archive tier의 Blob은 오프라인 상태라 직접 읽을 수 없습니다. Hot/Cool로 rehydration 후 접근 가능하며, 표준 우선순위로 수 시간이 걸립니다.",
+    "difficulty": "medium",
+    "source_id": "azure-blob-access-tiers"
+  },
+  {
+    "id": "azure-q62",
+    "lesson_id": "azure-log-analytics",
+    "question_type": "multiple_choice",
+    "question": "Log Analytics workspace에서 쿼리 언어로 사용하는 것은?",
+    "options": ["KQL (Kusto Query Language)", "SQL", "Bash", "PowerShell"],
+    "answer": "KQL (Kusto Query Language)",
+    "explanation": "Azure Log Analytics는 KQL(Kusto Query Language)로 로그를 조회합니다. `| where`, `| summarize`, `| project` 같은 파이프라인 문법을 사용합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-monitor-overview"
+  },
+  {
+    "id": "azure-q63",
+    "lesson_id": "azure-entra-id",
+    "question_type": "multiple_choice",
+    "question": "Microsoft Entra ID와 온프레미스 Active Directory의 가장 큰 차이점은?",
+    "options": [
+      "Entra ID는 클라우드 기반 ID 서비스로 OAuth/OIDC를 지원, AD는 Kerberos/LDAP 기반이다",
+      "두 서비스 모두 Kerberos만 사용한다",
+      "AD는 클라우드 전용이다",
+      "Entra ID는 그룹 정책을 직접 적용할 수 있다"
+    ],
+    "answer": "Entra ID는 클라우드 기반 ID 서비스로 OAuth/OIDC를 지원, AD는 Kerberos/LDAP 기반이다",
+    "explanation": "Entra ID는 SaaS/클라우드 앱 인증에 OAuth2, OIDC, SAML을 사용합니다. 온프레미스 AD는 Kerberos/LDAP 기반으로 도메인 조인, 그룹 정책을 지원합니다.",
+    "difficulty": "medium",
+    "source_id": "azure-entra-id-overview"
+  },
+  {
+    "id": "azure-q64",
+    "lesson_id": "azure-management-group",
+    "question_type": "multiple_choice",
+    "question": "Management Group 계층 구조에서 Policy와 RBAC 상속 방향은?",
+    "options": [
+      "상위에서 하위로 상속 (Management Group → Subscription → Resource Group → Resource)",
+      "하위에서 상위로 상속",
+      "동일 레벨 간에만 상속",
+      "상속 없이 각 레벨에 독립 적용"
+    ],
+    "answer": "상위에서 하위로 상속 (Management Group → Subscription → Resource Group → Resource)",
+    "explanation": "Policy와 RBAC는 계층 상위에서 하위로 상속됩니다. Management Group에 정책을 적용하면 하위의 모든 Subscription과 Resource Group에 적용됩니다.",
+    "difficulty": "easy",
+    "source_id": "azure-management-group-overview"
+  },
+  {
+    "id": "azure-q65",
+    "lesson_id": "azure-resource-lock",
+    "question_type": "multiple_choice",
+    "question": "ReadOnly Lock이 걸린 리소스에서 할 수 없는 작업은?",
+    "options": [
+      "설정 수정 및 삭제 모두 불가",
+      "삭제만 불가, 수정은 가능",
+      "읽기만 불가",
+      "배포만 불가"
+    ],
+    "answer": "설정 수정 및 삭제 모두 불가",
+    "explanation": "ReadOnly Lock은 읽기만 허용하고 수정·삭제를 모두 차단합니다. CanNotDelete Lock은 수정은 허용하지만 삭제만 차단합니다.",
+    "difficulty": "medium",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q66",
+    "lesson_id": "azure-tags",
+    "question_type": "command",
+    "question": "`myVM` VM에 `env=prod` 태그를 추가하는 Azure CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az resource tag --tags env=prod --resource-group myRG --name myVM --resource-type Microsoft.Compute/virtualMachines",
+    "explanation": "`az resource tag --tags key=value`로 리소스에 태그를 추가합니다. `--resource-type`은 전체 provider 경로를 써야 합니다.",
+    "difficulty": "hard",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q67",
+    "lesson_id": "azure-custom-role",
+    "question_type": "multiple_choice",
+    "question": "Custom Role 생성 시 `NotActions`의 역할은?",
+    "options": [
+      "Actions에서 허용된 작업 중 특정 작업을 제외한다",
+      "모든 작업을 차단한다",
+      "Actions에 없는 작업을 추가한다",
+      "역할을 할당할 수 없게 만든다"
+    ],
+    "answer": "Actions에서 허용된 작업 중 특정 작업을 제외한다",
+    "explanation": "NotActions는 Actions 와일드카드로 허용된 작업에서 특정 작업을 뺄 때 사용합니다. 예: `Actions: [\"*\"]`, `NotActions: [\"Microsoft.Authorization/*/Delete\"]`.",
+    "difficulty": "medium",
+    "source_id": "azure-rbac-overview"
+  },
+  {
+    "id": "azure-q68",
+    "lesson_id": "azure-sas",
+    "question_type": "multiple_choice",
+    "question": "SAS(Shared Access Signature) 토큰에서 반드시 지정해야 하는 보안 요소 2가지는?",
+    "options": [
+      "만료 시간(se)과 허용 권한(sp)",
+      "IP 주소와 컨테이너 이름",
+      "스토리지 계정 이름과 구독 ID",
+      "리소스 그룹과 지역"
+    ],
+    "answer": "만료 시간(se)과 허용 권한(sp)",
+    "explanation": "SAS에서 `se`(signed expiry)는 유효 기간, `sp`(signed permission)는 r(read)/w(write)/d(delete) 등 허용 작업을 제한합니다. 유효 기간 없이 발급하면 보안 위험이 큽니다.",
+    "difficulty": "medium",
+    "source_id": "azure-storage-account"
+  },
+  {
+    "id": "azure-q69",
+    "lesson_id": "azure-storage-redundancy",
+    "question_type": "multiple_choice",
+    "question": "재해복구를 위해 지역 간 복제가 필요할 때 선택해야 하는 중복성 옵션은?",
+    "options": ["GRS 또는 GZRS", "LRS", "ZRS", "Premium LRS"],
+    "answer": "GRS 또는 GZRS",
+    "explanation": "GRS(Geo-Redundant Storage)와 GZRS는 수백 km 떨어진 페어 지역에 데이터를 복제해 지역 전체 재해에 대비합니다. LRS/ZRS는 단일 지역 내에서만 복제합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-storage-account"
+  },
+  {
+    "id": "azure-q70",
+    "lesson_id": "azure-lifecycle",
+    "question_type": "multiple_choice",
+    "question": "Lifecycle 정책에서 마지막 수정 후 30일 뒤 Cool로, 90일 뒤 Archive로 이동하도록 설정하는 기준 값은?",
+    "options": [
+      "daysAfterModificationGreaterThan",
+      "daysAfterCreationGreaterThan",
+      "daysAfterLastAccessTimeGreaterThan",
+      "daysUntilExpiration"
+    ],
+    "answer": "daysAfterModificationGreaterThan",
+    "explanation": "Lifecycle 정책의 조건 필드 `daysAfterModificationGreaterThan: 30`과 `90`으로 단계적 tier 이동을 설정합니다. 접근 시간 기반은 `daysAfterLastAccessTimeGreaterThan`입니다.",
+    "difficulty": "medium",
+    "source_id": "azure-blob-access-tiers"
+  },
+  {
+    "id": "azure-q71",
+    "lesson_id": "azure-files",
+    "question_type": "command",
+    "question": "`myshare` Azure 파일 공유를 Linux에서 `/mnt/azfiles`에 마운트하는 프로토콜과 마운트 명령어 시작 부분을 입력하세요.",
+    "options": [],
+    "answer": "mount -t cifs",
+    "explanation": "Azure Files는 SMB 프로토콜(CIFS)로 Linux에 마운트합니다: `mount -t cifs //<스토리지>.file.core.windows.net/<공유명> /mnt/azfiles -o ...`",
+    "difficulty": "medium",
+    "source_id": "azure-storage-account"
+  },
+  {
+    "id": "azure-q72",
+    "lesson_id": "azure-managed-disk",
+    "question_type": "multiple_choice",
+    "question": "VM에 데이터 디스크를 추가할 때 Premium SSD와 Standard HDD의 선택 기준으로 맞는 것은?",
+    "options": [
+      "I/O 집약적 DB 워크로드는 Premium SSD, 로그 백업 보관은 Standard HDD",
+      "Standard HDD가 모든 경우에 더 빠르다",
+      "Premium SSD는 OS 디스크에만 사용 가능하다",
+      "데이터 디스크에는 SSD를 사용할 수 없다"
+    ],
+    "answer": "I/O 집약적 DB 워크로드는 Premium SSD, 로그 백업 보관은 Standard HDD",
+    "explanation": "Premium SSD는 낮은 지연시간과 높은 IOPS로 DB나 웹서버 스토리지에 적합합니다. Standard HDD는 접근 빈도가 낮은 백업, 아카이브에 비용 효율적입니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vm-overview"
+  },
+  {
+    "id": "azure-q73",
+    "lesson_id": "azure-availability-set",
+    "question_type": "multiple_choice",
+    "question": "Availability Set의 Fault Domain과 Update Domain의 차이는?",
+    "options": [
+      "Fault Domain은 전원/네트워크 공유 그룹, Update Domain은 OS 패치 순서 그룹이다",
+      "두 도메인 모두 동일한 역할이다",
+      "Update Domain은 지역 간 분산을 의미한다",
+      "Fault Domain은 소프트웨어 업데이트 순서를 제어한다"
+    ],
+    "answer": "Fault Domain은 전원/네트워크 공유 그룹, Update Domain은 OS 패치 순서 그룹이다",
+    "explanation": "Fault Domain은 물리적 전원과 네트워크를 공유하는 서버 랙 그룹입니다. Update Domain은 OS 패치 재시작 시 동시에 내려가지 않도록 분리한 논리 그룹입니다.",
+    "difficulty": "medium",
+    "source_id": "azure-vm-overview"
+  },
+  {
+    "id": "azure-q74",
+    "lesson_id": "azure-autoscale",
+    "question_type": "multiple_choice",
+    "question": "Autoscale 규칙에서 scale-in 시 주의해야 하는 설정은?",
+    "options": [
+      "scale-in은 minimum 인스턴스 수 아래로는 줄어들지 않는다",
+      "scale-in은 maximum 인스턴스까지만 줄어든다",
+      "scale-in과 scale-out이 동시에 트리거될 수 있다",
+      "scale-in은 CPU 100%일 때만 작동한다"
+    ],
+    "answer": "scale-in은 minimum 인스턴스 수 아래로는 줄어들지 않는다",
+    "explanation": "Autoscale은 minimum/maximum 인스턴스 수를 설정합니다. scale-in 규칙이 트리거돼도 minimum 아래로 줄어들지 않아 항상 최소한의 용량을 보장합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vmss-overview"
+  },
+  {
+    "id": "azure-q75",
+    "lesson_id": "azure-vnet-peering",
+    "question_type": "multiple_choice",
+    "question": "VNet Peering이 비전이적(non-transitive)이라는 의미는?",
+    "options": [
+      "A↔B, B↔C 피어링이 있어도 A↔C는 직접 통신 불가",
+      "피어링된 VNet끼리는 항상 라우팅이 자동으로 된다",
+      "피어링은 동일 지역에서만 가능하다",
+      "A에서 B를 통해 C로 트래픽이 자동 전달된다"
+    ],
+    "answer": "A↔B, B↔C 피어링이 있어도 A↔C는 직접 통신 불가",
+    "explanation": "VNet Peering은 비전이적입니다. A-B, B-C가 피어링되어도 A-C 트래픽은 차단됩니다. A-C 통신이 필요하면 별도의 A-C 피어링을 만들거나 Hub-Spoke + VPN Gateway를 씁니다.",
+    "difficulty": "medium",
+    "source_id": "azure-vnet-overview"
+  },
+  {
+    "id": "azure-q76",
+    "lesson_id": "azure-route-table",
+    "question_type": "command",
+    "question": "`myRouteTable`을 `myRG`에 생성하는 CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az network route-table create --name myRouteTable --resource-group myRG",
+    "explanation": "`az network route-table create`로 Route Table을 만들고, `az network route-table route create`로 경로를 추가한 뒤 서브넷에 연결합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vnet-overview"
+  },
+  {
+    "id": "azure-q77",
+    "lesson_id": "azure-private-endpoint",
+    "question_type": "multiple_choice",
+    "question": "Private Endpoint 생성 후 VNet 내부에서 서비스 이름이 public IP로 해석된다면 원인으로 가장 맞는 것은?",
+    "options": [
+      "Private DNS Zone이 VNet에 링크되지 않았거나 A 레코드가 없다",
+      "NSG 규칙이 잘못됐다",
+      "Subnet 주소 범위가 부족하다",
+      "Private Endpoint가 승인되지 않았다"
+    ],
+    "answer": "Private DNS Zone이 VNet에 링크되지 않았거나 A 레코드가 없다",
+    "explanation": "Private Endpoint는 private IP가 생기지만, DNS가 여전히 public IP를 반환하면 연결이 공개 인터넷을 통하게 됩니다. Private DNS Zone 링크와 A 레코드를 반드시 확인해야 합니다.",
+    "difficulty": "hard",
+    "source_id": "azure-private-endpoint"
+  },
+  {
+    "id": "azure-q78",
+    "lesson_id": "azure-load-balancer-probe",
+    "question_type": "multiple_choice",
+    "question": "Azure Load Balancer의 Health Probe 실패 시 어떤 동작이 일어나는가?",
+    "options": [
+      "해당 백엔드 인스턴스로의 트래픽 전달을 중단한다",
+      "백엔드 인스턴스를 자동으로 재시작한다",
+      "전체 Load Balancer를 중지한다",
+      "새 인스턴스를 자동 추가한다"
+    ],
+    "answer": "해당 백엔드 인스턴스로의 트래픽 전달을 중단한다",
+    "explanation": "Health Probe가 설정된 횟수 이상 실패하면 Load Balancer는 해당 인스턴스를 unhealthy로 표시하고 트래픽 전달에서 제외합니다. 다시 성공하면 자동 복귀합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vnet-overview"
+  },
+  {
+    "id": "azure-q79",
+    "lesson_id": "azure-private-dns",
+    "question_type": "multiple_choice",
+    "question": "Private DNS Zone을 VNet에 `enableAutoRegistration: true`로 연결하면?",
+    "options": [
+      "해당 VNet의 VM이 생성/삭제될 때 A 레코드가 자동으로 등록/삭제된다",
+      "DNS Zone이 자동으로 백업된다",
+      "외부 인터넷에서도 조회할 수 있게 된다",
+      "Private Endpoint가 자동으로 생성된다"
+    ],
+    "answer": "해당 VNet의 VM이 생성/삭제될 때 A 레코드가 자동으로 등록/삭제된다",
+    "explanation": "Auto-registration 링크는 VNet 내 VM의 프라이빗 IP를 해당 DNS Zone에 자동 등록합니다. 수동으로 A 레코드를 관리할 필요가 없어집니다.",
+    "difficulty": "medium",
+    "source_id": "azure-dns-overview"
+  },
+  {
+    "id": "azure-q80",
+    "lesson_id": "azure-monitor-metrics",
+    "question_type": "multiple_choice",
+    "question": "Azure Monitor에서 특정 메트릭이 임계값을 초과할 때 이메일을 보내려면 무엇이 필요한가?",
+    "options": [
+      "Alert Rule + Action Group",
+      "Diagnostic Settings만",
+      "Log Analytics Workspace만",
+      "NSG Flow Log"
+    ],
+    "answer": "Alert Rule + Action Group",
+    "explanation": "Alert Rule은 조건(임계값)을 정의하고, Action Group은 이메일·SMS·웹훅 등 알림 방법을 정의합니다. 두 가지가 연결되어야 실제로 알림이 발송됩니다.",
+    "difficulty": "easy",
+    "source_id": "azure-monitor-overview"
+  },
+  {
+    "id": "azure-q81",
+    "lesson_id": "azure-activity-log",
+    "question_type": "command",
+    "question": "지난 24시간 동안 `myRG`에서 발생한 Activity Log를 CLI로 조회하는 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az monitor activity-log list --resource-group myRG --offset 24h",
+    "explanation": "`az monitor activity-log list --resource-group <RG> --offset 24h` 로 최근 24시간 활동 로그를 조회합니다. `--offset`은 현재 시각 기준 이전 시간입니다.",
+    "difficulty": "medium",
+    "source_id": "azure-monitor-overview"
+  },
+  {
+    "id": "azure-q82",
+    "lesson_id": "azure-alert",
+    "question_type": "multiple_choice",
+    "question": "Alert Rule에서 `Severity 0`과 `Severity 4`의 차이는?",
+    "options": [
+      "Severity 0이 가장 심각(Critical), Severity 4는 가장 낮음(Verbose)",
+      "Severity 4가 가장 심각하다",
+      "두 값은 동일하다",
+      "Severity는 경보 조건 임계값을 의미한다"
+    ],
+    "answer": "Severity 0이 가장 심각(Critical), Severity 4는 가장 낮음(Verbose)",
+    "explanation": "Azure Alert Severity는 0(Critical)부터 4(Verbose)까지 5단계입니다. 심각도가 낮을수록 더 위험한 상황을 의미합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-monitor-overview"
+  },
+  {
+    "id": "azure-q83",
+    "lesson_id": "azure-backup-policy",
+    "question_type": "multiple_choice",
+    "question": "VM Backup Policy에서 설정하는 핵심 두 가지 요소는?",
+    "options": [
+      "백업 빈도(일별/주별)와 보존 기간",
+      "백업 위치와 VM 크기",
+      "NSG 규칙과 subnet",
+      "이메일 알림 주소와 SKU"
+    ],
+    "answer": "백업 빈도(일별/주별)와 보존 기간",
+    "explanation": "Backup Policy는 언제 백업할지(빈도)와 얼마나 오래 보존할지(보존 기간)를 정의합니다. 보존 기간이 길수록 더 많은 복구 지점을 유지합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-recovery-services-vault"
+  },
+  {
+    "id": "azure-q84",
+    "lesson_id": "azure-restore",
+    "question_type": "multiple_choice",
+    "question": "VM 복원 시 '기존 VM 교체' 대신 '새 VM으로 복원'을 선택하는 이유로 가장 맞는 것은?",
+    "options": [
+      "기존 VM을 보존하면서 복원 결과를 먼저 검증하기 위해",
+      "새 VM이 항상 더 빠르기 때문",
+      "기존 VM 교체가 더 오래 걸리기 때문",
+      "새 VM은 비용이 발생하지 않기 때문"
+    ],
+    "answer": "기존 VM을 보존하면서 복원 결과를 먼저 검증하기 위해",
+    "explanation": "프로덕션 VM에 직접 복원하면 되돌릴 수 없습니다. 새 VM으로 복원해 데이터와 앱 정상 동작을 확인한 뒤 DNS나 IP를 전환하는 것이 안전합니다.",
+    "difficulty": "medium",
+    "source_id": "azure-recovery-services-vault"
+  },
+  {
+    "id": "azure-q85",
+    "lesson_id": "azure-app-service-plan",
+    "question_type": "multiple_choice",
+    "question": "App Service Plan의 Free 티어와 Standard 티어의 가장 큰 기능 차이는?",
+    "options": [
+      "Standard 이상에서만 Custom Domain, SSL, 배포 슬롯, 자동 크기 조정이 가능하다",
+      "Free 티어가 더 빠른 처리량을 제공한다",
+      "Standard는 Linux만 지원한다",
+      "Free 티어에서만 VNet 통합이 가능하다"
+    ],
+    "answer": "Standard 이상에서만 Custom Domain, SSL, 배포 슬롯, 자동 크기 조정이 가능하다",
+    "explanation": "Free/Shared 티어는 개발·테스트용입니다. Custom Domain 바인딩, SSL 인증서, 배포 슬롯(Blue-Green), Autoscale은 Standard 이상에서 지원합니다.",
+    "difficulty": "medium",
+    "source_id": "azure-app-service-overview"
+  },
+  {
+    "id": "azure-q86",
+    "lesson_id": "azure-container-registry",
+    "command": "command",
+    "question_type": "command",
+    "question": "ACR `myACR`에서 이미지 `myapp:v1`을 빌드해 푸시하는 CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az acr build --registry myACR --image myapp:v1 .",
+    "explanation": "`az acr build`는 로컬 Dockerfile을 ACR 빌드 에이전트에 보내 빌드 후 자동으로 레지스트리에 푸시합니다. 로컬에 Docker 설치가 필요 없습니다.",
+    "difficulty": "medium",
+    "source_id": "azure-vm-overview"
+  },
+  {
+    "id": "azure-q87",
+    "lesson_id": "azure-key-vault",
+    "question_type": "multiple_choice",
+    "question": "Key Vault에서 비밀(Secret), 키(Key), 인증서(Certificate)의 차이는?",
+    "options": [
+      "Secret은 패스워드 같은 임의 문자열, Key는 암호화용 키 소재, Certificate는 X.509 인증서다",
+      "세 가지 모두 동일한 목적으로 사용된다",
+      "Key는 패스워드, Secret은 암호화 키다",
+      "Certificate는 네트워크 방화벽 규칙이다"
+    ],
+    "answer": "Secret은 패스워드 같은 임의 문자열, Key는 암호화용 키 소재, Certificate는 X.509 인증서다",
+    "explanation": "Secret: DB 비밀번호·API 키 같은 문자열. Key: HSM에서 보호되는 암호화/서명용 키 소재. Certificate: TLS 인증서로 자동 갱신 기능을 제공합니다.",
+    "difficulty": "medium",
+    "source_id": "azure-key-vault-overview"
+  },
+  {
+    "id": "azure-q88",
+    "lesson_id": "azure-cost-management",
+    "question_type": "multiple_choice",
+    "question": "Azure Cost Management에서 월별 예산 초과 시 자동으로 리소스를 종료하려면?",
+    "options": [
+      "예산 경보(Budget Alert)는 알림만 보내고 자동 종료는 Action Group + Automation으로 별도 구성해야 한다",
+      "예산 설정만 하면 자동으로 리소스가 종료된다",
+      "Cost Management가 직접 VM을 중지한다",
+      "Policy를 통해 자동 종료된다"
+    ],
+    "answer": "예산 경보(Budget Alert)는 알림만 보내고 자동 종료는 Action Group + Automation으로 별도 구성해야 한다",
+    "explanation": "Budget Alert은 예산 임계값 도달 시 이메일만 보냅니다. 실제 리소스 종료는 Automation Account의 Runbook을 Action Group에 연결해 트리거해야 합니다.",
+    "difficulty": "hard",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q89",
+    "lesson_id": "azure-bastion",
+    "question_type": "multiple_choice",
+    "question": "Azure Bastion을 배포하기 위해 VNet에 반드시 있어야 하는 서브넷 이름은?",
+    "options": ["AzureBastionSubnet", "BastionSubnet", "GatewaySubnet", "PrivateEndpointSubnet"],
+    "answer": "AzureBastionSubnet",
+    "explanation": "Azure Bastion은 정확히 `AzureBastionSubnet`이라는 이름의 서브넷에만 배포됩니다. 이름이 다르면 배포에 실패합니다. 크기는 최소 /27 이상이어야 합니다.",
+    "difficulty": "easy",
+    "source_id": "azure-vnet-overview"
+  },
+  {
+    "id": "azure-q90",
+    "lesson_id": "azure-nat-gateway",
+    "question_type": "multiple_choice",
+    "question": "NAT Gateway를 사용하는 주된 이유는?",
+    "options": [
+      "VNet 내 Private VM의 아웃바운드 인터넷 연결에 고정 Public IP를 제공한다",
+      "인바운드 트래픽을 VM으로 분산한다",
+      "VNet 간 라우팅을 담당한다",
+      "DNS 이름을 해석한다"
+    ],
+    "answer": "VNet 내 Private VM의 아웃바운드 인터넷 연결에 고정 Public IP를 제공한다",
+    "explanation": "NAT Gateway는 Public IP가 없는 VM의 아웃바운드 트래픽을 고정 Public IP로 SNAT합니다. 로드밸런서의 SNAT 포트 소진 문제를 해결하는 데도 사용합니다.",
+    "difficulty": "medium",
+    "source_id": "azure-vnet-overview"
+  },
+  {
+    "id": "azure-q91",
+    "lesson_id": "azure-app-service",
+    "question_type": "command",
+    "question": "`myWebApp`에 GitHub Actions로 Node.js 앱을 배포하기 위해 게시 프로필을 내려받는 CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az webapp deployment list-publishing-profiles --name myWebApp --resource-group myRG",
+    "explanation": "`az webapp deployment list-publishing-profiles`로 게시 프로필(FTP, WebDeploy, Git URL 등)을 내려받아 GitHub Actions 시크릿에 등록합니다.",
+    "difficulty": "hard",
+    "source_id": "azure-app-service-overview"
+  },
+  {
+    "id": "azure-q92",
+    "lesson_id": "azure-deployment-slot",
+    "question_type": "multiple_choice",
+    "question": "배포 슬롯 swap 후 이전 버전으로 빠르게 롤백하는 방법은?",
+    "options": [
+      "다시 swap을 실행하면 production과 staging이 교체되어 롤백된다",
+      "git revert 후 재배포해야 한다",
+      "VM을 재시작하면 된다",
+      "슬롯을 삭제하고 재생성해야 한다"
+    ],
+    "answer": "다시 swap을 실행하면 production과 staging이 교체되어 롤백된다",
+    "explanation": "Swap은 production과 staging의 역할을 교환합니다. 문제가 발생하면 다시 swap으로 즉시 이전 버전으로 돌아갈 수 있습니다.",
+    "difficulty": "easy",
+    "source_id": "azure-app-service-overview"
+  },
+  {
+    "id": "azure-q93",
+    "lesson_id": "azure-aci",
+    "question_type": "command",
+    "question": "`myACR.azurecr.io/myapp:v1` 이미지로 `myContainer` 컨테이너 인스턴스를 생성하는 CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az container create --resource-group myRG --name myContainer --image myACR.azurecr.io/myapp:v1",
+    "explanation": "`az container create --image <이미지>` 로 ACI를 생성합니다. ACR의 프라이빗 이미지는 `--registry-login-server`, `--registry-username`, `--registry-password` 옵션이 필요합니다.",
+    "difficulty": "medium",
+    "source_id": "azure-container-instances"
+  },
+  {
+    "id": "azure-q94",
+    "lesson_id": "azure-keyvault-secret",
+    "question_type": "command",
+    "question": "`myKV` Key Vault에서 `db-password` 비밀의 현재 값을 조회하는 CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az keyvault secret show --vault-name myKV --name db-password",
+    "explanation": "`az keyvault secret show --vault-name <KV> --name <비밀이름>` 으로 현재 활성 버전의 비밀 값을 조회합니다. 출력에서 `value` 필드에 실제 값이 있습니다.",
+    "difficulty": "easy",
+    "source_id": "azure-key-vault-overview"
+  },
+  {
+    "id": "azure-q95",
+    "lesson_id": "azure-managed-identity",
+    "question_type": "multiple_choice",
+    "question": "System-assigned Managed Identity와 User-assigned Managed Identity의 차이는?",
+    "options": [
+      "System-assigned는 리소스와 수명이 같고, User-assigned는 독립적으로 만들어 여러 리소스에 공유 가능하다",
+      "User-assigned는 자동으로 권한이 부여된다",
+      "System-assigned는 여러 VM에 공유 가능하다",
+      "두 타입은 동일하게 동작한다"
+    ],
+    "answer": "System-assigned는 리소스와 수명이 같고, User-assigned는 독립적으로 만들어 여러 리소스에 공유 가능하다",
+    "explanation": "System-assigned는 VM/App Service 생성 시 자동으로 만들어지고 리소스 삭제 시 함께 삭제됩니다. User-assigned는 별도로 만들어 여러 리소스에 할당할 수 있어 공유 시나리오에 적합합니다.",
+    "difficulty": "medium",
+    "source_id": "azure-key-vault-overview"
+  },
+  {
+    "id": "azure-q96",
+    "lesson_id": "azure-network-watcher",
+    "question_type": "multiple_choice",
+    "question": "Network Watcher의 IP flow verify 기능으로 확인할 수 있는 것은?",
+    "options": [
+      "특정 IP와 포트 조합이 NSG에 의해 허용되는지 차단되는지",
+      "VM의 CPU 사용률",
+      "Blob 접근 이력",
+      "Key Vault 접근 로그"
+    ],
+    "answer": "특정 IP와 포트 조합이 NSG에 의해 허용되는지 차단되는지",
+    "explanation": "IP flow verify는 VM NIC에서 특정 소스 IP, 목적지 IP, 포트, 방향(인바운드/아웃바운드)을 입력하면 어떤 NSG 규칙이 적용되는지 즉시 확인할 수 있습니다.",
+    "difficulty": "medium",
+    "source_id": "azure-vnet-overview"
+  },
+  {
+    "id": "azure-q97",
+    "lesson_id": "azure-move-resource",
+    "question_type": "command",
+    "question": "`myRG`의 VM `myVM`을 `targetRG`로 이동하는 CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az resource move --destination-group targetRG --ids $(az vm show --resource-group myRG --name myVM --query id -o tsv)",
+    "explanation": "`az resource move --destination-group <대상RG> --ids <리소스ID>` 로 이동합니다. ID는 `az vm show --query id`로 가져옵니다. 종속 리소스(NIC, 디스크)도 함께 이동해야 합니다.",
+    "difficulty": "hard",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q99",
+    "lesson_id": "azure-recovery-vault",
+    "question_type": "command",
+    "question": "`myRG`의 `myVM`을 `myVault` Recovery Services Vault에 `DefaultPolicy`로 백업 활성화하는 CLI 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az backup protection enable-for-vm --vault-name myVault --resource-group myRG --vm myVM --policy-name DefaultPolicy",
+    "explanation": "`az backup protection enable-for-vm`으로 VM 백업을 시작합니다. Vault와 VM은 같은 region에 있어야 하며, 최초 백업은 활성화 직후 또는 예약 시간에 실행됩니다.",
+    "difficulty": "medium",
+    "source_id": "azure-recovery-services-vault"
+  },
+  {
+    "id": "azure-q100",
+    "lesson_id": "azure-subscription",
+    "question_type": "multiple_choice",
+    "question": "하나의 Azure Tenant 아래 여러 Subscription을 사용하는 주된 이유는?",
+    "options": [
+      "환경(개발/스테이징/운영)이나 부서별 과금과 정책을 분리하기 위해",
+      "Subscription이 많을수록 요금이 할인되기 때문",
+      "한 Subscription에 VM을 2개 이상 만들 수 없기 때문",
+      "Subscription을 늘리면 가용성이 높아지기 때문"
+    ],
+    "answer": "환경(개발/스테이징/운영)이나 부서별 과금과 정책을 분리하기 위해",
+    "explanation": "Subscription은 과금, 리소스 할당량, RBAC/Policy의 경계입니다. 개발과 운영을 분리하거나 부서별 비용을 독립적으로 관리할 때 여러 Subscription을 사용합니다.",
+    "difficulty": "easy",
+    "source_id": "manual-az104-basic"
+  },
+  {
+    "id": "azure-q98",
+    "lesson_id": "azure-template-deployment",
+    "question_type": "command",
+    "question": "`myRG`에 `main.bicep` 파일을 Bicep CLI로 배포하는 명령어를 입력하세요.",
+    "options": [],
+    "answer": "az deployment group create --resource-group myRG --template-file main.bicep",
+    "explanation": "`az deployment group create --template-file <파일>`로 Bicep 또는 ARM JSON 템플릿을 리소스 그룹에 배포합니다. `--parameters`로 파라미터 파일도 함께 지정할 수 있습니다.",
+    "difficulty": "easy",
+    "source_id": "azure-arm-bicep-overview"
+  }
+]

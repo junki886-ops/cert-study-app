@@ -1,0 +1,529 @@
+[
+  {
+    "id": "docs-ollama-models",
+    "certification": "Docs Study",
+    "title": "Ollama 모델 실행 흐름",
+    "level": "입문",
+    "related_practices": ["docs-lab-1", "docs-lab-2"],
+    "summary": "Ollama는 로컬에서 LLM 모델을 내려받고 실행해 CLI 또는 REST API로 사용할 수 있게 해주는 경량 모델 서버입니다. `ollama run`으로 대화하고, `ollama serve`로 API 서버를 유지합니다.",
+    "example": "# 모델 다운로드 및 실행\nollama pull qwen2.5:14b\nollama run qwen2.5:14b\n# 설치된 모델 목록\nollama list",
+    "common_mistake": "모델 이름에 태그(:14b, :latest 등)를 생략하면 `:latest`로 자동 설정됩니다. 모델이 로컬에 없을 때 `ollama run`이 자동으로 pull합니다.",
+    "keywords": ["ollama", "pull", "run", "serve", "model tag", "GGUF", "local LLM"],
+    "source_id": "official-docs-ollama",
+    "details": [
+      "**`ollama run`**: 모델이 없으면 자동 다운로드 후 대화형 세션 시작. `--nowordwrap` 옵션으로 긴 출력 처리 가능.",
+      "**`ollama serve`**: 11434 포트에서 OpenAI 호환 REST API 제공. `OLLAMA_HOST=0.0.0.0`으로 외부 접근 허용 가능.",
+      "모델 파일은 `~/.ollama/models`에 GGUF 형식으로 저장됩니다. `Modelfile`로 커스텀 시스템 프롬프트와 파라미터를 설정할 수 있습니다."
+    ]
+  },
+  {
+    "id": "docs-ollama-api",
+    "certification": "Docs Study",
+    "title": "Ollama REST API 호출",
+    "level": "입문",
+    "related_practices": ["docs-lab-3"],
+    "summary": "Ollama는 `localhost:11434`에서 REST API를 제공합니다. `/api/generate`(완성형), `/api/chat`(대화형), `/api/embeddings`(임베딩) 엔드포인트를 OpenAI 호환 형식으로도 지원합니다.",
+    "example": "# chat 엔드포인트\ncurl http://localhost:11434/api/chat -d '{\n  \"model\": \"qwen2.5:7b\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"안녕\"}],\n  \"stream\": false\n}'",
+    "common_mistake": "Ollama 서버(`ollama serve`)가 실행 중이지 않거나 모델이 로컬에 없으면 API 호출이 실패합니다. 먼저 `ollama list`로 모델 존재를 확인하세요.",
+    "keywords": ["ollama", "REST API", "generate", "chat", "embeddings", "localhost:11434", "stream"],
+    "source_id": "official-docs-ollama",
+    "details": [
+      "**OpenAI 호환 API**: `http://localhost:11434/v1/chat/completions`로 OpenAI Python SDK나 LangChain의 `ChatOpenAI(base_url=...)` 그대로 사용 가능합니다.",
+      "**스트리밍**: `\"stream\": true` 설정 시 응답을 JSON 줄 단위로 스트리밍. `\"done\": true` 줄이 완료 신호입니다.",
+      "**임베딩**: `POST /api/embeddings`에 `{\"model\":\"nomic-embed-text\", \"prompt\":\"텍스트\"}`를 보내면 벡터 배열을 반환합니다."
+    ]
+  },
+  {
+    "id": "docs-dotenv",
+    "certification": "Docs Study",
+    "title": "python-dotenv — 환경변수 & .env 관리",
+    "level": "입문",
+    "related_practices": ["docs-lab-4"],
+    "summary": "python-dotenv는 `.env` 파일의 키-값 쌍을 `os.environ`에 자동으로 로드합니다. API 키 같은 민감 정보를 코드에 직접 쓰지 않고 파일로 분리해 관리하는 표준 방법입니다.",
+    "example": "# .env 파일\nOPENAI_API_KEY=sk-...\nOLLAMA_BASE_URL=http://localhost:11434\n\n# Python 코드\nfrom dotenv import load_dotenv\nimport os\n\nload_dotenv()  # .env 파일 로드\napi_key = os.getenv('OPENAI_API_KEY')",
+    "common_mistake": "`load_dotenv()`를 호출하기 전에 `os.getenv()`를 쓰면 항상 `None`을 반환합니다. 반드시 파일 상단에서 가장 먼저 `load_dotenv()`를 호출하세요.",
+    "keywords": ["dotenv", "load_dotenv", ".env", "os.getenv", "환경변수", "API 키"],
+    "source_id": "official-docs-python",
+    "details": [
+      "**우선순위**: `load_dotenv(override=False)`(기본값)는 이미 설정된 환경변수를 덮어쓰지 않습니다. CI/CD 환경에서 시스템 환경변수가 .env보다 우선합니다.",
+      "**.gitignore**: `.env`는 반드시 `.gitignore`에 추가해야 합니다. `.env.example`은 키 이름만 적어 팀원에게 어떤 변수가 필요한지 알려주는 용도로 커밋합니다.",
+      "**Streamlit 연동**: 로컬 개발 시 `load_dotenv()`로 키를 로드하고, 배포 시에는 `st.secrets`로 접근하도록 분기하거나 처음부터 `st.secrets`만 쓰는 방식 중 하나를 선택합니다."
+    ]
+  },
+  {
+    "id": "docs-prompt-template",
+    "certification": "Docs Study",
+    "title": "ChatPromptTemplate — 프롬프트 구조화",
+    "level": "입문",
+    "related_practices": ["docs-lab-5", "docs-lab-6"],
+    "summary": "ChatPromptTemplate은 시스템 프롬프트, 사용자 메시지, 변수 플레이스홀더를 구조화된 방식으로 정의합니다. 단순 f-string 대신 재사용 가능하고 LangChain 파이프라인에 연결되는 프롬프트를 만들 때 씁니다.",
+    "example": "from langchain_core.prompts import ChatPromptTemplate\n\nprompt = ChatPromptTemplate.from_messages([\n    (\"system\", \"당신은 도움이 되는 AI 어시스턴트입니다. 컨텍스트: {context}\"),\n    (\"human\", \"{question}\")\n])\n\n# 체인에 연결\nchain = prompt | llm | StrOutputParser()\nchain.invoke({\"context\": \"...\", \"question\": \"요약해줘\"})",
+    "common_mistake": "`PromptTemplate`은 단순 문자열 포맷용(변수 하나), `ChatPromptTemplate`은 역할이 구분된 메시지 배열용입니다. RAG에서 시스템 프롬프트와 질문을 구분하려면 항상 ChatPromptTemplate을 씁니다.",
+    "keywords": ["ChatPromptTemplate", "from_messages", "system", "human", "placeholder", "PromptTemplate"],
+    "source_id": "official-docs-langchain",
+    "details": [
+      "**MessagesPlaceholder**: 대화 히스토리를 통째로 주입할 때 씁니다. `(\"placeholder\", \"{chat_history}\")`로 선언하면 메시지 리스트가 그 자리에 펼쳐집니다.",
+      "**partial**: `prompt.partial(context=\"고정값\")`으로 특정 변수를 미리 채울 수 있습니다. context는 고정하고 question만 런타임에 받을 때 유용합니다.",
+      "**타입 안전성**: from_messages에 `(\"system\", \"...\")` 튜플 대신 `SystemMessage(content=\"...\")`를 사용해도 동일합니다. 튜플 방식이 더 간결합니다."
+    ]
+  },
+  {
+    "id": "docs-document-loaders",
+    "certification": "Docs Study",
+    "title": "LangChain Document Loaders — 문서 일괄 로드",
+    "level": "입문",
+    "related_practices": ["docs-lab-7"],
+    "summary": "Document Loader는 PDF, 마크다운, 웹 페이지, 디렉토리 등 다양한 소스에서 문서를 LangChain `Document` 객체로 변환합니다. RAG 파이프라인의 첫 단계입니다.",
+    "example": "from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader\n\n# 디렉토리 내 모든 .md 파일 로드\nloader = DirectoryLoader('./notes', glob='**/*.md')\ndocs = loader.load()\n\n# 각 문서의 출처 확인\nfor doc in docs:\n    print(doc.metadata['source'], len(doc.page_content))",
+    "common_mistake": "`loader.load()`는 모든 문서를 메모리에 올립니다. 대용량 디렉토리에서는 `loader.lazy_load()`로 제너레이터를 쓰거나 배치로 처리해야 합니다.",
+    "keywords": ["DirectoryLoader", "PyPDFLoader", "WebBaseLoader", "glob", "metadata", "source", "lazy_load"],
+    "source_id": "official-docs-langchain",
+    "details": [
+      "**metadata['source']**: 로드된 문서는 `metadata` 딕셔너리에 파일 경로(`source`)를 포함합니다. RAG 답변에 출처를 표시할 때 이 값을 씁니다.",
+      "**glob 패턴**: `glob='**/*.md'`는 하위 폴더까지 재귀 검색합니다. `glob='*.pdf'`는 현재 폴더만 검색합니다.",
+      "**WebBaseLoader**: URL 리스트를 넘기면 웹 페이지를 크롤링해 Document로 변환합니다. BeautifulSoup 기반이며 `bs_kwargs`로 파싱 범위를 지정할 수 있습니다."
+    ]
+  },
+  {
+    "id": "docs-langchain-rag",
+    "certification": "Docs Study",
+    "title": "LangChain RAG 기본 흐름",
+    "level": "입문",
+    "related_practices": ["docs-lab-8", "docs-lab-9"],
+    "summary": "LangChain은 문서 로드 → 분할 → 임베딩 → 검색 → 생성의 RAG 파이프라인을 컴포넌트 조합으로 구현합니다. Retriever가 관련 문서를 찾아 LLM 컨텍스트로 주입합니다.",
+    "example": "from langchain_community.vectorstores import Chroma\nretriever = Chroma.from_documents(docs, embeddings).as_retriever(k=3)\nchain = (\n    {\"context\": retriever, \"question\": RunnablePassthrough()}\n    | prompt | llm | StrOutputParser()\n)",
+    "common_mistake": "Retriever가 찾은 문서를 그대로 정답으로 믿지 마세요. 검색된 청크가 질문과 다른 맥락일 수 있어 프롬프트에서 명시적으로 '아래 문서를 참고해'라고 지시해야 합니다.",
+    "keywords": ["langchain", "RAG", "retriever", "vectorstore", "document loader", "text splitter"],
+    "source_id": "official-docs-langchain",
+    "details": [
+      "**파이프라인 단계**: DocumentLoader → TextSplitter(청크 분할) → Embeddings → VectorStore → Retriever → LLM Chain.",
+      "**TextSplitter**: `RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)`이 일반적 시작점. overlap이 있어야 청크 경계에서 문맥 손실을 줄입니다.",
+      "`MultiQueryRetriever`나 `ContextualCompressionRetriever`로 검색 품질을 높일 수 있습니다. 단순 유사도 검색보다 관련 청크 선별 정확도가 올라갑니다."
+    ]
+  },
+  {
+    "id": "docs-lcel",
+    "certification": "Docs Study",
+    "title": "LangChain LCEL — 체인 구성",
+    "level": "입문",
+    "related_practices": ["docs-lab-10", "docs-lab-11"],
+    "summary": "LCEL(LangChain Expression Language)은 `|` 파이프 연산자로 Runnable 컴포넌트를 직렬·병렬 연결해 체인을 선언적으로 정의합니다.",
+    "example": "from langchain_core.runnables import RunnablePassthrough\nchain = (\n    RunnablePassthrough.assign(context=retriever)\n    | prompt\n    | llm\n    | StrOutputParser()\n)\nresult = chain.invoke({\"question\": \"What is RAG?\"})",
+    "common_mistake": "체인 각 단계의 입출력 타입이 맞아야 합니다. LLM은 `str` 또는 `BaseMessage`를 받고 반환하므로, 앞 단계가 딕셔너리를 반환하면 프롬프트 템플릿이 중간에서 받아 처리해야 합니다.",
+    "keywords": ["LCEL", "Runnable", "pipe", "chain", "invoke", "stream", "batch"],
+    "source_id": "official-docs-langchain",
+    "details": [
+      "**3가지 실행 방식**: `invoke`(단일 동기), `stream`(스트리밍 yield), `batch`(리스트 병렬 처리). 스트리밍 UI에는 `stream`을 씁니다.",
+      "**RunnablePassthrough**: 입력을 그대로 다음 단계로 전달. `.assign(key=fn)`으로 추가 키를 붙여 딕셔너리를 확장합니다.",
+      "**RunnableParallel**: `{\"a\": fn1, \"b\": fn2}` 형태로 여러 체인을 동시에 실행해 결과를 딕셔너리로 합칩니다."
+    ]
+  },
+  {
+    "id": "docs-vectorstore",
+    "certification": "Docs Study",
+    "title": "VectorStore와 Retriever — 벡터 검색",
+    "level": "입문",
+    "related_practices": ["docs-lab-11", "docs-lab-12"],
+    "summary": "문서를 임베딩 벡터로 변환해 저장하고, 쿼리와 코사인 유사도로 관련 청크를 검색합니다. Chroma, FAISS, pgvector 등 다양한 백엔드를 LangChain이 추상화합니다.",
+    "example": "from langchain_community.vectorstores import Chroma\nfrom langchain_ollama import OllamaEmbeddings\n\nembeddings = OllamaEmbeddings(model='nomic-embed-text')\ndb = Chroma.from_documents(docs, embeddings, persist_directory='./db')\nretriever = db.as_retriever(search_type='mmr', search_kwargs={'k': 4})",
+    "common_mistake": "임베딩 모델을 변경하면 벡터 차원이 달라져 기존 컬렉션과 호환되지 않습니다. 모델을 바꿀 때는 컬렉션을 새로 만들어야 합니다.",
+    "keywords": ["vectorstore", "Chroma", "FAISS", "embedding", "similarity", "MMR", "retriever"],
+    "source_id": "official-docs-langchain",
+    "details": [
+      "**검색 유형**: `similarity`(순수 유사도 상위 k개), `mmr`(MMR: 다양성 고려), `similarity_score_threshold`(임계값 이상만).",
+      "**Chroma**: 로컬 파일로 저장 가능(`persist_directory`). 프로토타입에 적합. 프로덕션은 pgvector(PostgreSQL), Qdrant, Pinecone 권장.",
+      "임베딩은 텍스트의 의미적 유사도를 잡지만, 정확한 키워드 매칭이 필요하면 BM25 등 키워드 검색과 `EnsembleRetriever`로 하이브리드 구성을 고려합니다."
+    ]
+  },
+  {
+    "id": "docs-streamlit-state",
+    "certification": "Docs Study",
+    "title": "Streamlit session_state — 상태 관리",
+    "level": "입문",
+    "related_practices": ["docs-lab-16", "docs-lab-17"],
+    "summary": "Streamlit은 상호작용마다 스크립트 전체를 rerun합니다. 버튼 클릭·입력 결과를 rerun 이후에도 유지하려면 `st.session_state`에 저장해야 합니다.",
+    "example": "if 'count' not in st.session_state:\n    st.session_state.count = 0\nif st.button('증가'):\n    st.session_state.count += 1\nst.write(f'클릭 횟수: {st.session_state.count}')",
+    "common_mistake": "일반 전역 변수나 함수 내 지역 변수는 rerun마다 초기화됩니다. 상태 보존이 필요한 모든 값은 반드시 `st.session_state`를 사용하세요.",
+    "keywords": ["session_state", "rerun", "widget", "state management", "callback"],
+    "source_id": "official-docs-streamlit",
+    "details": [
+      "**초기화 패턴**: `st.session_state.setdefault('key', default_value)` 또는 `if 'key' not in st.session_state:` 블록으로 안전하게 초기화합니다.",
+      "**Widget key**: `st.text_input('이름', key='username')`으로 위젯 값이 자동으로 `st.session_state.username`에 저장됩니다.",
+      "**callback**: `on_change=my_func`으로 위젯 변경 시 함수를 실행합니다. callback 안에서 session_state를 수정하면 rerun 전에 처리됩니다."
+    ]
+  },
+  {
+    "id": "docs-streamlit-cache",
+    "certification": "Docs Study",
+    "title": "Streamlit Cache — 캐시 데코레이터",
+    "level": "입문",
+    "related_practices": ["docs-lab-18"],
+    "summary": "rerun마다 반복 실행되는 비용 높은 계산·리소스 로딩을 캐시해 성능을 높입니다. `@st.cache_data`는 직렬화 가능 데이터, `@st.cache_resource`는 DB·모델 같은 공유 객체에 씁니다.",
+    "example": "@st.cache_resource\ndef load_model():\n    return SentenceTransformer('all-MiniLM-L6-v2')\n\n@st.cache_data(ttl=300)\ndef fetch_data(query: str):\n    return db.execute(query).fetchall()",
+    "common_mistake": "`cache_data`와 `cache_resource`를 혼동하면 문제가 생깁니다. LLM 모델이나 DB 연결처럼 공유해야 하는 객체는 반드시 `cache_resource`를 써야 합니다.",
+    "keywords": ["cache_data", "cache_resource", "TTL", "rerun", "performance"],
+    "source_id": "official-docs-streamlit",
+    "details": [
+      "**`@st.cache_data`**: 함수 인수를 키로 결과를 복사해 캐시. DataFrame, 리스트 등 직렬화 가능 반환값에 적합. `ttl` 인수로 만료 시간 설정 가능.",
+      "**`@st.cache_resource`**: 싱글톤처럼 한 번만 생성해 모든 세션이 공유. 모델 로딩, DB 연결, 벡터 스토어 초기화에 적합.",
+      "캐시 무효화: `st.cache_data.clear()` / `st.cache_resource.clear()`로 수동 초기화. 함수 본문이 바뀌면 자동으로 캐시가 무효화됩니다."
+    ]
+  },
+  {
+    "id": "docs-streamlit-secrets",
+    "certification": "Docs Study",
+    "title": "Streamlit Secrets — 비밀 관리",
+    "level": "입문",
+    "related_practices": ["docs-lab-4"],
+    "summary": "API 키, DB 비밀번호 등 민감 정보를 코드에 넣지 않고 `.streamlit/secrets.toml` 파일 또는 Streamlit Cloud의 Secrets UI에 저장합니다.",
+    "example": "# .streamlit/secrets.toml\n[database]\nhost = 'localhost'\npassword = 'secret'\n\n# 코드에서 접근\nimport streamlit as st\ndb_pass = st.secrets['database']['password']",
+    "common_mistake": "`.streamlit/secrets.toml`을 `.gitignore`에 추가하지 않으면 민감 정보가 Git에 커밋될 수 있습니다. 반드시 제외하세요.",
+    "keywords": ["secrets", "secrets.toml", "API key", ".gitignore", "Streamlit Cloud"],
+    "source_id": "official-docs-streamlit",
+    "details": [
+      "로컬 개발: `.streamlit/secrets.toml`에 TOML 형식으로 저장. 앱 코드에서 `st.secrets`로 딕셔너리처럼 접근합니다.",
+      "Streamlit Cloud: 앱 Settings → Secrets에 같은 TOML 내용을 붙여넣으면 배포 시 자동 주입됩니다.",
+      "`st.secrets`는 `os.environ`보다 구조화된 접근을 지원합니다. `st.secrets['key']`와 `st.secrets.key` 두 방식 모두 가능합니다."
+    ]
+  },
+  {
+    "id": "docs-hf-spaces",
+    "certification": "Docs Study",
+    "title": "Hugging Face Spaces — 앱 배포",
+    "level": "입문",
+    "related_practices": ["docs-lab-19"],
+    "summary": "Hugging Face Spaces는 Streamlit, Gradio, Docker 앱을 무료로 호스팅하는 환경입니다. README.md 상단의 YAML 메타데이터로 SDK와 파일을 지정합니다.",
+    "example": "# README.md 상단 (YAML frontmatter)\n---\ntitle: My App\nsdk: streamlit\napp_file: app.py\npython_version: '3.11'\n---",
+    "common_mistake": "API 키 등 민감 정보는 코드에 하드코딩하지 마세요. Space Settings → Secrets에 등록하고 코드에서는 `os.environ['MY_KEY']`로 참조합니다.",
+    "keywords": ["huggingface", "spaces", "SDK", "secrets", "app_file", "README metadata"],
+    "source_id": "official-docs-huggingface",
+    "details": [
+      "**무료 티어**: CPU 기본 제공, 공개 Space는 무료. GPU나 비공개 Space는 유료 플랜 또는 ZeroGPU(무료 공유 GPU) 활용.",
+      "**Secrets**: `Settings → Repository secrets`에 키-값으로 등록. 빌드 및 런타임에 환경 변수로 주입됩니다.",
+      "Space를 Duplicate(복제)하면 fork처럼 독립된 Space가 생성됩니다. 타인의 모델·앱을 내 Secrets와 함께 커스텀하는 일반적인 패턴입니다."
+    ]
+  },
+  {
+    "id": "docs-hf-docker-space",
+    "certification": "Docs Study",
+    "title": "Hugging Face Docker Space",
+    "level": "입문",
+    "related_practices": ["docs-lab-20"],
+    "summary": "Dockerfile로 앱 환경을 직접 정의하는 Space 배포 방식입니다. Streamlit/Gradio SDK 제약을 넘어 FastAPI, 커스텀 서버 등 어떤 앱도 배포할 수 있습니다.",
+    "example": "# README.md\n---\ntitle: My API\nsdk: docker\napp_port: 7860\n---\n\n# Dockerfile\nFROM python:3.11-slim\nCOPY . .\nRUN pip install -r requirements.txt\nEXPOSE 7860\nCMD [\"uvicorn\", \"main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"7860\"]",
+    "common_mistake": "Docker Space는 포트 7860을 기본으로 노출합니다(`app_port: 7860`). 앱이 다른 포트를 사용하면 README 메타데이터의 `app_port`와 일치시켜야 합니다.",
+    "keywords": ["docker", "Dockerfile", "Spaces", "app_port", "FastAPI", "custom server"],
+    "source_id": "official-docs-huggingface",
+    "details": [
+      "**빌드 캐시**: Space는 이전 빌드 레이어를 캐시합니다. `COPY requirements.txt .` 후 `RUN pip install`을 배치해 의존성 레이어를 앱 코드보다 앞에 두면 빌드가 빠릅니다.",
+      "**Secrets**: `docker build --build-arg`가 아닌 Runtime Secrets로 주입해야 이미지에 민감 정보가 포함되지 않습니다. `os.environ`으로 접근합니다.",
+      "**모델 파일**: 대형 모델은 Space 저장소에 직접 넣지 말고 `huggingface_hub.snapshot_download()`로 런타임에 가져오거나 Dataset 저장소를 마운트하는 방식을 씁니다."
+    ]
+  },
+  {
+    "id": "docs-fastapi",
+    "certification": "Docs Study",
+    "title": "FastAPI — LLM 서비스 API 서버",
+    "level": "중급",
+    "related_practices": ["docs-lab-21"],
+    "summary": "FastAPI는 Python 타입 힌트 기반의 고성능 비동기 API 프레임워크입니다. RAG 체인이나 LLM 기능을 REST API 엔드포인트로 노출할 때 가장 많이 쓰입니다.",
+    "example": "from fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass Query(BaseModel):\n    question: str\n\n@app.post('/ask')\nasync def ask(q: Query):\n    answer = chain.invoke(q.question)\n    return {\"answer\": answer}\n\n# 실행\n# uvicorn main:app --reload",
+    "common_mistake": "LangChain 체인 같은 무거운 객체를 요청마다 생성하지 마세요. 모듈 레벨에서 한 번 초기화하거나 `lifespan` 이벤트로 앱 시작 시 로드하세요.",
+    "keywords": ["fastapi", "uvicorn", "pydantic", "async", "REST API", "endpoint", "lifespan"],
+    "source_id": "official-docs-fastapi",
+    "details": [
+      "**Pydantic**: 요청/응답 스키마를 `BaseModel`로 정의하면 자동 검증, OpenAPI 문서(`/docs`), JSON 직렬화가 무료로 제공됩니다.",
+      "**스트리밍 응답**: `StreamingResponse`와 async generator로 LLM 출력을 Server-Sent Events(SSE)로 스트리밍할 수 있습니다.",
+      "**lifespan**: `@asynccontextmanager`로 앱 시작 시 모델·DB 연결을 초기화하고 종료 시 정리하는 패턴. FastAPI 0.95+ 권장 방식입니다."
+    ]
+  },
+  {
+    "id": "docs-langsmith",
+    "certification": "Docs Study",
+    "title": "LangSmith — LLM 추적 & 평가",
+    "level": "중급",
+    "related_practices": ["docs-lab-13"],
+    "summary": "LangSmith는 LangChain 파이프라인의 모든 LLM 호출, 프롬프트, 응답, 지연시간을 자동 추적합니다. 버그 디버깅, 프롬프트 비교, 평가 데이터셋 관리를 한 곳에서 합니다.",
+    "example": "import os\nos.environ['LANGCHAIN_TRACING_V2'] = 'true'\nos.environ['LANGCHAIN_API_KEY'] = 'ls__...'\nos.environ['LANGCHAIN_PROJECT'] = 'my-rag-app'\n\n# 이후 LangChain 코드는 자동으로 추적됨\nresult = chain.invoke({'question': '질문'})",
+    "common_mistake": "추적 활성화는 환경변수 3개(`TRACING_V2=true`, `API_KEY`, `PROJECT`)가 모두 있어야 합니다. 하나라도 빠지면 조용히 추적이 안 됩니다.",
+    "keywords": ["langsmith", "tracing", "LangChain", "debugging", "evaluation", "dataset", "prompt"],
+    "source_id": "official-docs-langchain",
+    "details": [
+      "**Run 트레이스**: 체인 실행마다 tree 형태로 각 단계의 입출력·토큰 수·지연시간을 기록합니다. 어느 단계에서 오류가 났는지 즉시 파악할 수 있습니다.",
+      "**데이터셋 & 평가**: 프로덕션 오류 케이스를 Dataset으로 저장 → Evaluator(LLM-as-judge 등)로 자동 평가 → CI에 통합하는 흐름을 지원합니다.",
+      "**Playground**: LangSmith UI에서 특정 Run의 프롬프트를 바로 수정해 재실행 가능. 프롬프트 엔지니어링 반복에 유용합니다."
+    ]
+  },
+  {
+    "id": "docs-guardrails",
+    "certification": "Docs Study",
+    "title": "Guardrails AI — LLM 출력 검증",
+    "level": "중급",
+    "related_practices": ["docs-lab-14"],
+    "summary": "Guardrails AI는 LLM 입력/출력에 검증 규칙(Guard)을 적용합니다. 유해 콘텐츠 차단, JSON 스키마 강제, PII 마스킹 등 프로덕션 LLM 앱의 안전장치 역할을 합니다.",
+    "example": "from guardrails import Guard\nfrom guardrails.hub import ToxicLanguage\n\nguard = Guard().use(ToxicLanguage(threshold=0.5, on_fail='exception'))\n\nresult = guard(\n    llm_api=openai.chat.completions.create,\n    prompt='사용자 입력: {{user_input}}',\n    user_input=user_message\n)",
+    "common_mistake": "Guard는 LLM 호출을 래핑하므로 응답 시간이 증가합니다. 모든 요청에 heavy Guard를 걸면 지연이 커지니, 입력 검증과 출력 검증을 분리해 필요한 것만 적용하세요.",
+    "keywords": ["guardrails", "guard", "validation", "toxic", "PII", "JSON schema", "on_fail", "safety"],
+    "source_id": "official-docs-guardrails",
+    "details": [
+      "**Guard 허브**: `guardrails hub install hub://...`으로 커뮤니티 Guard를 설치합니다. ToxicLanguage, ValidJson, DetectPII, RegexMatch 등 수십 가지가 있습니다.",
+      "**on_fail 동작**: `'exception'`(예외 발생), `'reask'`(LLM에 재요청), `'fix'`(자동 수정), `'noop'`(통과) 중 선택합니다.",
+      "**구조화 출력**: `Guard.from_pydantic(OutputModel)`으로 LLM이 항상 지정한 스키마의 JSON을 반환하도록 강제할 수 있습니다."
+    ]
+  },
+  {
+    "id": "docs-gradio",
+    "certification": "Docs Study",
+    "title": "Gradio — ML 데모 UI",
+    "level": "중급",
+    "related_practices": ["docs-lab-22"],
+    "summary": "Gradio는 ML 모델 데모를 몇 줄로 만드는 UI 라이브러리입니다. `gr.Interface`로 함수를 감싸면 즉시 웹 UI가 생기고, HuggingFace Spaces와 네이티브 통합됩니다.",
+    "example": "import gradio as gr\n\ndef chat(message, history):\n    response = chain.invoke(message)\n    return response\n\ndemo = gr.ChatInterface(\n    fn=chat,\n    title='RAG 챗봇',\n    examples=['문서 요약해줘', '주요 키워드는?']\n)\ndemo.launch()",
+    "common_mistake": "Streamlit과 달리 Gradio는 함수 단위로 UI를 생성합니다. 복잡한 상태 관리는 `gr.State()`로, 여러 컴포넌트를 조합할 때는 `gr.Blocks()` 컨텍스트를 씁니다.",
+    "keywords": ["gradio", "Interface", "Blocks", "ChatInterface", "State", "HuggingFace", "demo"],
+    "source_id": "official-docs-gradio",
+    "details": [
+      "**Interface vs Blocks**: `gr.Interface`는 입력→함수→출력 단순 구조, `gr.Blocks`는 레이아웃과 이벤트를 자유롭게 구성. LLM 챗봇에는 `gr.ChatInterface`가 가장 적합합니다.",
+      "**스트리밍**: `gr.ChatInterface(fn=chat)`에서 `chat`을 generator 함수로 만들고 `yield`로 토큰을 내보내면 자동으로 스트리밍 UI가 됩니다.",
+      "**HF Spaces 통합**: `demo.launch()`만 하면 HF Spaces Gradio SDK로 즉시 배포됩니다. 별도 서버 설정 없이 `sdk: gradio`만 README에 선언하면 됩니다."
+    ]
+  },
+  {
+    "id": "docs-chroma",
+    "certification": "Docs Study",
+    "title": "Chroma — 영속 벡터 DB",
+    "level": "중급",
+    "related_practices": ["docs-chroma-1", "docs-chroma-2"],
+    "summary": "Chroma는 재시작해도 데이터가 유지되는 오픈소스 벡터 DB입니다. FAISS는 `save_local()`을 직접 호출해야 하지만, Chroma는 `persist_directory`만 지정하면 자동으로 로컬 DB에 저장합니다.",
+    "example": "from langchain_chroma import Chroma\n\n# 생성 & 자동 저장\ndb = Chroma.from_documents(\n    chunks,\n    embeddings,\n    persist_directory='./chroma_db'\n)\n\n# 다음 실행 시 — 임베딩 재계산 없이 로드\ndb = Chroma(\n    persist_directory='./chroma_db',\n    embedding_function=embeddings\n)",
+    "common_mistake": "FAISS처럼 `save_local()`을 별도로 호출할 필요가 없습니다. `persist_directory`를 지정하면 자동 저장됩니다. 단, `persist_directory`를 생략하면 인메모리로만 동작합니다.",
+    "keywords": ["Chroma", "persist_directory", "from_documents", "collection", "chromadb", "영속"],
+    "source_id": "official-docs-chromadb",
+    "details": [
+      "**FAISS vs Chroma**: FAISS는 인메모리 기반으로 `save_local()`로 수동 저장해야 합니다. Chroma는 `persist_directory`만 지정하면 SQLite 기반 로컬 DB에 자동 저장됩니다.",
+      "**컬렉션**: Chroma는 데이터를 컬렉션 단위로 관리합니다. `collection_name` 파라미터로 여러 문서 세트를 분리해 저장하고 개별로 검색할 수 있습니다.",
+      "**메타데이터 필터링**: `db.similarity_search(query, filter={\"source\": \"file.pdf\"})`처럼 메타데이터 조건으로 검색 범위를 제한할 수 있습니다. FAISS는 지원하지 않는 기능입니다."
+    ]
+  },
+  {
+    "id": "docs-sentence-transformers",
+    "certification": "Docs Study",
+    "title": "sentence-transformers — 로컬 임베딩",
+    "level": "중급",
+    "related_practices": ["docs-embed-1"],
+    "summary": "sentence-transformers는 HuggingFace 임베딩 모델을 로컬에서 실행합니다. OpenAI API 없이 완전 로컬 RAG를 구성할 수 있고, 한국어 특화 모델도 선택할 수 있습니다.",
+    "example": "from langchain_huggingface import HuggingFaceEmbeddings\n\nembeddings = HuggingFaceEmbeddings(\n    model_name='sentence-transformers/all-MiniLM-L6-v2'\n)\n\n# 임베딩 벡터 생성\nvector = embeddings.embed_query('파이썬이 뭐야?')\nprint(len(vector))  # 384차원\n\n# Chroma와 함께\ndb = Chroma.from_documents(chunks, embeddings, persist_directory='./db')",
+    "common_mistake": "첫 실행 시 모델 파일을 다운로드하므로 느립니다. Streamlit 앱에서는 `@st.cache_resource`로 감싸 한 번만 로드하세요. 임베딩 모델을 중간에 바꾸면 기존 VectorStore와 호환되지 않아 전체 재인덱싱이 필요합니다.",
+    "keywords": ["HuggingFaceEmbeddings", "sentence-transformers", "all-MiniLM-L6-v2", "embed_query", "로컬 임베딩", "384차원"],
+    "source_id": "official-docs-huggingface",
+    "details": [
+      "**모델 선택**: `all-MiniLM-L6-v2`는 빠르고 경량(384차원), `all-mpnet-base-v2`는 품질이 더 높지만 느립니다. 한국어가 많다면 `jhgan/ko-sroberta-multitask` 같은 한국어 특화 모델을 씁니다.",
+      "**OpenAI vs 로컬**: OpenAI `text-embedding-3-small`은 품질이 높지만 API 비용이 발생합니다. 로컬 임베딩은 무료이나 GPU 없이는 대용량에서 느립니다.",
+      "**차원 고정 주의**: 한 번 임베딩한 모델을 바꾸면 기존 인덱스와 호환되지 않습니다. 새 모델로 전체 인덱스를 재생성해야 합니다."
+    ]
+  },
+  {
+    "id": "docs-ragas",
+    "certification": "Docs Study",
+    "title": "Ragas — RAG 품질 자동 평가",
+    "level": "중급",
+    "related_practices": ["docs-ragas-1", "docs-ragas-2"],
+    "summary": "Ragas는 RAG 시스템의 품질을 자동으로 수치화합니다. Faithfulness(환각 없는가), Answer Relevancy(질문과 맞는 답인가), Context Precision(관련 문서를 잘 찾았는가)을 LLM-as-judge로 계산합니다.",
+    "example": "from ragas import evaluate\nfrom ragas.metrics import faithfulness, answer_relevancy, context_precision\nfrom datasets import Dataset\n\ndata = {\n    'question': ['LangChain이 뭐야?'],\n    'answer': ['LangChain은 LLM 앱 프레임워크입니다.'],\n    'contexts': [['LangChain은 LLM 애플리케이션 개발을 위한 프레임워크입니다.']],\n    'ground_truth': ['LangChain은 LLM 앱 개발 프레임워크입니다.']\n}\n\ndataset = Dataset.from_dict(data)\nresult = evaluate(dataset, metrics=[faithfulness, answer_relevancy, context_precision])\nprint(result)",
+    "common_mistake": "Ragas는 평가에 LLM을 사용합니다. 기본으로 OpenAI GPT를 씁니다. `evaluate(..., llm=your_llm, embeddings=your_embeddings)`로 다른 모델을 지정할 수 있습니다.",
+    "keywords": ["ragas", "evaluate", "faithfulness", "answer_relevancy", "context_precision", "LLM-as-judge", "Dataset"],
+    "source_id": "official-docs-ragas",
+    "details": [
+      "**3가지 핵심 메트릭**: Faithfulness(답변이 검색된 컨텍스트에 근거하는가 — 환각 탐지), Answer Relevancy(답변이 질문과 관련 있는가), Context Precision(관련 문서가 상위 k개 안에 있는가).",
+      "**MLflow 연동**: `result.to_pandas()`로 DataFrame 변환 후 `mlflow.log_metrics()`로 기록하면 chunk_size, k 파라미터별 품질 변화를 추적할 수 있습니다.",
+      "**ground_truth 없이도 가능**: `ground_truth`가 없으면 faithfulness, answer_relevancy만 계산합니다. Answer Correctness 메트릭은 ground_truth가 필요합니다."
+    ]
+  },
+  {
+    "id": "docs-summarization",
+    "certification": "Docs Study",
+    "title": "LangChain 요약 체인 — map_reduce & stuff",
+    "level": "중급",
+    "related_practices": ["docs-news-1", "docs-news-2"],
+    "summary": "LangChain의 `load_summarize_chain`은 긴 문서를 LLM 컨텍스트 한계 내에서 요약하는 체인을 만듭니다. 문서가 짧으면 `stuff`, 길면 `map_reduce` 방식을 씁니다.",
+    "example": "from langchain.chains.summarize import load_summarize_chain\nfrom langchain_core.documents import Document\n\n# map_reduce: 각 청크 요약 → 최종 요약\nchain = load_summarize_chain(llm, chain_type='map_reduce')\n\ndocs = [Document(page_content=article) for article in articles]\nresult = chain.invoke(docs)\nprint(result['output_text'])",
+    "common_mistake": "`stuff` 방식은 모든 문서를 하나의 프롬프트에 넣습니다. 문서가 LLM 컨텍스트 창보다 크면 오류가 납니다. 여러 문서나 긴 문서는 항상 `map_reduce`를 먼저 고려하세요.",
+    "keywords": ["load_summarize_chain", "map_reduce", "stuff", "refine", "output_text", "요약"],
+    "source_id": "official-docs-langchain",
+    "details": [
+      "**chain_type 비교**: `stuff`(전체 한 번), `map_reduce`(청크별 요약 후 합침), `refine`(이전 요약을 다음 청크에 반영). 품질은 refine > map_reduce > stuff이지만 속도는 반대입니다.",
+      "**map_prompt / combine_prompt**: `load_summarize_chain`에 `map_prompt`와 `combine_prompt`를 지정해 요약 지시문을 커스터마이징할 수 있습니다.",
+      "**비동기**: `chain.ainvoke(docs)`로 비동기 요청이 가능합니다. 여러 뉴스 기사를 병렬 요약할 때 `asyncio.gather`와 함께 쓰면 속도가 크게 개선됩니다."
+    ]
+  },
+  {
+    "id": "docs-sql-chain",
+    "certification": "Docs Study",
+    "title": "LangChain Text-to-SQL — 자연어로 DB 조회",
+    "level": "중급",
+    "related_practices": ["docs-sql-1", "docs-sql-2"],
+    "summary": "LangChain의 `create_sql_query_chain`은 자연어 질문을 SQL 쿼리로 변환합니다. `SQLDatabase`로 DB 스키마를 자동으로 읽어 LLM에게 컨텍스트를 제공합니다.",
+    "example": "from langchain_community.utilities import SQLDatabase\nfrom langchain.chains import create_sql_query_chain\n\ndb = SQLDatabase.from_uri('sqlite:///./mydb.db')\nchain = create_sql_query_chain(llm, db)\n\nsql = chain.invoke({'question': '가장 많이 팔린 상품 5개는?'})\nprint(sql)  # SELECT product, SUM(quantity) ...\n\nresult = db.run(sql)\nprint(result)",
+    "common_mistake": "LLM이 생성한 SQL을 바로 `db.run()`에 넘기면 잘못된 쿼리가 실행됩니다. Guardrails의 `ValidSQL`이나 별도 파싱으로 검증한 뒤 실행하세요.",
+    "keywords": ["SQLDatabase", "create_sql_query_chain", "from_uri", "db.run", "Text-to-SQL", "sqlite"],
+    "source_id": "official-docs-langchain",
+    "details": [
+      "**스키마 자동 주입**: `SQLDatabase`는 연결된 DB의 테이블명과 컬럼 정보를 자동으로 프롬프트에 주입합니다. LLM이 존재하는 테이블/컬럼만 참조하도록 유도합니다.",
+      "**QuerySQLDatabaseTool**: SQL 생성과 실행을 하나의 툴로 묶은 고수준 인터페이스. Agent에 등록하면 LLM이 필요할 때 DB를 직접 조회할 수 있습니다.",
+      "**보안 주의**: `db.run()`은 실제 DB를 수정할 수 있습니다. 읽기 전용 사용자 계정으로 연결하거나 SELECT만 허용하는 wrapper를 두는 것이 안전합니다."
+    ]
+  },
+  {
+    "id": "docs-langgraph",
+    "certification": "Docs Study",
+    "title": "LangGraph — 상태 기반 에이전트 워크플로",
+    "level": "고급",
+    "related_practices": ["docs-graph-1", "docs-graph-2"],
+    "summary": "LangGraph는 LLM 에이전트를 그래프(노드 + 엣지)로 정의합니다. 단순 체인의 A→B→C와 달리 조건 분기, 루프, 병렬 실행이 가능해 실제 에이전트 행동을 표현합니다.",
+    "example": "from langgraph.graph import StateGraph, END\nfrom typing import TypedDict\n\nclass State(TypedDict):\n    question: str\n    answer: str\n\ndef retrieve(state: State) -> State:\n    return {\"answer\": str(retriever.invoke(state[\"question\"]))}\n\ndef generate(state: State) -> State:\n    return {\"answer\": chain.invoke(state)}\n\ngraph = StateGraph(State)\ngraph.add_node(\"retrieve\", retrieve)\ngraph.add_node(\"generate\", generate)\ngraph.set_entry_point(\"retrieve\")\ngraph.add_edge(\"retrieve\", \"generate\")\ngraph.add_edge(\"generate\", END)\n\napp = graph.compile()\nresult = app.invoke({\"question\": \"LangChain이 뭐야?\"})",
+    "common_mistake": "LangGraph는 LangChain 체인이 아닙니다. `graph.compile()` 후 `app.invoke()`를 씁니다. State TypedDict를 정확히 정의하지 않으면 노드에서 키 오류가 발생합니다.",
+    "keywords": ["LangGraph", "StateGraph", "State", "node", "edge", "compile", "conditional_edges", "END"],
+    "source_id": "official-docs-langgraph",
+    "details": [
+      "**노드 vs 체인**: 체인은 A→B→C 선형. 그래프는 A에서 조건에 따라 B 또는 C로 분기, D에서 A로 루프 등 복잡한 흐름을 표현할 수 있습니다.",
+      "**conditional_edges**: `graph.add_conditional_edges('judge', router_fn, {'retry': 'retrieve', 'done': END})`처럼 노드 반환값에 따라 다음 노드를 동적으로 결정합니다. ReAct 에이전트의 핵심입니다.",
+      "**checkpointer**: `MemorySaver`를 `graph.compile(checkpointer=...)`에 넘기면 실행 상태를 저장해 중단 후 재개, 멀티턴 대화 유지가 가능합니다."
+    ]
+  },
+  {
+    "id": "docs-airflow",
+    "certification": "Docs Study",
+    "title": "Apache Airflow — 워크플로 오케스트레이션",
+    "level": "고급",
+    "related_practices": ["docs-lab-23"],
+    "summary": "Airflow는 DAG(Directed Acyclic Graph)로 데이터 파이프라인을 정의하고 스케줄링·모니터링합니다. ML 파이프라인(데이터 수집 → 전처리 → 학습 → 배포)이나 문서 재인덱싱 자동화에 씁니다.",
+    "example": "from airflow import DAG\nfrom airflow.operators.python import PythonOperator\nfrom datetime import datetime\n\ndef reindex():\n    # 문서 로드 → 임베딩 → VectorStore 업데이트\n    pass\n\nwith DAG('daily_reindex', schedule='@daily', start_date=datetime(2024,1,1)) as dag:\n    task = PythonOperator(task_id='reindex', python_callable=reindex)",
+    "common_mistake": "DAG 파일은 Airflow 스케줄러가 주기적으로 파싱합니다. 파일 최상위에 무거운 연산(DB 연결, 모델 로드)을 두면 파싱마다 실행돼 스케줄러가 느려집니다. 반드시 task 함수 안에 넣으세요.",
+    "keywords": ["airflow", "DAG", "task", "operator", "schedule", "XCom", "pipeline", "orchestration"],
+    "source_id": "official-docs-airflow",
+    "details": [
+      "**Operator 종류**: `PythonOperator`(파이썬 함수), `BashOperator`(셸 명령), `DockerOperator`(컨테이너 실행) 등. ML 파이프라인엔 주로 PythonOperator를 씁니다.",
+      "**XCom**: task 간 데이터 전달 메커니즘. `ti.xcom_push(key, value)` / `ti.xcom_pull(task_ids, key)`로 소량 데이터를 공유합니다. 대용량은 S3/GCS 경로를 전달하는 방식을 씁니다.",
+      "**의존성**: `task_a >> task_b >> task_c` 또는 `task_a.set_downstream(task_b)` 로 실행 순서를 정의합니다. 병렬 실행은 `[task_b, task_c] >> task_d` 형태로 표현합니다."
+    ]
+  },
+  {
+    "id": "docs-mlflow",
+    "certification": "Docs Study",
+    "title": "MLflow — 실험 추적 & 모델 관리",
+    "level": "고급",
+    "related_practices": ["docs-lab-15"],
+    "summary": "MLflow는 ML 실험의 파라미터, 메트릭, 아티팩트를 추적하고 모델을 버전 관리합니다. RAG에서 chunk_size, k, 임베딩 모델 등 파라미터 실험 결과를 체계적으로 비교할 때 씁니다.",
+    "example": "import mlflow\n\nwith mlflow.start_run(run_name='rag-exp-1'):\n    mlflow.log_param('chunk_size', 500)\n    mlflow.log_param('k', 4)\n    mlflow.log_metric('answer_relevance', 0.87)\n    mlflow.log_metric('faithfulness', 0.92)\n    mlflow.log_artifact('eval_results.json')",
+    "common_mistake": "run을 `with mlflow.start_run()` 블록으로 감싸지 않으면 실수로 이전 run에 로깅되는 경우가 있습니다. 항상 context manager를 사용하세요.",
+    "keywords": ["mlflow", "experiment", "run", "log_param", "log_metric", "artifact", "model registry"],
+    "source_id": "official-docs-mlflow",
+    "details": [
+      "**UI**: `mlflow ui` 명령으로 localhost:5000에서 실험 비교 대시보드를 실행합니다. 파라미터별 메트릭 추이를 시각적으로 비교할 수 있습니다.",
+      "**Model Registry**: `mlflow.log_model()`로 모델을 저장하고 `Staging`→`Production` 단계를 관리합니다. 배포 시 `mlflow.pyfunc.load_model('models:/name/Production')`으로 로드합니다.",
+      "**LangChain 통합**: `mlflow.langchain.autolog()`를 활성화하면 체인 실행마다 파라미터와 메트릭이 자동 기록됩니다."
+    ]
+  },
+  {
+    "id": "docs-mcp",
+    "certification": "Docs Study",
+    "title": "MCP — Model Context Protocol",
+    "level": "고급",
+    "related_practices": ["docs-lab-24"],
+    "summary": "MCP(Model Context Protocol)는 LLM 애플리케이션이 외부 도구·데이터소스와 표준화된 방식으로 연결하는 Anthropic 오픈 프로토콜입니다. Claude Desktop이나 Claude Code에 로컬 MCP 서버를 연결하면 파일 시스템, DB, 외부 API를 LLM이 직접 사용할 수 있습니다.",
+    "example": "# mcp_server.py (FastMCP 사용)\nfrom mcp.server.fastmcp import FastMCP\n\nmcp = FastMCP('my-server')\n\n@mcp.tool()\ndef search_docs(query: str) -> str:\n    '''벡터 DB에서 관련 문서를 검색합니다.'''\n    results = retriever.invoke(query)\n    return '\\n'.join(r.page_content for r in results)\n\nmcp.run(transport='stdio')",
+    "common_mistake": "MCP 서버는 stdio 또는 SSE transport 중 하나를 선택합니다. Claude Desktop은 stdio(로컬 프로세스), Claude Code는 SSE(HTTP 서버) 방식을 주로 씁니다. transport 불일치 시 연결이 안 됩니다.",
+    "keywords": ["MCP", "Model Context Protocol", "tool", "resource", "FastMCP", "stdio", "Claude", "agent"],
+    "source_id": "official-docs-mcp",
+    "details": [
+      "**3가지 기본 요소**: `tool`(LLM이 호출하는 함수), `resource`(LLM이 읽는 데이터), `prompt`(재사용 가능한 프롬프트 템플릿). 대부분의 서버는 `tool`만 구현합니다.",
+      "**Claude Desktop 연결**: `~/Library/Application Support/Claude/claude_desktop_config.json`에 서버 경로와 명령어를 등록하면 대화 중 자동으로 도구가 보입니다.",
+      "**FastMCP**: Anthropic 공식 Python SDK의 고수준 래퍼. `@mcp.tool()` 데코레이터로 함수를 도구로 등록하면 스키마 생성, 입출력 검증이 자동으로 처리됩니다."
+    ]
+  },
+  {
+    "id": "docs-litellm",
+    "certification": "Docs Study",
+    "title": "LiteLLM — 여러 LLM을 하나의 인터페이스로",
+    "level": "고급",
+    "related_practices": ["docs-litellm-1"],
+    "summary": "LiteLLM은 OpenAI, Anthropic, Ollama, Gemini 등 100개 이상의 LLM 프로바이더를 동일한 API 형식으로 호출합니다. 모델을 바꿀 때 코드 수정 없이 모델명만 변경하면 됩니다.",
+    "example": "from litellm import completion\n\n# Ollama 로컬\nresponse = completion(\n    model='ollama/llama3.2',\n    messages=[{'role': 'user', 'content': '안녕'}]\n)\n\n# OpenAI — 코드 동일, 모델명만 변경\nresponse = completion(\n    model='gpt-4o-mini',\n    messages=[{'role': 'user', 'content': '안녕'}]\n)\n\nprint(response.choices[0].message.content)",
+    "common_mistake": "모델명 형식은 `'프로바이더/모델명'`입니다. Ollama는 `'ollama/llama3.2'`, Anthropic은 `'anthropic/claude-3-5-sonnet-20241022'`. OpenAI만 예외로 접두사 없이 `'gpt-4o-mini'`처럼 씁니다.",
+    "keywords": ["LiteLLM", "completion", "model", "provider", "벤더 독립", "OpenAI 호환", "ChatLiteLLM"],
+    "source_id": "official-docs-litellm",
+    "details": [
+      "**비용 추적**: `litellm.success_callback`으로 각 호출의 토큰 수와 예상 비용을 자동 기록할 수 있습니다. 여러 모델을 실험할 때 비용 비교에 유용합니다.",
+      "**LangChain 통합**: `from langchain_community.chat_models import ChatLiteLLM`으로 LangChain 체인에서 LiteLLM을 씁니다. LCEL 파이프라인에 바로 연결됩니다.",
+      "**Fallback**: `completion(..., fallbacks=['gpt-4o-mini', 'ollama/llama3.2'])`처럼 주 모델 실패 시 자동으로 백업 모델로 전환하는 기능을 지원합니다."
+    ]
+  },
+  {
+    "id": "docs-chainlit",
+    "certification": "Docs Study",
+    "title": "Chainlit — 챗봇 UI 특화 프레임워크",
+    "level": "고급",
+    "related_practices": ["docs-chainlit-1"],
+    "summary": "Chainlit은 LLM 챗봇 UI에 특화된 프레임워크입니다. Streamlit과 달리 웹소켓 기반으로 동작해 스트리밍 응답, 파일 업로드, 멀티스텝 진행 표시가 자연스럽습니다.",
+    "example": "import chainlit as cl\n\n@cl.on_message\nasync def main(message: cl.Message):\n    # 스트리밍 응답\n    msg = cl.Message(content='')\n    async for chunk in chain.astream({'question': message.content}):\n        await msg.stream_token(chunk)\n    await msg.send()\n\n# 실행: chainlit run app.py",
+    "common_mistake": "Chainlit은 `async` 기반입니다. LangChain의 `chain.invoke()`(동기)를 쓰면 이벤트 루프가 블로킹됩니다. 반드시 `chain.ainvoke()` 또는 `chain.astream()`을 사용하세요.",
+    "keywords": ["chainlit", "on_message", "Message", "stream_token", "async", "astream", "on_chat_start"],
+    "source_id": "official-docs-chainlit",
+    "details": [
+      "**데코레이터 기반**: `@cl.on_chat_start`(세션 시작 시 체인 초기화), `@cl.on_message`(메시지 수신), `@cl.on_stop`(스트리밍 중단)으로 이벤트를 처리합니다.",
+      "**Step UI**: `async with cl.Step(name='검색 중...'):` 블록으로 에이전트의 각 단계(검색, 추론 등)를 UI에 실시간으로 펼쳐 보여줍니다. LangGraph 에이전트와 함께 쓰면 강력합니다.",
+      "**파일 업로드**: `@cl.on_message`에서 `message.elements`로 첨부 파일을 받을 수 있습니다. PDF 업로드 → 즉시 RAG 인덱싱 흐름을 몇 줄로 구현합니다."
+    ]
+  },
+  {
+    "id": "docs-redis",
+    "certification": "Docs Study",
+    "title": "Redis — 대화 메모리 영속화 & LLM 캐싱",
+    "level": "고급",
+    "related_practices": ["docs-redis-1"],
+    "summary": "Redis는 인메모리 데이터 저장소로 LLM 앱에서 대화 히스토리 영속화와 LLM 응답 캐싱에 씁니다. 서버를 재시작해도 대화가 유지되고, 동일 질문에 대한 LLM 호출 비용을 절감합니다.",
+    "example": "from langchain_community.chat_message_histories import RedisChatMessageHistory\nfrom langchain_core.runnables.history import RunnableWithMessageHistory\n\ndef get_session_history(session_id: str):\n    return RedisChatMessageHistory(\n        session_id=session_id,\n        url='redis://localhost:6379'\n    )\n\nchain_with_history = RunnableWithMessageHistory(\n    chain,\n    get_session_history,\n    input_messages_key='question',\n    history_messages_key='chat_history'\n)",
+    "common_mistake": "Redis 서버가 실행 중이지 않으면 연결 오류가 납니다. 로컬 개발 시 `docker run -d -p 6379:6379 redis`로 먼저 Redis를 실행하세요.",
+    "keywords": ["Redis", "RedisChatMessageHistory", "session_id", "url", "영속화", "캐싱", "TTL"],
+    "source_id": "official-docs-redis",
+    "details": [
+      "**인메모리 교체**: 기존 `ChatMessageHistory`(재시작 시 소멸)를 `RedisChatMessageHistory`로 교체하면 `get_session_history` 함수 한 줄만 바꿔도 영속성을 얻습니다.",
+      "**TTL**: `RedisChatMessageHistory(session_id, url, ttl=3600)`으로 1시간 후 자동 만료됩니다. 무한히 쌓이는 히스토리와 메모리 누수를 방지합니다.",
+      "**LLM 응답 캐싱**: `from langchain.cache import RedisCache; langchain.llm_cache = RedisCache(redis_client)`로 동일 질문에 대한 LLM 응답을 캐시해 비용과 응답 시간을 줄입니다."
+    ]
+  },
+  {
+    "id": "docs-unstructured",
+    "certification": "Docs Study",
+    "title": "Unstructured — PDF·Word·이미지 파싱",
+    "level": "고급",
+    "related_practices": ["docs-unstructured-1"],
+    "summary": "Unstructured는 PDF, Word, Excel, PowerPoint, 이미지 등 비정형 문서를 텍스트로 변환합니다. LangChain의 `UnstructuredFileLoader`와 통합되어 확장자에 상관없이 동일 코드로 RAG 파이프라인에 연결합니다.",
+    "example": "from langchain_community.document_loaders import UnstructuredFileLoader\n\n# 단일 파일 — 확장자 자동 감지\nloader = UnstructuredFileLoader('./report.pdf')\ndocs = loader.load()\n\n# 혼합 형식 디렉토리\nfrom langchain_community.document_loaders import DirectoryLoader\nloader = DirectoryLoader(\n    './docs',\n    glob='**/*',\n    loader_cls=UnstructuredFileLoader\n)\ndocs = loader.load()",
+    "common_mistake": "`pip install unstructured`는 기본 설치입니다. PDF에는 `pip install unstructured[pdf]`, 이미지 OCR에는 `pip install unstructured[local-inference]`처럼 별도 extra를 설치해야 합니다.",
+    "keywords": ["Unstructured", "UnstructuredFileLoader", "PDF", "Word", "OCR", "비정형 문서", "elements"],
+    "source_id": "official-docs-unstructured",
+    "details": [
+      "**자동 파일 감지**: 확장자에 따라 자동으로 적절한 파서를 선택합니다. `.pdf`, `.docx`, `.pptx`, `.jpg`, `.eml` 등을 동일 코드로 처리합니다.",
+      "**요소 분류**: `mode='elements'`로 로드하면 Title, NarrativeText, Table, Image 등 요소 타입이 메타데이터에 저장됩니다. 헤더를 청크 메타데이터로 활용하거나 테이블만 따로 추출할 때 씁니다.",
+      "**API vs 로컬**: Unstructured Cloud API는 고품질 OCR과 레이아웃 분석을 제공합니다. 로컬은 무료이나 이미지나 복잡한 레이아웃의 PDF 품질이 낮을 수 있습니다."
+    ]
+  },
+  {
+    "id": "docs-conversation-memory",
+    "certification": "Docs Study",
+    "title": "LangChain 대화 메모리 — 멀티턴 챗봇",
+    "level": "고급",
+    "related_practices": ["docs-lab-6", "docs-brain-1"],
+    "summary": "RunnableWithMessageHistory는 LangChain 체인에 대화 히스토리를 자동으로 주입합니다. 매 요청마다 이전 대화를 직접 관리하지 않아도 session_id만 넘기면 히스토리가 유지됩니다.",
+    "example": "from langchain_community.chat_message_histories import ChatMessageHistory\nfrom langchain_core.runnables.history import RunnableWithMessageHistory\n\nstore = {}  # session_id → ChatMessageHistory\n\ndef get_session_history(session_id: str):\n    if session_id not in store:\n        store[session_id] = ChatMessageHistory()\n    return store[session_id]\n\nchain_with_history = RunnableWithMessageHistory(\n    chain,\n    get_session_history,\n    input_messages_key=\"question\",\n    history_messages_key=\"chat_history\"\n)\n\nchain_with_history.invoke(\n    {\"question\": \"안녕\"},\n    config={\"configurable\": {\"session_id\": \"user-1\"}}\n)",
+    "common_mistake": "`session_id`를 모든 사용자에게 동일하게 넘기면 전체 사용자가 하나의 대화 히스토리를 공유합니다. 사용자별로 고유한 session_id를 생성해야 합니다.",
+    "keywords": ["RunnableWithMessageHistory", "ChatMessageHistory", "session_id", "chat_history", "멀티턴"],
+    "source_id": "official-docs-langchain",
+    "details": [
+      "**히스토리 저장소**: 인메모리(`ChatMessageHistory`)는 서버 재시작 시 사라집니다. 프로덕션에서는 `RedisChatMessageHistory`, `SQLChatMessageHistory` 등 영속 저장소를 씁니다.",
+      "**히스토리 길이 제한**: 대화가 길어지면 토큰이 초과됩니다. `trim_messages()` 또는 최근 N개 메시지만 유지하는 로직을 추가해야 합니다.",
+      "**프롬프트 연동**: `ChatPromptTemplate`에 `MessagesPlaceholder(variable_name=\"chat_history\")`를 추가해야 히스토리가 프롬프트에 주입됩니다. history_messages_key와 placeholder 이름이 일치해야 합니다."
+    ]
+  }
+]

@@ -666,9 +666,12 @@ def render_home(exams):
     # 1. 개념 공부
     lessons = lessons_for_track(track_id)
     quizzes_list = quizzes_for_track(track_id)
-    c_chip_cls = "cert-chip-done" if concept_done else "cert-chip-active"
+    _cl = st.session_state.lab_completed_lessons
+    _cq = st.session_state.lab_completed_quizzes
+    done_lessons = len([l for l in lessons if l.id in _cl])
+    done_quizzes = len([q for q in quizzes_list if q.id in _cq])
     c_chip_txt = "✓ 완료" if concept_done else "학습 중"
-    c_desc = f"이론 {len(lessons)}카드 · 확인 퀴즈 {len(quizzes_list)}문제"
+    c_desc = f"이론 {done_lessons}/{len(lessons)} · 퀴즈 {done_quizzes}/{len(quizzes_list)}"
     concept_target = "개념공부" if concept_done else ("이론 학습" if "lesson" not in session_done else "확인 퀴즈")
     if st.button(
         f"📖 개념 공부  ·  {c_desc}  ·  {c_chip_txt} →",
@@ -680,13 +683,15 @@ def render_home(exams):
 
     # 2. 실습 / 문제 적용
     practices = [t for t in PRACTICE_TASKS if t.track == track_id and t.status == "approved"]
+    _cp = st.session_state.lab_completed_practices
+    done_practices = len([t for t in practices if t.id in _cp])
     if track_id == "azure":
-        p_title, p_desc, p_page = "📝 문제 적용", "개념을 AZ-104 실전 문제에 바로 적용합니다", "시험준비"
+        p_title, p_page = "📝 문제 적용", "시험준비"
+        p_desc = "AZ-104 실전 문제 적용"
         p_chip_txt = "✓ 완료" if practice_done else "학습 중"
     elif practices:
-        p_title = "🖥 실습"
-        p_desc = f"명령어 실습 과제 {len(practices)}개"
-        p_page = "실습"
+        p_title, p_page = "🖥 실습", "실습"
+        p_desc = f"실습 {done_practices}/{len(practices)}"
         p_chip_txt = "✓ 완료" if practice_done else "학습 중"
     else:
         p_title, p_desc, p_page = "🖥 실습", "이 Track은 실습 과제를 준비 중입니다", "실습"
@@ -1405,6 +1410,11 @@ def render_learning_quiz():
     quiz = ordered_quizzes[index]
     is_due = quiz.id in due_ids
 
+    # 전체 퀴즈 진도 표시
+    completed_quizzes = st.session_state.lab_completed_quizzes
+    done_q = len([q for q in quizzes if q.id in completed_quizzes])
+    st.progress(done_q / len(quizzes) if quizzes else 0, text=f"퀴즈 {done_q}/{len(quizzes)} 완료")
+
     with st.container(border=True):
         badge = "🔁 복습" if is_due else quiz.difficulty
         st.caption(f"{quiz.track} · {quiz.question_type} · {badge}")
@@ -1692,6 +1702,11 @@ def render_lab_practice():
     index = min(st.session_state.lab_practice_index, len(tasks) - 1)
     task = tasks[index]
 
+    # 전체 실습 진도 표시
+    completed_practices = st.session_state.lab_completed_practices
+    done_p = len([t for t in tasks if t.id in completed_practices])
+    st.progress(done_p / len(tasks) if tasks else 0, text=f"실습 {done_p}/{len(tasks)} 완료")
+
     with st.container(border=True):
         st.caption(f"{task.track} · {task.difficulty} · {task.status}")
         st.markdown(f"### {task.title}")
@@ -1722,6 +1737,17 @@ def render_lab_practice():
         st.markdown('<div class="answer-explanation">', unsafe_allow_html=True)
         st.markdown(task.explanation)
         st.markdown("</div>", unsafe_allow_html=True)
+
+        # 오답 시 관련 레슨 바로가기 (lesson.related_practices 역방향 매핑)
+        if not all_pass:
+            all_lessons = lessons_for_track(track_id)
+            related_lessons = [l for l in all_lessons if task.id in l.related_practices]
+            if related_lessons:
+                lesson_ids = [l.id for l in all_lessons]
+                matched = related_lessons[0]
+                if st.button(f"관련 이론 다시 보기 — {matched.title}", key=f"goto_lesson_from_practice_{task.id}"):
+                    st.session_state.lab_lesson_index = lesson_ids.index(matched.id)
+                    go_to("이론 학습")
 
         # 채점 후 다음 실습 바로 이동
         is_last_task = index >= len(tasks) - 1
