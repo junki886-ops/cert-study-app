@@ -82,8 +82,11 @@ class ConceptNoteService:
             "think": False,
             "options": {"temperature": 0, "num_predict": 700},
         }
-        response = requests.post(f"{base_url.rstrip('/')}/api/generate", json=payload, timeout=120)
-        response.raise_for_status()
+        try:
+            response = requests.post(f"{base_url.rstrip('/')}/api/generate", json=payload, timeout=120)
+            response.raise_for_status()
+        except requests.RequestException as exc:
+            raise RuntimeError(f"Ollama API 연결 실패 ({base_url}): {exc}") from exc
         parsed = _json_from_response(response.json().get("response", ""))
         concepts = parsed.get("concepts") if isinstance(parsed, dict) else []
         return [self._normalize_candidate(item) for item in concepts if isinstance(item, dict)][:3]

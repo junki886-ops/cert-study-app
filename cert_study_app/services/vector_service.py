@@ -110,10 +110,28 @@ class QuestionVectorStore:
         return len(ids)
 
     def search(self, query: str, k: int = 5, source: Optional[str] = None) -> list[VectorSearchResult]:
-        kwargs = {"query_texts": [query], "n_results": k}
+        try:
+            collection = self._get_collection()
+        except Exception:
+            return []
+
+        try:
+            count = collection.count()
+        except Exception:
+            count = 0
+
+        if count == 0:
+            return []
+
+        kwargs = {"query_texts": [query], "n_results": min(k, count)}
         if source:
             kwargs["where"] = {"source": source}
-        result = self._get_collection().query(**kwargs)
+
+        try:
+            result = collection.query(**kwargs)
+        except Exception:
+            return []
+
         ids = result.get("ids", [[]])[0]
         documents = result.get("documents", [[]])[0]
         distances = result.get("distances", [[]])[0] if result.get("distances") else []

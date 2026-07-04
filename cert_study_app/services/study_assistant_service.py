@@ -6,6 +6,7 @@ import time
 
 from cert_study_app.chains.study_assistant_chain import build_ollama_llm, build_study_assistant_chain
 from cert_study_app.models import Question
+from cert_study_app.services.official_docs_service import LEGACY_AZURE_DOCS_COLLECTION, OFFICIAL_DOCS_COLLECTION
 from cert_study_app.services.vector_service import QuestionVectorStore
 
 
@@ -45,7 +46,11 @@ class StudyAssistantService:
         self.db = db
         self.vector_store = vector_store or QuestionVectorStore()
         self.docs_vector_store = QuestionVectorStore(
-            collection_name="azure_docs",
+            collection_name=OFFICIAL_DOCS_COLLECTION,
+            embedding_model=self.vector_store.embedding_model,
+        )
+        self.legacy_docs_vector_store = QuestionVectorStore(
+            collection_name=LEGACY_AZURE_DOCS_COLLECTION,
             embedding_model=self.vector_store.embedding_model,
         )
 
@@ -84,7 +89,7 @@ class StudyAssistantService:
             if now - cached_at <= ANSWER_CACHE_TTL_SECONDS:
                 return {**cached, "cached": True}
 
-        doc_results = self.docs_vector_store.search(question, k=min(3, max(1, k)))
+        doc_results = self._search_docs(question, k=min(3, max(1, k)))
         question_results = self.vector_store.search(question, k=k, source=source)
         results = [*doc_results, *question_results]
         chain = cached_study_chain(model, base_url, 0.2, 320)
@@ -129,7 +134,7 @@ class StudyAssistantService:
             if now - cached_at <= ANSWER_CACHE_TTL_SECONDS:
                 return {**cached, "cached": True, "stream": None}
 
-        doc_results = self.docs_vector_store.search(question, k=min(3, max(1, k)))
+        doc_results = self._search_docs(question, k=min(3, max(1, k)))
         question_results = self.vector_store.search(question, k=k, source=source)
         results = [*doc_results, *question_results]
         chain = cached_study_chain(model, base_url, 0.2, 320)
@@ -145,18 +150,24 @@ class StudyAssistantService:
 
         def stream_chunks():
             chunks = []
-            for chunk in chain.stream(
-                {
-                    "question": question,
-                    "results": results,
-                    "max_context_chars": max_context_chars,
-                }
-            ):
-                text = str(chunk or "")
-                if not text:
-                    continue
-                chunks.append(text)
-                yield text
+            try:
+                for chunk in chain.stream(
+                    {
+                        "question": question,
+                        "results": results,
+                        "max_context_chars": max_context_chars,
+                    }
+                ):
+                    text = str(chunk or "")
+                    if not text:
+                        continue
+                    chunks.append(text)
+                    yield text
+            except Exception as exc:
+                error_msg = f"\n\n*(Ollama 응답 오류: {exc})*"
+                chunks.append(error_msg)
+                yield error_msg
+                return
             if use_cache:
                 _ANSWER_CACHE[key] = (
                     time.time(),
@@ -168,3 +179,9 @@ class StudyAssistantService:
                 )
 
         return {"stream": stream_chunks(), "sources": sources, "cached": False}
+
+    def _search_docs(self, question: str, k: int):
+        official_results = self.docs_vector_store.search(question, k=k)
+        if official_results:
+            return official_results
+        return self.legacy_docs_vector_store.search(question, k=k)

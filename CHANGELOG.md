@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-07-04
+
+- Fixed AI quiz assistant crashing the page when ChromaDB collection is empty (added `min(k, count)` guard).
+- Fixed Ollama streaming errors propagating to the page; errors now show as inline messages instead of breaking the UI.
+- Added error handling to `StudyAssistantService` initialization and `ask_stream` in `render_quiz_assistant`.
+- Wrapped `requests.post` in `concept_note_service` and `visual_question_service` with `RuntimeError` for clearer messages.
+- Home Smart CTA now routes directly to `이론 학습` or `확인 퀴즈` without the intermediate landing page.
+- Added a 3-step progress indicator (①개념 → ②실습 → ③복습) below the home Hero card.
+- Replaced small `→` buttons on mode cards with full-width clickable buttons for easier mobile use.
+- Theory card completion now shows a direct "확인 퀴즈 바로 풀기 →" button instead of a dead-end success message.
+- Added inline "다음 퀴즈 →" button after quiz answer explanation so users don't have to scroll down.
+- Added inline "다음 실습 →" button after practice grading; shows a completion message on the last task.
+
 ## 2026-06-21
 
 - Expanded the app from quiz-only flow into Cert Study Lab study flows.

@@ -80,8 +80,11 @@ OCR text:
             "num_predict": 1400,
         },
     }
-    response = requests.post(f"{base_url.rstrip('/')}/api/generate", json=payload, timeout=180)
-    response.raise_for_status()
+    try:
+        response = requests.post(f"{base_url.rstrip('/')}/api/generate", json=payload, timeout=180)
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Ollama 이미지 분석 API 연결 실패 ({base_url}): {exc}") from exc
     body = response.json()
     parsed = _json_from_response(body.get("response", ""))
     parsed.setdefault("model", model)
